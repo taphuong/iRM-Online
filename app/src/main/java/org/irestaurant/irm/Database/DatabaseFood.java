@@ -58,9 +58,19 @@ public class DatabaseFood extends SQLiteOpenHelper {
         return ListFood;
     }
 
-//    Xóa dữ liệu
-    public int deleteTable (int number){
+//    Cập nhật dữ liệu
+    public int updateFood (Food food){
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("number","number = ?",new String[]{String.valueOf(number)});
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("foodname", food.getFoondname());
+        contentValues.put("foodprice", food.getFoodprice());
+        int number = db.update("food",contentValues,"id =?",new String[]{String.valueOf(food.getId())});
+        return number;
+    }
+
+//    Xóa dữ liệu
+    public int deleteTable (int id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("number","id = ?",new String[]{String.valueOf(id)});
     }
 }
