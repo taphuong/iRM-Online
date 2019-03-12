@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#f9984a</color>
+    <color name="colorPrimaryDark">#f9984a</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="mau_cam">#f9984a</color>
+    <color name="mau_trang">#fff</color>
+    <color name="mau_do">#ff4000</color>
+    <color name="mau_xam">#b5b5b5</color>
+    <color name="mau_den">#000000</color>
+    <color name="facebook">#3b5998</color>
+    <color name="mau_xanhdatroi">#4D02aeff</color>
+    <color name="mau_xanhlacay">#a3ffa3</color>
+    <color name="mau_trang_30">#4Dffffff</color>
+    <color name="mau_xanhbien">#008abe</color>
+</resources>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    tools:context=".LoginActivity">
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pgb_loading"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        android:indeterminate="true"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/dn"
+        android:gravity="center"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/im_profile"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/qlqa"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/dn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:orientation="vertical">
+
+        <EditText
+            android:background="@drawable/rounded"
+            android:id="@+id/edt_phone"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Số điện thoại"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:inputType="number"/>
+        <EditText
+            android:layout_below="@+id/edt_phone"
+            android:layout_marginTop="10dp"
+            android:id="@+id/edt_password"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/rounded"
+            android:hint="Mật khẩu"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:inputType="numberPassword"/>
+
+        <LinearLayout
+            android:id="@+id/layout_btn"
+            android:layout_below="@+id/edt_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_weight="10">
+            <Button
+                android:layout_weight="2"
+                android:id="@+id/btn_login"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:background="@drawable/rounded_primary"
+                android:textColor="@color/mau_trang"
+                android:text="Đăng nhập"
+                android:textAllCaps="false"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:visibility="visible"
+                android:layout_alignParentRight="true"
+                android:clickable="true"
+                android:layout_marginLeft="10dp"
+                android:id="@+id/iv_fringer"
+                android:layout_width="60dp"
+                android:layout_height="50dp"
+                android:src="@mipmap/ic_fingerprint"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+    <TextView
+
+        android:layout_below="@+id/dn"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/tv_forgot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quên mật khẩu"
+        android:gravity="center"
+        android:textColor="@color/mau_trang"
+        android:textSize="18dp"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:onClick="tv_register"
+        android:id="@+id/tv_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng ký tài khoản"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@color/mau_trang"
+        android:textSize="18dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"/>
+
+</RelativeLayout>
