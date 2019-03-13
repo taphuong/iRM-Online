@@ -2,11 +2,11 @@
 <!--  res/drawable/rounded_edittext.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle" android:padding="10dp">
-    <solid android:color="@color/mau_do"/>
+    <solid android:color="@color/colorPrimary"/>
     <size
-        android:width="60dp"
-        android:height="60dp" />
+        android:width="40dp"
+        android:height="40dp" />
     <corners
-        android:radius="30dp"
+        android:radius="5dp"
         />
 </shape>

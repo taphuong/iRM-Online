@@ -1,9 +1,13 @@
 package org.irestaurant.irm;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.button.MaterialButton;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -15,8 +19,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.TextView;
 
+import org.irestaurant.irm.Database.DatabaseTable;
+import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.SessionManager;
 
 import java.util.HashMap;
@@ -27,6 +36,8 @@ public class MainActivity extends AppCompatActivity
     SessionManager sessionManager;
     String getName, getResName;
     TextView tvResName, tvName;
+    GridView gvNumber;
+    FloatingActionButton fabAdd;
 
     private void AnhXa(){
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -34,6 +45,8 @@ public class MainActivity extends AppCompatActivity
         View hView =  navigationView.getHeaderView(0);
         tvName  = hView.findViewById(R.id.tv_name);
         tvResName = hView.findViewById(R.id.tv_resname);
+        gvNumber    = findViewById(R.id.gv_number);
+        fabAdd      = findViewById(R.id.fab_add);
     }
 
     @Override
@@ -53,14 +66,6 @@ public class MainActivity extends AppCompatActivity
         tvName.setText(getName);
         tvResName.setText(getResName);
         setTitle(getResName);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -71,7 +76,37 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.setContentView(R.layout.dialog_addnumber);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.setCanceledOnTouchOutside(false);
+                MaterialButton btnMinus = (MaterialButton) dialog.findViewById(R.id.btn_minus);
+                MaterialButton btnAdd = (MaterialButton) dialog.findViewById(R.id.btn_add);
+                Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
+                MaterialButton btnConfirm = (MaterialButton) dialog.findViewById(R.id.btn_confirm);
+                EditText edtNumber = (EditText) dialog.findViewById(R.id.edt_number);
+                dialog.show();
+                btnClose.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
 
+
+    }
+
+    private Number addNumber (Integer s){
+//        DatabaseTable db = new DatabaseTable(getApplicationContext());
+        String sNumber = String.valueOf(s+1);
+        Number number = new Number(sNumber);
+
+        return number;
     }
 
     @Override
@@ -84,12 +119,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

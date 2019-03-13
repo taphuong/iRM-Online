@@ -72,22 +72,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public boolean updateuser (User user){
-        boolean result =true;
-        try {
-            SQLiteDatabase db = getWritableDatabase();
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("name",user.getName());
-            contentValues.put("phone",user.getPhone());
-            contentValues.put("password",user.getPassword());
-
-            long ins = db.update("user",contentValues,"id = ?", new String[]{String.valueOf(user.getId())});
-            result = ins>0;
-        }catch (Exception e){
-            result = false;
-        }
-        return result;
-    }
 
     public int updateUser (User user){
         SQLiteDatabase db = getWritableDatabase();
