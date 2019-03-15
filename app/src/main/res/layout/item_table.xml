@@ -2,12 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:gravity="center">
     <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_marginTop="8dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_centerInParent="true"
-        android:src="@drawable/rounded_food"/>
+        android:src="@drawable/rounded_food"
+        android:id="@+id/iv_status"/>
     <RelativeLayout
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
@@ -18,7 +20,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/tv_number"
             android:text="20"
-            android:textSize="45sp"
+            android:textSize="40sp"
             android:textStyle="bold"
             android:textColor="@color/mau_den"/>
         <TextView
@@ -28,7 +30,7 @@
             android:id="@+id/tv_total"
             android:textStyle="bold"
             android:text="350,000"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:layout_below="@id/tv_number"
             android:textColor="@color/mau_den"/>
     </RelativeLayout>

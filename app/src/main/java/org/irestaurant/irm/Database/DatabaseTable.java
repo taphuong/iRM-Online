@@ -2,8 +2,12 @@ package org.irestaurant.irm.Database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseTable extends SQLiteOpenHelper {
 
@@ -12,7 +16,7 @@ public class DatabaseTable extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("Create table number(id integer primary key autoincrement, number text)");
+        db.execSQL("Create table number(id integer primary key autoincrement, number text, status text)");
     }
 
     @Override
@@ -26,6 +30,7 @@ public class DatabaseTable extends SQLiteOpenHelper {
             SQLiteDatabase db = getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             contentValues.put("number",number.getNumber());
+            contentValues.put("status",number.getStatus());
             long ins = db.insert("number",null,contentValues);
             result = ins>0;
         }catch (Exception e){
@@ -33,12 +38,28 @@ public class DatabaseTable extends SQLiteOpenHelper {
         }
         return result;
     }
-    public void addTable(Number number){
+
+    //    Lấy dữ liêu
+    public List<Number> getallTable(){
+        List<Number> ListNumber = new ArrayList<>();
+        String selectQuery = "SELECT * FROM number" ;
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("number", number.getNumber());
-        //Neu de null thi khi value bang null thi loi
-        db.insert("number",null,values);
+        Cursor cursor = db.rawQuery(selectQuery,null);
+        if (cursor.moveToFirst()){
+            do {
+                Number number = new Number();
+                number.setId(cursor.getInt(0));
+                number.setNumber(cursor.getString(1));
+                ListNumber.add(number);
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
         db.close();
+        return ListNumber;
+    }
+
+    public int deleteTable (int number){
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("number","number = ?",new String[]{String.valueOf(number)});
     }
 }

@@ -17,5 +17,5 @@
     <string name="update_success">Cập nhật thành công</string>
     <string name="toast_error">Đã xảy ra lỗi. Vui lòng thử lại!</string>
     <string name="change_pass">Đổi mật khẩu</string>
-    <string name="change_res">Đổi thông tin nhà hàng</string>
+    <string name="change_res">Đổi thông tin cửa hàng</string>
 </resources>

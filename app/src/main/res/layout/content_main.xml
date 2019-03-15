@@ -10,16 +10,13 @@
     <GridView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/gv_number"></GridView>
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:horizontalSpacing="4dp"
+        android:id="@+id/gv_number"
+        android:columnWidth="100dp"
+        android:numColumns="auto_fit"
+        android:gravity="center"></GridView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@mipmap/ic_add"
-        android:src="@mipmap/ic_addnobd"/>
 
 </RelativeLayout>

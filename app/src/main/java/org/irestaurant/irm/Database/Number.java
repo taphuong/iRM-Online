@@ -2,10 +2,15 @@ package org.irestaurant.irm.Database;
 
 public class Number {
     private int id;
-    private String number;
+    private String number, status;
 
-    public Number(String number) {
+    public Number(String number, String status) {
         this.number = number;
+        this.status = status;
+    }
+
+    public Number() {
+
     }
 
     public int getId() {
@@ -23,4 +28,8 @@ public class Number {
     public void setNumber(String number) {
         this.number = number;
     }
+
+    public String getStatus() { return status; }
+
+    public void setStatus(String status) { this.status = status; }
 }

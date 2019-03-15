@@ -95,7 +95,7 @@
                 android:id="@+id/edt_resname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tên nhà hàng" />
+                android:hint="Tên cửa hàng" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -108,7 +108,7 @@
                 android:id="@+id/edt_resphone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Số điện thoại nhà hàng"
+                android:hint="Số điện thoại cửa hàng"
                 android:inputType="number"/>
         </android.support.design.widget.TextInputLayout>
         <Button
@@ -130,7 +130,7 @@
                 android:id="@+id/edt_resaddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Địa chỉ nhà hàng" />
+                android:hint="Địa chỉ cửa hàng" />
         </android.support.design.widget.TextInputLayout>
     </RelativeLayout>
     <Button
