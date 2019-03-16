@@ -72,6 +72,11 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         AnhXa();
         setGvNumber();
+        if (numberList.size()<1){
+            btnRemoveTable.setVisibility(View.INVISIBLE);
+        }else {
+            btnRemoveTable.setVisibility(View.INVISIBLE);
+        }
 
         sessionManager = new SessionManager(this);
         sessionManager.checkLoggin();
@@ -204,6 +209,9 @@ public class MainActivity extends AppCompatActivity
                                         nbsize--;
                                     }
                                     setGvNumber();
+                                    if (amount==nbsize){
+                                        btnRemoveTable.setVisibility(View.INVISIBLE);
+                                    }
                                     Toast.makeText(MainActivity.this, "Đã xóa " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
                                     dialog.dismiss();
                                     progressDialog.dismiss();
@@ -310,6 +318,7 @@ public class MainActivity extends AppCompatActivity
                                 RegistNumber(size + 1);
                                 size++;
                             }
+                            btnRemoveTable.setVisibility(View.VISIBLE);
                             setGvNumber();
                             Toast.makeText(MainActivity.this, "Đã thêm " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
                             dialog.dismiss();
