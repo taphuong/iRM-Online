@@ -427,6 +427,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this,AccountActivity.class));
         } else if (id == R.id.nav_revenue) {
 
+        } else if (id == R.id.nav_menu) {
+            startActivity(new Intent(this,MenuActivity.class));
         } else if (id == R.id.nav_recent) {
 
         } else if (id == R.id.nav_settings) {
