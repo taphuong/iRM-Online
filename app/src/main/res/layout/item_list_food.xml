@@ -1,18 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="8dp"
-    android:paddingRight="8dp"
-    android:paddingLeft="8dp"
-    android:gravity="center">
+    android:gravity="center"
+    android:id="@+id/layout_main">
+    <RelativeLayout
+        android:id="@+id/layout_button"
+        android:layout_marginRight="8dp"
+        android:layout_alignParentRight="true"
+        android:paddingLeft="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_edit"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@mipmap/ic_edit"/>
+        <Button
+            android:layout_marginLeft="4dp"
+            android:layout_toEndOf="@id/btn_edit"
+            android:id="@+id/btn_delete"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@mipmap/ic_delete"/>
+    </RelativeLayout>
     <RelativeLayout
         android:id="@+id/layout_item"
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:background="@drawable/rounded_menu"
         android:paddingRight="8dp"
-        android:paddingLeft="8dp">
+        android:paddingLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp">
 
         <TextView
             android:gravity="center_vertical|left"
@@ -38,7 +59,5 @@
             android:textColor="@color/mau_den"
             android:textSize="22sp"/>
     </RelativeLayout>
-
-
 
 </RelativeLayout>

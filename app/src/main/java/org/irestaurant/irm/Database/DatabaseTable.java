@@ -50,6 +50,7 @@ public class DatabaseTable extends SQLiteOpenHelper {
                 Number number = new Number();
                 number.setId(cursor.getInt(0));
                 number.setNumber(cursor.getString(1));
+                number.setStatus(cursor.getString(2));
                 ListNumber.add(number);
             }while (cursor.moveToNext());
         }

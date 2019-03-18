@@ -46,6 +46,7 @@ public class NumberAdapter extends ArrayAdapter {
         viewHolder.tvTotal.setText("");
         if (number.getStatus().equals("free")){
             viewHolder.ivStatus.setBackgroundResource(R.drawable.rounded_food);
+            viewHolder.tvTotal.setText("trống");
         } else if (number.getStatus().equals("busy")){
             viewHolder.ivStatus.setBackgroundResource(R.drawable.rounded_busy);
         }

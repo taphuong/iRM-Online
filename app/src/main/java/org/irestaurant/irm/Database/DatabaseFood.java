@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class DatabaseFood extends SQLiteOpenHelper {
 //    Lấy dữ liêu
     public List<Food> getallFood(){
         List<Food> ListFood = new ArrayList<>();
-        String selectQuery = "SELECT * FROM food" ;
+        String selectQuery = "SELECT * FROM food ORDER BY foodname" ;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery,null);
         if (cursor.moveToFirst()){
@@ -64,13 +65,13 @@ public class DatabaseFood extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put("foodname", food.getFoondname());
         contentValues.put("foodprice", food.getFoodprice());
-        int number = db.update("food",contentValues,"id =?",new String[]{String.valueOf(food.getId())});
+        int number = db.update("food",contentValues,"id = ?",new String[]{String.valueOf(food.getId())});
         return number;
     }
 
 //    Xóa dữ liệu
-    public int deleteTable (int id){
+    public int deleteFood (int id){
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("number","id = ?",new String[]{String.valueOf(id)});
+        return db.delete("food","id = ?",new String[]{String.valueOf(id)});
     }
 }

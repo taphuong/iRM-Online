@@ -4,14 +4,14 @@ public class Number {
     private int id;
     private String number, status;
 
-    public Number(String number, String status) {
-        this.number = number;
-        this.status = status;
-    }
-
-    public Number() {
-
-    }
+//    public Number(String number, String status) {
+//        this.number = number;
+//        this.status = status;
+//    }
+//
+//    public Number() {
+//
+//    }
 
     public int getId() {
         return id;

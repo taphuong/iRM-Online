@@ -72,11 +72,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         AnhXa();
         setGvNumber();
-        if (numberList.size()<1){
-            btnRemoveTable.setVisibility(View.INVISIBLE);
-        }else {
-            btnRemoveTable.setVisibility(View.INVISIBLE);
-        }
+
 
         sessionManager = new SessionManager(this);
         sessionManager.checkLoggin();
@@ -99,240 +95,20 @@ public class MainActivity extends AppCompatActivity
         btnRemoveTable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog dialog = new Dialog(MainActivity.this);
-                dialog.setContentView(R.layout.dialog_addnumber);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.setCanceledOnTouchOutside(false);
-                final Button btnMinus = (Button) dialog.findViewById(R.id.btn_minus);
-                final Button btnAdd = (Button) dialog.findViewById(R.id.btn_add);
-                TextView tvXoa = dialog.findViewById(R.id.themban);
-                tvXoa.setText("Xóa bàn");
-                Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
-                Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
-                btnConfirm.setText("Xóa");
-                final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
-                dialog.show();
-                btnClose.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-                btnAdd.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int size = numberList.size();
-                        btnMinus.setVisibility(View.VISIBLE);
-                        if (edtAmount.getText().toString().equals("")){
-                            edtAmount.setText("1");
-                        } else if (Integer.valueOf(edtAmount.getText().toString())>size){
-                            edtAmount.setText(String.valueOf(size));
-                            btnAdd.setVisibility(View.INVISIBLE);
-                        } else {
-                            edtAmount.setText(String.valueOf(Integer.valueOf(edtAmount.getText().toString())+1));
-                        }
-                    }
-                });
-                btnMinus.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        btnAdd.setVisibility(View.VISIBLE);
-                        String stramount = edtAmount.getText().toString();
-                        if (stramount.isEmpty() || stramount.equals("2")){
-                            edtAmount.setText("1");
-                            btnMinus.setVisibility(View.INVISIBLE);
-                        }  else {
-                            long amount = Integer.valueOf(edtAmount.getText().toString());
-                            edtAmount.setText(String.valueOf(amount-1));
-                        }
-
-                    }
-                });
-                edtAmount.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        String amout = edtAmount.getText().toString();
-                        int size = numberList.size();
-                        if (amout.isEmpty() || amout.equals("1") || amout.equals("0")) {
-                            btnMinus.setVisibility(View.INVISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                        } else if (Integer.valueOf(amout) > size) {
-                            edtAmount.setText(String.valueOf(size));
-                            btnAdd.setVisibility(View.INVISIBLE);
-                            btnMinus.setVisibility(View.VISIBLE);
-                        } else {
-                            btnMinus.setVisibility(View.VISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-                    }
-                });
-                btnConfirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-
-                        if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
-                            edtAmount.setError("Nhập số lượng bàn cần xóa");
-                            edtAmount.requestFocus();
-                        }else {
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setMessage("Bạn có muốn xóa "+ edtAmount.getText().toString()+" bàn không?");
-                            builder.setCancelable(false);
-                            builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                    dialog.dismiss();
-                                }
-                            });
-                            builder.setNegativeButton("Xóa", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                                    progressDialog.setMessage("Đang thêm bàn");
-                                    progressDialog.show();
-                                    int nbsize = numberList.size();
-                                    int amount = Integer.valueOf(edtAmount.getText().toString());
-                                    int a;
-                                    for (a = 0; a < amount; a++) {
-                                        databaseTable.deleteTable(nbsize);
-                                        nbsize--;
-                                    }
-                                    setGvNumber();
-                                    if (amount==nbsize){
-                                        btnRemoveTable.setVisibility(View.INVISIBLE);
-                                    }
-                                    Toast.makeText(MainActivity.this, "Đã xóa " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
-                                    dialog.dismiss();
-                                    progressDialog.dismiss();
-                                    dialogInterface.dismiss();
-                                }
-                            });
-                            AlertDialog alertDialog = builder.create();
-                            alertDialog.show();
-                        }
-                    }
-                });
+                removeTable();
             }
         });
 
         btnAddTable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog dialog = new Dialog(MainActivity.this);
-                dialog.setContentView(R.layout.dialog_addnumber);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.setCanceledOnTouchOutside(false);
-                final Button btnMinus = (Button) dialog.findViewById(R.id.btn_minus);
-                final Button btnAdd = (Button) dialog.findViewById(R.id.btn_add);
-                Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
-                Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
-                final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
-                dialog.show();
-                btnClose.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-                btnAdd.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        btnMinus.setVisibility(View.VISIBLE);
-                        if (edtAmount.getText().toString().equals("")){
-                            edtAmount.setText("1");
-                        } else if (Integer.valueOf(edtAmount.getText().toString())==49){
-                            edtAmount.setText("50");
-                            btnAdd.setVisibility(View.INVISIBLE);
-                        } else {
-                            edtAmount.setText(String.valueOf(Integer.valueOf(edtAmount.getText().toString())+1));
-                        }
-                    }
-                });
-                btnMinus.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        btnAdd.setVisibility(View.VISIBLE);
-                        String stramount = edtAmount.getText().toString();
-                        if (stramount.isEmpty() || stramount.equals("2")){
-                            edtAmount.setText("1");
-                            btnMinus.setVisibility(View.INVISIBLE);
-                        }  else {
-                            long amount = Integer.valueOf(edtAmount.getText().toString());
-                            edtAmount.setText(String.valueOf(amount-1));
-                        }
-
-                    }
-                });
-                edtAmount.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        String amout = edtAmount.getText().toString();
-                        if (amout.isEmpty() || amout.equals("1") || amout.equals("0")) {
-                            btnMinus.setVisibility(View.INVISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                        } else if (Integer.valueOf(amout) > 50) {
-                            edtAmount.setText("50");
-                            btnAdd.setVisibility(View.INVISIBLE);
-                            btnMinus.setVisibility(View.VISIBLE);
-                        } else {
-                            btnMinus.setVisibility(View.VISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-                    }
-                });
-                btnConfirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        int size = numberList.size();
-                        if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
-                            edtAmount.setError("Nhập số lượng bàn cần thêm");
-                            edtAmount.requestFocus();
-                        }else {
-                            final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                            progressDialog.setMessage("Đang thêm bàn");
-                            progressDialog.show();
-                            int amount = Integer.valueOf(edtAmount.getText().toString());
-                            int i;
-                            for (i = 0; i < amount; i++) {
-                                RegistNumber(size + 1);
-                                size++;
-                            }
-                            btnRemoveTable.setVisibility(View.VISIBLE);
-                            setGvNumber();
-                            Toast.makeText(MainActivity.this, "Đã thêm " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
-                            dialog.dismiss();
-                            progressDialog.dismiss();
-                        }
-                    }
-                });
+                addTable();
             }
         });
 
     }
 
     private void setGvNumber() {
-
         if (numberAdapter == null) {
             numberAdapter = new NumberAdapter(MainActivity.this, R.layout.item_table, numberList);
             gvNumber.setAdapter(numberAdapter);
@@ -342,30 +118,20 @@ public class MainActivity extends AppCompatActivity
             numberAdapter.notifyDataSetChanged();
             gvNumber.setSelection(numberAdapter.getCount() - 1);
         }
-
-    }
-
-    public void updateNumberList() {
-        numberList.clear();
-        numberList.addAll(databaseTable.getallTable());
-        if (numberAdapter != null) {
-            numberAdapter.notifyDataSetChanged();
+        if (numberList.size()<1){
+            btnRemoveTable.setVisibility(View.INVISIBLE);
+        }else {
+            btnRemoveTable.setVisibility(View.VISIBLE);
         }
     }
 
-//    private Number addNumber (int s){
-//        String sNumber = String.valueOf(s);
-//        Number number = new Number(sNumber);
-//        return number;
-//
-//    }
+
 
     private void RegistNumber (long s){
         DatabaseTable db = new DatabaseTable(getApplicationContext());
         Number number = new Number();
         number.setNumber(String.valueOf(s));
         number.setStatus("free");
-
         if (db.creat(number)){
             numberList.clear();
             numberList.addAll(databaseTable.getallTable());
@@ -380,6 +146,231 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+    }
+    private void removeTable(){
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.dialog_addnumber);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        final Button btnMinus = (Button) dialog.findViewById(R.id.btn_minus);
+        final Button btnAdd = (Button) dialog.findViewById(R.id.btn_add);
+        TextView tvXoa = dialog.findViewById(R.id.themban);
+        tvXoa.setText("Xóa bàn");
+        Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
+        Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
+        btnConfirm.setText("Xóa");
+        final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
+        dialog.show();
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int size = numberList.size();
+                btnMinus.setVisibility(View.VISIBLE);
+                if (edtAmount.getText().toString().equals("")){
+                    edtAmount.setText("1");
+                } else if (Integer.valueOf(edtAmount.getText().toString())>size){
+                    edtAmount.setText(String.valueOf(size));
+                    btnAdd.setVisibility(View.INVISIBLE);
+                } else {
+                    edtAmount.setText(String.valueOf(Integer.valueOf(edtAmount.getText().toString())+1));
+                }
+            }
+        });
+        btnMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnAdd.setVisibility(View.VISIBLE);
+                String stramount = edtAmount.getText().toString();
+                if (stramount.isEmpty() || stramount.equals("2")){
+                    edtAmount.setText("1");
+                    btnMinus.setVisibility(View.INVISIBLE);
+                }  else {
+                    long amount = Integer.valueOf(edtAmount.getText().toString());
+                    edtAmount.setText(String.valueOf(amount-1));
+                }
+
+            }
+        });
+        edtAmount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String amout = edtAmount.getText().toString();
+                int size = numberList.size();
+                if (amout.isEmpty() || amout.equals("1") || amout.equals("0")) {
+                    btnMinus.setVisibility(View.INVISIBLE);
+                    btnAdd.setVisibility(View.VISIBLE);
+                } else if (Integer.valueOf(amout) > size) {
+                    edtAmount.setText(String.valueOf(size));
+                    btnAdd.setVisibility(View.INVISIBLE);
+                    btnMinus.setVisibility(View.VISIBLE);
+                } else {
+                    btnMinus.setVisibility(View.VISIBLE);
+                    btnAdd.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
+                    edtAmount.setError("Nhập số lượng bàn cần xóa");
+                    edtAmount.requestFocus();
+                }else {
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage("Bạn có muốn xóa "+ edtAmount.getText().toString()+" bàn không?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Xóa", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+                            progressDialog.setMessage("Đang thêm bàn");
+                            progressDialog.show();
+                            int nbsize = numberList.size();
+                            int amount = Integer.valueOf(edtAmount.getText().toString());
+                            int a;
+                            for (a = 0; a < amount; a++) {
+                                databaseTable.deleteTable(nbsize);
+                                nbsize--;
+                            }
+                            setGvNumber();
+                            if (amount==nbsize){
+                                btnRemoveTable.setVisibility(View.INVISIBLE);
+                            }
+                            Toast.makeText(MainActivity.this, "Đã xóa " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
+                            dialog.dismiss();
+                            progressDialog.dismiss();
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                }
+            }
+        });
+    }
+    private void addTable(){
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.dialog_addnumber);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        final Button btnMinus = (Button) dialog.findViewById(R.id.btn_minus);
+        final Button btnAdd = (Button) dialog.findViewById(R.id.btn_add);
+        Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
+        Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
+        final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
+        dialog.show();
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnMinus.setVisibility(View.VISIBLE);
+                if (edtAmount.getText().toString().equals("")){
+                    edtAmount.setText("1");
+                } else if (Integer.valueOf(edtAmount.getText().toString())==49){
+                    edtAmount.setText("50");
+                    btnAdd.setVisibility(View.INVISIBLE);
+                } else {
+                    edtAmount.setText(String.valueOf(Integer.valueOf(edtAmount.getText().toString())+1));
+                }
+            }
+        });
+        btnMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnAdd.setVisibility(View.VISIBLE);
+                String stramount = edtAmount.getText().toString();
+                if (stramount.isEmpty() || stramount.equals("2")){
+                    edtAmount.setText("1");
+                    btnMinus.setVisibility(View.INVISIBLE);
+                }  else {
+                    long amount = Integer.valueOf(edtAmount.getText().toString());
+                    edtAmount.setText(String.valueOf(amount-1));
+                }
+
+            }
+        });
+        edtAmount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String amout = edtAmount.getText().toString();
+                if (amout.isEmpty() || amout.equals("1") || amout.equals("0")) {
+                    btnMinus.setVisibility(View.INVISIBLE);
+                    btnAdd.setVisibility(View.VISIBLE);
+                } else if (Integer.valueOf(amout) > 50) {
+                    edtAmount.setText("50");
+                    btnAdd.setVisibility(View.INVISIBLE);
+                    btnMinus.setVisibility(View.VISIBLE);
+                } else {
+                    btnMinus.setVisibility(View.VISIBLE);
+                    btnAdd.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int size = numberList.size();
+                if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
+                    edtAmount.setError("Nhập số lượng bàn cần thêm");
+                    edtAmount.requestFocus();
+                }else {
+                    final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+                    progressDialog.setMessage("Đang thêm bàn");
+                    progressDialog.show();
+                    int amount = Integer.valueOf(edtAmount.getText().toString());
+                    int i;
+                    for (i = 0; i < amount; i++) {
+                        RegistNumber(size + 1);
+                        size++;
+                    }
+                    btnRemoveTable.setVisibility(View.VISIBLE);
+                    setGvNumber();
+                    Toast.makeText(MainActivity.this, "Đã thêm " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
+                    dialog.dismiss();
+                    progressDialog.dismiss();
+                }
+            }
+        });
     }
 
 

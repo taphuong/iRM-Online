@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MenuActivity">
+    tools:context=".MenuActivity"
+    android:background="@drawable/gradient_background">
     <RelativeLayout
         android:id="@+id/menu"
         android:layout_width="match_parent"
@@ -19,11 +20,21 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
         <Button
             android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_centerVertical="true"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/btn_home"
             android:background="@mipmap/ic_home"/>
+        <TextView
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_resname"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@id/btn_home"
+            android:textColor="@color/mau_trang"/>
         <Button
             android:id="@+id/btn_addfood"
             android:layout_width="25dp"
@@ -37,6 +48,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/lv_food"
-        android:layout_below="@id/menu"></ListView>
+        android:layout_below="@id/menu"
+        android:divider="@null">
+    </ListView>
+
 
 </RelativeLayout>
