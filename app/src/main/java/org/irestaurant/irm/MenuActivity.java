@@ -15,13 +15,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.irestaurant.irm.Database.DatabaseFood;
 import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.FoodAdapter;
-
 import org.irestaurant.irm.Database.SessionManager;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;

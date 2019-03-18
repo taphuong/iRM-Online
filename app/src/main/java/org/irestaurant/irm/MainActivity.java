@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -103,6 +104,49 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 addTable();
+            }
+        });
+        gvNumber.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                String status = numberList.get(position).getStatus();
+                if (status.equals("free")){
+                    String idnumber = String.valueOf(numberList.get(position).getId());
+                    String number = numberList.get(position).getNumber();
+                    Intent i = new Intent(MainActivity.this, OrderedActivity.class);
+                    i.putExtra("idnumber", idnumber);
+                    i.putExtra("number", number);
+                    startActivity(i);
+                }else if (status.equals("busy")){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage("Bàn số "+"<font color='red'>"+numberList.get(position).getNumber()+"</font>"+" đang có khách.");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Thêm món", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            String idnumber = String.valueOf(numberList.get(position).getId());
+                            String number = numberList.get(position).getNumber();
+                            Intent e = new Intent(MainActivity.this, OrderedActivity.class);
+                            e.putExtra("idnumber", idnumber);
+                            e.putExtra("number", number);
+                            startActivity(e);
+                        }
+                    });
+                    builder.setNeutralButton("Tính tiền", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                }
             }
         });
 
@@ -227,13 +271,10 @@ public class MainActivity extends AppCompatActivity
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
                     edtAmount.setError("Nhập số lượng bàn cần xóa");
                     edtAmount.requestFocus();
                 }else {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setMessage("Bạn có muốn xóa "+ edtAmount.getText().toString()+" bàn không?");
                     builder.setCancelable(false);
@@ -333,6 +374,7 @@ public class MainActivity extends AppCompatActivity
                     btnAdd.setVisibility(View.VISIBLE);
                 } else if (Integer.valueOf(amout) > 50) {
                     edtAmount.setText("50");
+                    edtAmount.setSelection(edtAmount.getText().length());
                     btnAdd.setVisibility(View.INVISIBLE);
                     btnMinus.setVisibility(View.VISIBLE);
                 } else {
