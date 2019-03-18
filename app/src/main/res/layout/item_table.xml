@@ -8,7 +8,6 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_centerInParent="true"
-        android:src="@drawable/rounded_food"
         android:id="@+id/iv_status"/>
     <RelativeLayout
         android:layout_centerInParent="true"

@@ -63,4 +63,12 @@ public class DatabaseTable extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete("number","number = ?",new String[]{String.valueOf(number)});
     }
+
+    public int updateTable (Number number, String tb){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("status", number.getStatus());
+        int table = db.update("number",contentValues,"number = ?",new String[]{tb});
+        return table;
+    }
 }

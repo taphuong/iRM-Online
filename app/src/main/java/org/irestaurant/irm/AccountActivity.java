@@ -230,7 +230,6 @@ public class AccountActivity extends Activity {
     }
 
     private void updateUser (String name, String phone, String password, String resname, String resphone, String resaddress){
-        User user = new User();
 //        user.setId();
         user.setName(name);
         user.setPhone(phone);

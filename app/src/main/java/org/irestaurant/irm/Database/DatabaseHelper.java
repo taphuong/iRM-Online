@@ -82,7 +82,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(RESNAME, user.getResname());
         contentValues.put(RESPHONE, user.getResphone());
         contentValues.put(RESADDRESS, user.getResaddress());
-        return db.update("user",contentValues,"phone = ?", new String[]{String.valueOf(user.getPhone())});
+        return db.update("user",contentValues,"id = ?", new String[]{String.valueOf(user.getId())});
     }
 
     public User userLogin(String phone, String password){

@@ -22,7 +22,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
         <Button
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginRight="8dp"
             android:layout_centerVertical="true"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -32,26 +32,31 @@
             android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_title"
+            android:id="@+id/tv_number"
             android:textSize="20sp"
             android:layout_toEndOf="@id/btn_home"
             android:textColor="@color/mau_trang"
-            android:text="Bàn số: "/>
+            android:text="4"/>
         <TextView
             android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tv_total"
             android:textSize="20sp"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="16dp"
+            android:layout_toStartOf="@id/tv_date"
+            android:layout_marginRight="8dp"
             android:textColor="@color/mau_trang"
             android:text="0 VND"/>
         <TextView
-            android:visibility="gone"
+            android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_number"/>
+            android:id="@+id/tv_date"
+            android:textSize="16sp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="8dp"
+            android:textColor="@color/mau_trang"
+            android:text="00/00/00"/>
         <TextView
             android:visibility="gone"
             android:layout_width="wrap_content"

@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity
                     startActivity(i);
                 }else if (status.equals("busy")){
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setMessage("Bàn số "+"<font color='red'>"+numberList.get(position).getNumber()+"</font>"+" đang có khách.");
+                    builder.setMessage("Bàn số "+numberList.get(position).getNumber()+" đang có khách.");
                     builder.setCancelable(false);
                     builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
                         @Override

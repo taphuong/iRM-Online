@@ -28,21 +28,28 @@ import org.irestaurant.irm.R;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class FoodOrderedAdapter extends ArrayAdapter {
     private Context context;
     private List<Food> foodList;
+    private List<Ordered>orderedList;
     LayoutInflater inflater;
     private int layout;
     DatabaseFood databaseFood;
+    DatabaseOrdered databaseOrdered;
+    OrderedActivity orderedActivity;
+    DatabaseTable databaseTable;
 
-    public FoodOrderedAdapter(@NonNull Context context, int layout, @NonNull List<Food> foodList) {
+    public FoodOrderedAdapter(@NonNull Context context, int layout, @NonNull List<Food> foodList, OrderedActivity orderedActivity) {
         super(context, layout, foodList);
         this.context = context;
         this.layout = layout;
         this.foodList = foodList;
+        this.orderedActivity = orderedActivity;
     }
 
     @NonNull
@@ -50,6 +57,8 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
         databaseFood = new DatabaseFood(context);
+        databaseOrdered = new DatabaseOrdered(context);
+        databaseTable = new DatabaseTable(context);
 
         if(inflater == null){
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -155,13 +164,32 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                 btnConfirm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        String number = orderedActivity.getNumber;
+                        String foodname = food.getFoondname();
+                        String amount = edtAmount.getText().toString();
+                        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
                         if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
                             edtAmount.setError("Nhập số phần");
                             edtAmount.requestFocus();
                         }else {
+                            if (!(orderedList ==null)){
+                                int kiemtra = 0;
+                                for (int b = 0; b < orderedList.size(); b++) {
+                                    if (orderedList.get(b).getNumber().equals(number) && orderedList.get(b).getFoodname().equals(foodname) && orderedList.get(b).getStatus().equals("notyet")){
+                                       kiemtra = 1;
+                                       String newamount = String.valueOf(amount + Integer.valueOf(edtAmount.getText().toString()));
 
-                            Toast.makeText(context, "Đã chọn " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " phần "+ food.getFoondname(), Toast.LENGTH_LONG).show();
-                            dialog.dismiss();
+                                        updateOrdered(number,foodname,newamount, amount, dialog);
+                                    }
+                                }
+                                if (kiemtra == 0){
+                                    addOrdered(number, foodname, amount, dialog);
+                                }
+
+                            }else {
+                                addOrdered(number, foodname, amount, dialog);
+                            }
+
 
                         }
                     }
@@ -170,6 +198,57 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         });
 
         return convertView;
+    }
+
+    private void addOrdered (String number, String foodname, String amout, Dialog dialog){
+        String status = "notyet";
+        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+
+        databaseOrdered = new DatabaseOrdered(context);
+        Ordered ordered = new Ordered();
+        ordered.setNumber(number);
+        ordered.setFoodname(foodname);
+        ordered.setAmount(amout);
+        ordered.setStatus(status);
+        ordered.setDate(date);
+        if (databaseOrdered.creat(ordered)){
+//            orderedList.clear();
+//            orderedList.addAll(databaseOrdered.getallOrdered(number));
+            orderedActivity.setLvOrdered();
+            updateTable("busy", number);
+            Toast.makeText(context, "Đã chọn " + amout + " phần "+ foodname, Toast.LENGTH_LONG).show();
+            dialog.dismiss();
+        }else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.error);
+            builder.setMessage(R.string.cannot_create);
+            builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+        }
+
+    }
+    private void updateOrdered (String number, String foodname, String newamout, String oldamount, Dialog dialog){
+        databaseOrdered = new DatabaseOrdered(context);
+        Ordered ordered = new Ordered();
+        ordered.setId(Integer.parseInt(ordered.getId()+""));
+        ordered.setAmount(newamout);
+        int result = databaseOrdered.updateOrdered(ordered);
+        if (result>0){
+            Toast.makeText(context, "Đã thêm " + oldamount + " phần "+ foodname, Toast.LENGTH_LONG).show();
+            dialog.dismiss();
+            orderedActivity.setLvOrdered();
+        }
+    }
+
+    private void updateTable (String status, String tb){
+        databaseTable = new DatabaseTable(context);
+        Number number = new Number();
+        number.setStatus(status);
+        databaseTable.updateTable(number, tb);
     }
 
 

@@ -43,7 +43,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
     }
 
     //    Lấy dữ liêu
-    public List<Ordered> getallOrdered(){
+    public List<Ordered> getallOrdered(String nb){
         List<Ordered> ListOrdered = new ArrayList<>();
         String selectQuery = "SELECT * FROM ordered" ;
         SQLiteDatabase db = this.getWritableDatabase();
