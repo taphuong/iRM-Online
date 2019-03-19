@@ -18,4 +18,6 @@
     <string name="toast_error">Đã xảy ra lỗi. Vui lòng thử lại!</string>
     <string name="change_pass">Đổi mật khẩu</string>
     <string name="change_res">Đổi thông tin cửa hàng</string>
+    <string name="edit">Thay đổi</string>
+    <string name="delete">Xóa</string>
 </resources>

@@ -37,26 +37,41 @@
             android:layout_toEndOf="@id/btn_home"
             android:textColor="@color/mau_trang"
             android:text="4"/>
-        <TextView
-            android:layout_centerVertical="true"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_total"
-            android:textSize="20sp"
-            android:layout_toStartOf="@id/tv_date"
-            android:layout_marginRight="8dp"
-            android:textColor="@color/mau_trang"
-            android:text="0 VND"/>
-        <TextView
-            android:layout_centerVertical="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/tv_date"
-            android:textSize="16sp"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="8dp"
-            android:textColor="@color/mau_trang"
-            android:text="00/00/00"/>
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp">
+            <TextView
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_date"
+                android:textSize="12sp"
+                android:textColor="@color/mau_trang"
+                android:text="00/00/00"/>
+            <TextView
+                android:layout_toStartOf="@id/vnd"
+                android:layout_below="@id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_total"
+                android:textSize="20sp"
+                android:textColor="@color/mau_den"
+                android:text="0"/>
+            <TextView
+                android:layout_below="@id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:id="@+id/vnd"
+                android:text=" VND"
+                android:textSize="20sp"
+                android:textColor="@color/mau_den"/>
+
+        </RelativeLayout>
+
         <TextView
             android:visibility="gone"
             android:layout_width="wrap_content"
@@ -80,6 +95,8 @@
         android:layout_margin="4dp"
         android:background="@color/mau_xam"/>
     <ListView
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/half"

@@ -15,7 +15,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("Create table ordered(id integer primary key autoincrement, number text, foodname text, amount text, status text, date text)");
+        db.execSQL("Create table ordered(id integer primary key autoincrement, number text, foodname text, amount text, status text, date text, price text, total text)");
     }
 
     @Override
@@ -34,6 +34,8 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
             contentValues.put("amount",ordered.getAmount());
             contentValues.put("status",ordered.getStatus());
             contentValues.put("date",ordered.getDate());
+            contentValues.put("price",ordered.getPrice());
+            contentValues.put("total", ordered.getTotal());
             long ins = db.insert("ordered",null,contentValues);
             result = ins>0;
         }catch (Exception e){
@@ -45,7 +47,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
     //    Lấy dữ liêu
     public List<Ordered> getallOrdered(String nb){
         List<Ordered> ListOrdered = new ArrayList<>();
-        String selectQuery = "SELECT * FROM ordered" ;
+        String selectQuery = "SELECT * FROM ordered WHERE number = '"+nb.trim()+"' AND status = 'notyet' " ;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery,null);
         if (cursor.moveToFirst()){
@@ -57,6 +59,8 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
                 ordered.setAmount(cursor.getString(3));
                 ordered.setStatus(cursor.getString(4));
                 ordered.setDate(cursor.getString(5));
+                ordered.setPrice(cursor.getString(6));
+                ordered.setTotal(cursor.getString(7));
                 ListOrdered.add(ordered);
             }while (cursor.moveToNext());
         }
@@ -66,7 +70,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
     }
 
     //    Cập nhật dữ liệu
-    public int updateOrdered (Ordered ordered){
+    public int updateOrdered (Ordered ordered, int id){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("number", ordered.getNumber());
@@ -74,7 +78,9 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
         contentValues.put("amount", ordered.getAmount());
         contentValues.put("status", ordered.getStatus());
         contentValues.put("date", ordered.getDate());
-        int number = db.update("ordered",contentValues,"id = ?",new String[]{String.valueOf(ordered.getId())});
+        contentValues.put("price", ordered.getPrice());
+        contentValues.put("total", ordered.getTotal());
+        int number = db.update("ordered",contentValues,"id = ?",new String[]{String.valueOf(id)});
         return number;
     }
 

@@ -39,6 +39,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     private List<Ordered>orderedList;
     LayoutInflater inflater;
     private int layout;
+    private long price;
     DatabaseFood databaseFood;
     DatabaseOrdered databaseOrdered;
     OrderedActivity orderedActivity;
@@ -54,7 +55,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
         databaseFood = new DatabaseFood(context);
         databaseOrdered = new DatabaseOrdered(context);
@@ -98,6 +99,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                 TextView tvFood = dialog.findViewById(R.id.themban);
                 tvFood.setText(food.getFoondname());
                 final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
+                price = Integer.valueOf(food.getFoodprice());
                 dialog.show();
                 btnClose.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -111,8 +113,8 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                         btnMinus.setVisibility(View.VISIBLE);
                         if (edtAmount.getText().toString().equals("")){
                             edtAmount.setText("1");
-                        } else if (Integer.valueOf(edtAmount.getText().toString())==9){
-                            edtAmount.setText("10");
+                        } else if (Integer.valueOf(edtAmount.getText().toString())==999){
+                            edtAmount.setText("1000");
                             btnAdd.setVisibility(View.INVISIBLE);
                         } else {
                             edtAmount.setText(String.valueOf(Integer.valueOf(edtAmount.getText().toString())+1));
@@ -146,8 +148,8 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                         if (amout.isEmpty() || amout.equals("1") || amout.equals("0")) {
                             btnMinus.setVisibility(View.INVISIBLE);
                             btnAdd.setVisibility(View.VISIBLE);
-                        } else if (Integer.valueOf(amout) > 10) {
-                            edtAmount.setText("10");
+                        } else if (Integer.valueOf(amout) > 1000) {
+                            edtAmount.setText("1000");
                             edtAmount.setSelection(edtAmount.getText().length());
                             btnAdd.setVisibility(View.INVISIBLE);
                             btnMinus.setVisibility(View.VISIBLE);
@@ -168,29 +170,30 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                         String foodname = food.getFoondname();
                         String amount = edtAmount.getText().toString();
                         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+                        String total = String.valueOf(price*Integer.valueOf(amount));
                         if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
                             edtAmount.setError("Nhập số phần");
                             edtAmount.requestFocus();
                         }else {
-                            if (!(orderedList ==null)){
+                            orderedList = databaseOrdered.getallOrdered(number);
+                            if (orderedList.size()>0){
                                 int kiemtra = 0;
                                 for (int b = 0; b < orderedList.size(); b++) {
                                     if (orderedList.get(b).getNumber().equals(number) && orderedList.get(b).getFoodname().equals(foodname) && orderedList.get(b).getStatus().equals("notyet")){
                                        kiemtra = 1;
-                                       String newamount = String.valueOf(amount + Integer.valueOf(edtAmount.getText().toString()));
-
-                                        updateOrdered(number,foodname,newamount, amount, dialog);
+                                       long newam = Integer.valueOf(amount) + Integer.valueOf(orderedList.get(b).getAmount());
+                                       String newamount = String.valueOf(newam);
+                                       String newtotal = String.valueOf(price*Integer.valueOf(newamount));
+                                       int id = orderedList.get(b).getId();
+                                       updateOrdered(id,number,foodname,newamount, amount, date, newtotal, dialog);
                                     }
                                 }
                                 if (kiemtra == 0){
-                                    addOrdered(number, foodname, amount, dialog);
+                                    addOrdered(number, foodname, amount, String.valueOf(price), total, dialog);
                                 }
-
                             }else {
-                                addOrdered(number, foodname, amount, dialog);
+                                addOrdered(number, foodname, amount, String.valueOf(price), total, dialog);
                             }
-
-
                         }
                     }
                 });
@@ -200,7 +203,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         return convertView;
     }
 
-    private void addOrdered (String number, String foodname, String amout, Dialog dialog){
+    private void addOrdered (String number, String foodname, String amout, String price, String total, Dialog dialog){
         String status = "notyet";
         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
 
@@ -211,9 +214,9 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         ordered.setAmount(amout);
         ordered.setStatus(status);
         ordered.setDate(date);
+        ordered.setPrice(price);
+        ordered.setTotal(total);
         if (databaseOrdered.creat(ordered)){
-//            orderedList.clear();
-//            orderedList.addAll(databaseOrdered.getallOrdered(number));
             orderedActivity.setLvOrdered();
             updateTable("busy", number);
             Toast.makeText(context, "Đã chọn " + amout + " phần "+ foodname, Toast.LENGTH_LONG).show();
@@ -231,12 +234,16 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         }
 
     }
-    private void updateOrdered (String number, String foodname, String newamout, String oldamount, Dialog dialog){
+    private void updateOrdered (int id, String number, String foodname, String newamout, String oldamount, String date, String newtotal, Dialog dialog){
         databaseOrdered = new DatabaseOrdered(context);
         Ordered ordered = new Ordered();
-        ordered.setId(Integer.parseInt(ordered.getId()+""));
+        ordered.setNumber(number);
+        ordered.setFoodname(foodname);
         ordered.setAmount(newamout);
-        int result = databaseOrdered.updateOrdered(ordered);
+        ordered.setStatus("notyet");
+        ordered.setDate(date);
+        ordered.setTotal(newtotal);
+        int result = databaseOrdered.updateOrdered(ordered, id);
         if (result>0){
             Toast.makeText(context, "Đã thêm " + oldamount + " phần "+ foodname, Toast.LENGTH_LONG).show();
             dialog.dismiss();

@@ -11,7 +11,8 @@
     <color name="mau_den">#000000</color>
     <color name="facebook">#3b5998</color>
     <color name="mau_xanhdatroi">#4D02aeff</color>
-    <color name="mau_xanhlacay">#a3ffa3</color>
+    <color name="mau_xanhlacay">#88FD88</color>
     <color name="mau_trang_30">#4Dffffff</color>
-    <color name="mau_xanhbien">#008abe</color>
+    <color name="mau_xanhbien">#1FB8FD</color>
+    <color name="mau_vangdam">#BBBB10</color>
 </resources>

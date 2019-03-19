@@ -30,7 +30,7 @@ public class OredredAdapter extends ArrayAdapter {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView==null){
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_table,parent,false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_ordered,parent,false);
             viewHolder = new ViewHolder();
             viewHolder.tvFoodname = (TextView)convertView.findViewById(R.id.tv_foodname);
             viewHolder.tvAmount = (TextView)convertView.findViewById(R.id.tv_amount);
