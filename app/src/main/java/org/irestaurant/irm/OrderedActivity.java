@@ -1,7 +1,9 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -22,9 +24,11 @@ import android.widget.Toast;
 
 import org.irestaurant.irm.Database.DatabaseFood;
 import org.irestaurant.irm.Database.DatabaseOrdered;
+import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.FoodAdapter;
 import org.irestaurant.irm.Database.FoodOrderedAdapter;
+import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.OredredAdapter;
 
@@ -50,6 +54,7 @@ public class OrderedActivity extends Activity {
 
     DatabaseFood databaseFood;
     DatabaseOrdered databaseOrdered;
+    DatabaseTable databaseTable;
 
     private void Anhxa(){
         lvFood = findViewById(R.id.lv_food);
@@ -70,7 +75,7 @@ public class OrderedActivity extends Activity {
         getIdNumber = intent.getExtras().getString("idnumber");
         getNumber = intent.getExtras().getString("number");
         tvIdNumber.setText(getIdNumber);
-        tvNumber.setText(getNumber);
+        tvNumber.setText("Bàn số: "+getNumber);
         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
         tvDate.setText(date);
 
@@ -111,7 +116,15 @@ public class OrderedActivity extends Activity {
                                 TextView tvFood = dialog.findViewById(R.id.themban);
                                 tvFood.setText(orderedList.get(position).getFoodname());
                                 final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
-                                price = Integer.valueOf(food.getFoodprice());
+                                edtAmount.setText(orderedList.get(position).getAmount());
+                                if (Integer.valueOf(orderedList.get(position).getAmount())>1){
+                                    btnMinus.setVisibility(View.VISIBLE);
+                                }else {btnMinus.setVisibility(View.INVISIBLE);}
+
+                                if (Integer.valueOf(orderedList.get(position).getAmount())>999){
+                                    btnAdd.setVisibility(View.INVISIBLE);
+                                }else {btnAdd.setVisibility(View.VISIBLE);}
+                                price = Integer.valueOf(orderedList.get(position).getPrice());
                                 dialog.show();
                                 btnClose.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -178,39 +191,47 @@ public class OrderedActivity extends Activity {
                                 btnConfirm.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        String number = orderedActivity.getNumber;
-                                        String foodname = food.getFoondname();
-                                        String amount = edtAmount.getText().toString();
-                                        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
-                                        String total = String.valueOf(price*Integer.valueOf(amount));
                                         if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
                                             edtAmount.setError("Nhập số phần");
                                             edtAmount.requestFocus();
                                         }else {
-                                            orderedList = databaseOrdered.getallOrdered(number);
-                                            if (orderedList.size()>0){
-                                                int kiemtra = 0;
-                                                for (int b = 0; b < orderedList.size(); b++) {
-                                                    if (orderedList.get(b).getNumber().equals(number) && orderedList.get(b).getFoodname().equals(foodname) && orderedList.get(b).getStatus().equals("notyet")){
-                                                        kiemtra = 1;
-                                                        long newam = Integer.valueOf(amount) + Integer.valueOf(orderedList.get(b).getAmount());
-                                                        String newamount = String.valueOf(newam);
-                                                        String newtotal = String.valueOf(price*Integer.valueOf(newamount));
-                                                        int id = orderedList.get(b).getId();
-                                                        updateOrdered(id,number,foodname,newamount, amount, date, newtotal, dialog);
-                                                    }
-                                                }
-                                                if (kiemtra == 0){
-                                                    addOrdered(number, foodname, amount, total, dialog);
-                                                }
-                                            }else {
-                                                addOrdered(number, foodname, amount, total, dialog);
-                                            }
+                                            String foodname = orderedList.get(position).getFoodname();
+                                            String newamount = edtAmount.getText().toString();
+                                            String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+                                            String total = String.valueOf(price*Integer.valueOf(newamount));
+                                            updateOrdered(foodname,newamount, date, String.valueOf(price), total, dialog);
+
                                         }
                                     }
                                 });
                                 break;
                             case R.id.popup_delete:
+                                AlertDialog.Builder builder = new AlertDialog.Builder(OrderedActivity.this);
+                                builder.setMessage("Bạn muốn xóa "+orderedList.get(position).getAmount()+" phần "+orderedList.get(position).getFoodname()+" ?");
+                                builder.setCancelable(false);
+                                builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                });
+                                builder.setNegativeButton("Xóa", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        databaseOrdered.deleteOrdered(orderedList.get(position).getId());
+                                        setLvOrdered();
+                                        orderedList = databaseOrdered.getallOrdered(getNumber);
+                                        if (orderedList.size()==0){
+                                            databaseTable = new DatabaseTable(OrderedActivity.this);
+                                            Number number = new Number();
+                                            number.setStatus("free");
+                                            databaseTable.updateTable(number, getNumber);
+                                        }
+                                    }
+                                });
+
+                                AlertDialog alertDialog = builder.create();
+                                alertDialog.show();
 
                                 break;
                         }
@@ -257,6 +278,24 @@ public class OrderedActivity extends Activity {
             DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
             formatter.applyPattern("#,###,###,###");
             tvTotal.setText(formatter.format(tongtien));
+        }
+    }
+
+    private void updateOrdered (String foodname, String newamout, String date, String price, String newtotal, Dialog dialog){
+        databaseOrdered = new DatabaseOrdered(this);
+        Ordered ordered = new Ordered();
+        ordered.setNumber(getNumber);
+        ordered.setFoodname(foodname);
+        ordered.setAmount(newamout);
+        ordered.setStatus("notyet");
+        ordered.setDate(date);
+        ordered.setPrice(price);
+        ordered.setTotal(newtotal);
+        int result = databaseOrdered.updateOrdered(ordered, getIdNumber);
+        if (result>0){
+            Toast.makeText(OrderedActivity.this, "Đã thay đổi " + newamout + " phần "+ foodname, Toast.LENGTH_LONG).show();
+            dialog.dismiss();
+            setLvOrdered();
         }
     }
 

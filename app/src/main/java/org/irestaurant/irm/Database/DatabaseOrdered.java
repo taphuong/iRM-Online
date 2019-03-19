@@ -70,7 +70,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
     }
 
     //    Cập nhật dữ liệu
-    public int updateOrdered (Ordered ordered, int id){
+    public int updateOrdered (Ordered ordered, String id){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("number", ordered.getNumber());
@@ -80,7 +80,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
         contentValues.put("date", ordered.getDate());
         contentValues.put("price", ordered.getPrice());
         contentValues.put("total", ordered.getTotal());
-        int number = db.update("ordered",contentValues,"id = ?",new String[]{String.valueOf(id)});
+        int number = db.update("ordered",contentValues,"id = ?",new String[]{id});
         return number;
     }
 

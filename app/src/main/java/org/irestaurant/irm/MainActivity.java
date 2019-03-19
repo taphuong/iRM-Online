@@ -141,7 +141,12 @@ public class MainActivity extends AppCompatActivity
                     builder.setNeutralButton("Tính tiền", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
+                            String idnumber = String.valueOf(numberList.get(position).getId());
+                            String number = numberList.get(position).getNumber();
+                            Intent i = new Intent(MainActivity.this, PayActivity.class);
+                            i.putExtra("idnumber", idnumber);
+                            i.putExtra("number", number);
+                            startActivity(i);
                         }
                     });
                     AlertDialog alertDialog = builder.create();

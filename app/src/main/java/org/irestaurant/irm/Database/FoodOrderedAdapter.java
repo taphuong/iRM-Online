@@ -185,7 +185,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                                        String newamount = String.valueOf(newam);
                                        String newtotal = String.valueOf(price*Integer.valueOf(newamount));
                                        int id = orderedList.get(b).getId();
-                                       updateOrdered(id,number,foodname,newamount, amount, date, newtotal, dialog);
+                                       updateOrdered(String.valueOf(id),number,foodname,newamount, amount, String.valueOf(price), date, newtotal, dialog);
                                     }
                                 }
                                 if (kiemtra == 0){
@@ -234,7 +234,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         }
 
     }
-    private void updateOrdered (int id, String number, String foodname, String newamout, String oldamount, String date, String newtotal, Dialog dialog){
+    private void updateOrdered (String id, String number, String foodname, String newamout, String oldamount, String price, String date, String newtotal, Dialog dialog){
         databaseOrdered = new DatabaseOrdered(context);
         Ordered ordered = new Ordered();
         ordered.setNumber(number);
@@ -242,6 +242,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         ordered.setAmount(newamout);
         ordered.setStatus("notyet");
         ordered.setDate(date);
+        ordered.setPrice(price);
         ordered.setTotal(newtotal);
         int result = databaseOrdered.updateOrdered(ordered, id);
         if (result>0){
