@@ -199,7 +199,6 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                 });
             }
         });
-
         return convertView;
     }
 

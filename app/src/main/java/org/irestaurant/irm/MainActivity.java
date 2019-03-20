@@ -464,7 +464,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_account) {
             startActivity(new Intent(this,AccountActivity.class));
         } else if (id == R.id.nav_revenue) {
-
+            startActivity(new Intent(this,RevenueActivity.class));
         } else if (id == R.id.nav_menu) {
             startActivity(new Intent(this,MenuActivity.class));
         } else if (id == R.id.nav_recent) {

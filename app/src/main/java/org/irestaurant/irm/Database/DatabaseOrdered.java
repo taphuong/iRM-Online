@@ -89,4 +89,19 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete("ordered","id = ?",new String[]{String.valueOf(id)});
     }
+
+    //    Cập nhật dữ liệu
+    public int updateOrderedPaid (Ordered ordered, String tb){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("number", ordered.getNumber());
+        contentValues.put("foodname", ordered.getFoodname());
+        contentValues.put("amount", ordered.getAmount());
+        contentValues.put("status", ordered.getStatus());
+        contentValues.put("date", ordered.getDate());
+        contentValues.put("price", ordered.getPrice());
+        contentValues.put("total", ordered.getTotal());
+        int number = db.update("ordered",contentValues,"number = ?",new String[]{tb});
+        return number;
+    }
 }

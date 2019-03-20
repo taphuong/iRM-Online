@@ -1,6 +1,8 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,16 +12,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.irestaurant.irm.Database.DatabaseOrdered;
+import org.irestaurant.irm.Database.DatabaseRevenue;
+import org.irestaurant.irm.Database.DatabaseTable;
+import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.OredredAdapter;
 import org.irestaurant.irm.Database.PayAdapter;
+import org.irestaurant.irm.Database.Revenue;
 import org.irestaurant.irm.R;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,12 +38,15 @@ public class PayActivity extends Activity {
     EditText edtDiscount;
     ListView lvOrdered;
     Button btnPay, btnCancel;
-    String getIdNumber, getNumber;
+    String getIdNumber, getNumber, total, totalall, discount;
+    Switch swPrint;
     long tongtien, after;
 
     List<Ordered> payList;
     PayAdapter payAdapter;
     DatabaseOrdered databaseOrdered;
+    DatabaseRevenue databaseRevenue;
+    DatabaseTable databaseTable;
 
     private void Anhxa (){
         tvTotal     = findViewById(R.id.tv_tong);
@@ -43,6 +56,7 @@ public class PayActivity extends Activity {
         lvOrdered   = findViewById(R.id.lv_ordered);
         btnCancel   = findViewById(R.id.btn_cancel);
         btnPay      = findViewById(R.id.btn_pay);
+        swPrint     = findViewById(R.id.sw_print);
     }
 
     @Override
@@ -84,8 +98,9 @@ public class PayActivity extends Activity {
                         after = 0;
                     }else {
                         after = tongtien-(tongtien*discount/100);
-                        DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
-                        tvTotalAll.setText(decimalFormat.format(after));
+                        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                        formatter.applyPattern("#,###,###,###");
+                        tvTotalAll.setText(formatter.format(after));
                     }
                 } else {
                     tvTotalAll.setText(tvTotal.getText());
@@ -103,6 +118,47 @@ public class PayActivity extends Activity {
 
             }
         });
+
+        btnPay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addPay();
+            }
+        });
+    }
+
+    private void addPay() {
+        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+        String rdate = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+        String time = new SimpleDateFormat("hh:mm", Locale.getDefault()).format(new Date());
+        total = tvTotal.getText().toString().replaceAll("'","");
+        totalall = tvTotalAll.getText().toString().replaceAll("'","");
+        if (edtDiscount.getText().toString().isEmpty()){
+            discount = "0";
+        }else {discount = edtDiscount.getText().toString();}
+        databaseRevenue = new DatabaseRevenue(this);
+        Revenue revenue = new Revenue();
+        revenue.setDate(date);
+        revenue.setRdate(rdate);
+        revenue.setTime(time);
+        revenue.setNumber(getNumber);
+        revenue.setTotal(String.valueOf(tongtien));
+        revenue.setDiscount(discount);
+        revenue.setTotalat(String.valueOf(after));
+        if (databaseRevenue.creat(revenue)){
+            Toast.makeText(PayActivity.this, "Đã thanh toán bàn số "+ getNumber, Toast.LENGTH_LONG).show();
+            updateOrdered();
+        }else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.error);
+            builder.setMessage(R.string.cannot_create);
+            builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+        }
     }
 
     public void setLvPay() {
@@ -130,6 +186,32 @@ public class PayActivity extends Activity {
             formatter.applyPattern("#,###,###,###");
             tvTotal.setText(formatter.format(tongtien));
             tvTotalAll.setText(formatter.format(tongtien));
+        }
+    }
+
+    private void updateTable (String tb){
+        databaseTable = new DatabaseTable(this);
+        Number number = new Number();
+        number.setStatus("free");
+        databaseTable.updateTable(number, tb);
+        startActivity(new Intent(PayActivity.this, MainActivity.class));
+        finish();
+    }
+
+    private void updateOrdered (){
+        databaseOrdered = new DatabaseOrdered(this);
+        Ordered ordered = new Ordered();
+        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+//        ordered.setNumber(getNumber);
+//        ordered.setFoodname(foodname);
+//        ordered.setAmount(newamout);
+        ordered.setStatus("done");
+        ordered.setDate(date);
+//        ordered.setPrice(price);
+//        ordered.setTotal(newtotal);
+        int result = databaseOrdered.updateOrderedPaid(ordered, getNumber);
+        if (result>0){
+            updateTable(getNumber);
         }
     }
 }

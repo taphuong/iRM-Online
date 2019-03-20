@@ -195,11 +195,12 @@ public class OrderedActivity extends Activity {
                                             edtAmount.setError("Nhập số phần");
                                             edtAmount.requestFocus();
                                         }else {
+                                            String id = String.valueOf(orderedList.get(position).getId());
                                             String foodname = orderedList.get(position).getFoodname();
                                             String newamount = edtAmount.getText().toString();
                                             String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
                                             String total = String.valueOf(price*Integer.valueOf(newamount));
-                                            updateOrdered(foodname,newamount, date, String.valueOf(price), total, dialog);
+                                            updateOrdered(id,foodname,newamount, date, String.valueOf(price), total, dialog);
 
                                         }
                                     }
@@ -281,7 +282,7 @@ public class OrderedActivity extends Activity {
         }
     }
 
-    private void updateOrdered (String foodname, String newamout, String date, String price, String newtotal, Dialog dialog){
+    private void updateOrdered (String id, String foodname, String newamout, String date, String price, String newtotal, Dialog dialog){
         databaseOrdered = new DatabaseOrdered(this);
         Ordered ordered = new Ordered();
         ordered.setNumber(getNumber);
@@ -291,7 +292,7 @@ public class OrderedActivity extends Activity {
         ordered.setDate(date);
         ordered.setPrice(price);
         ordered.setTotal(newtotal);
-        int result = databaseOrdered.updateOrdered(ordered, getIdNumber);
+        int result = databaseOrdered.updateOrdered(ordered, id);
         if (result>0){
             Toast.makeText(OrderedActivity.this, "Đã thay đổi " + newamout + " phần "+ foodname, Toast.LENGTH_LONG).show();
             dialog.dismiss();

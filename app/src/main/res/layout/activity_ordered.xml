@@ -21,7 +21,7 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
         <Button
-            android:layout_marginLeft="16dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_centerVertical="true"
             android:layout_width="40dp"
@@ -29,7 +29,16 @@
             android:id="@+id/btn_home"
             android:background="@mipmap/ic_home"/>
         <TextView
-            android:layout_centerVertical="true"
+            android:layout_marginTop="4dp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_date"
+            android:textSize="12sp"
+            android:textColor="@color/mau_trang"
+            android:text="00/00/00"/>
+        <TextView
+            android:layout_below="@id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tv_number"
@@ -37,40 +46,25 @@
             android:layout_toEndOf="@id/btn_home"
             android:textColor="@color/mau_trang"
             android:text="4"/>
-        <RelativeLayout
+        <TextView
+            android:layout_toStartOf="@id/vnd"
+            android:layout_below="@id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_total"
+            android:textSize="20sp"
+            android:textColor="@color/mau_den"
+            android:text="0"/>
+        <TextView
+            android:layout_below="@id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="8dp">
-            <TextView
-                android:layout_alignParentRight="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tv_date"
-                android:textSize="12sp"
-                android:textColor="@color/mau_trang"
-                android:text="00/00/00"/>
-            <TextView
-                android:layout_toStartOf="@id/vnd"
-                android:layout_below="@id/tv_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tv_total"
-                android:textSize="20sp"
-                android:textColor="@color/mau_den"
-                android:text="0"/>
-            <TextView
-                android:layout_below="@id/tv_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:id="@+id/vnd"
-                android:text=" VND"
-                android:textSize="20sp"
-                android:textColor="@color/mau_den"/>
-
-        </RelativeLayout>
+            android:id="@+id/vnd"
+            android:text=" VND"
+            android:textSize="20sp"
+            android:textColor="@color/mau_den"
+            android:layout_marginRight="8dp"/>
 
         <TextView
             android:visibility="gone"
