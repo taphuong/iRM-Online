@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:paddingBottom="2dp">
+    android:layout_width="match_parent" android:layout_height="28dp"
+    android:paddingBottom="2dp"
+    android:gravity="center_vertical">
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:id="@+id/tv_number"
         android:textColor="@color/mau_den"
         android:text="10"
         android:textSize="18sp"
         android:layout_marginRight="8dp"
         android:textStyle="bold"
-        android:background="@color/mau_xanhlacay"/>
+        android:background="@drawable/rounded_number"
+        android:gravity="center"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,13 +36,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tv_discount"
-        android:textColor="@color/mau_den"
+        android:textColor="@color/mau_do"
         android:text="CK 10%"
         android:textSize="18sp"
         android:layout_toStartOf="@id/tv_total"
         android:layout_toEndOf="@id/tv_time"
-        android:layout_marginRight="8dp"
-        android:gravity="right"/>
+        android:layout_marginRight="8dp" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

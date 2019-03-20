@@ -16,12 +16,12 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class RevenueAdapter extends ArrayAdapter {
+public class HistoryAdapter extends ArrayAdapter {
     private Context context;
     private int layout;
     private List<Revenue> revenueList;
 
-    public RevenueAdapter(@NonNull Context context, int layout, @NonNull List<Revenue> revenueList) {
+    public HistoryAdapter(@NonNull Context context, int layout, @NonNull List<Revenue> revenueList) {
         super(context, layout, revenueList);
         this.context = context;
         this.layout = layout;
@@ -33,32 +33,28 @@ public class RevenueAdapter extends ArrayAdapter {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView==null){
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_revenue,parent,false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_history,parent,false);
             viewHolder = new ViewHolder();
-            viewHolder.tvNumber = (TextView)convertView.findViewById(R.id.tv_number);
-            viewHolder.tvDate = (TextView)convertView.findViewById(R.id.tv_date);
             viewHolder.tvTime = (TextView)convertView.findViewById(R.id.tv_time);
-            viewHolder.tvDiscount = (TextView)convertView.findViewById(R.id.tv_discount);
+            viewHolder.tvNumber = (TextView)convertView.findViewById(R.id.tv_number);
             viewHolder.tvTotal = (TextView)convertView.findViewById(R.id.tv_total);
             convertView.setTag(viewHolder);
+
         }else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+
         Revenue revenue = revenueList.get(position);
-        viewHolder.tvNumber.setText(revenue.getNumber());
-        viewHolder.tvDate.setText(revenue.getDate());
         viewHolder.tvTime.setText(revenue.getTime());
-        if (revenue.getDiscount().equals("0")){viewHolder.tvDiscount.setText("");}
-        else {
-            viewHolder.tvDiscount.setText("CK "+revenue.getDiscount()+"%");
-        }
+        viewHolder.tvNumber.setText(revenue.getNumber());
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         formatter.applyPattern("#,###,###,###");
-        viewHolder.tvTotal.setText(formatter.format(Integer.valueOf(revenue.getTotalat().replaceAll(",",""))));
+        viewHolder.tvTotal.setText(formatter.format(Integer.valueOf(revenue.getTotalat())));
+
         return convertView;
     }
 
     private class ViewHolder{
-        private TextView tvNumber, tvDate, tvTime, tvDiscount, tvTotal;
+        private TextView tvTime, tvNumber, tvTotal;
     }
 }

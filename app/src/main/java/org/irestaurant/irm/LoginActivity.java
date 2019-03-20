@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.irestaurant.irm.Database.DatabaseHelper;
@@ -19,11 +20,13 @@ public class LoginActivity extends Activity {
     Button btnLogin;
     DatabaseHelper db;
     SessionManager sessionManager;
+    ImageView ivFringer;
 
     private void Anhxa(){
         edtPhone    = findViewById(R.id.edt_phone);
         edtPassword = findViewById(R.id.edt_password);
         btnLogin    = findViewById(R.id.btn_login);
+        ivFringer   = findViewById(R.id.iv_fringer);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,14 +48,17 @@ public class LoginActivity extends Activity {
                     edtPassword.setError("Thiếu thông tin");
                     edtPassword.requestFocus();
                 }else {
-//                    Boolean login = db.login(phone,password);
-//                    if (login==true){
-//                        Toast.makeText(LoginActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
-//                    }
                     login();
                 }
             }
         });
+        ivFringer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(LoginActivity.this, "Tính năng đang được phát triển", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     public void tv_register(View view){

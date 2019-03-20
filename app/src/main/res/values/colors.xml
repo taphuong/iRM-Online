@@ -6,13 +6,13 @@
     <color name="mau_cam">#f9984a</color>
     <color name="mau_trang">#fff</color>
     <color name="mau_do">#ff4000</color>
-    <color name="mau_do_nhat">#FC9675</color>
+    <color name="mau_do_nhat">#FF6F4B</color>
     <color name="mau_xam">#b5b5b5</color>
     <color name="mau_den">#000000</color>
     <color name="facebook">#3b5998</color>
-    <color name="mau_xanhdatroi">#4D02aeff</color>
+    <color name="mau_xanhdatroi">#00E4FF</color>
     <color name="mau_xanhlacay">#88FD88</color>
     <color name="mau_trang_30">#4Dffffff</color>
     <color name="mau_xanhbien">#1FB8FD</color>
-    <color name="mau_vangdam">#BBBB10</color>
+    <color name="mau_vangdam">#FFFF00</color>
 </resources>

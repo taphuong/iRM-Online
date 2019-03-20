@@ -15,7 +15,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("Create table ordered(id integer primary key autoincrement, number text, foodname text, amount text, status text, date text, price text, total text)");
+        db.execSQL("Create table ordered(id integer primary key autoincrement, number text, foodname text, amount text, status text, date text, time text, price text, total text)");
     }
 
     @Override
@@ -34,6 +34,7 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
             contentValues.put("amount",ordered.getAmount());
             contentValues.put("status",ordered.getStatus());
             contentValues.put("date",ordered.getDate());
+            contentValues.put("time",ordered.getTime());
             contentValues.put("price",ordered.getPrice());
             contentValues.put("total", ordered.getTotal());
             long ins = db.insert("ordered",null,contentValues);
@@ -59,8 +60,9 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
                 ordered.setAmount(cursor.getString(3));
                 ordered.setStatus(cursor.getString(4));
                 ordered.setDate(cursor.getString(5));
-                ordered.setPrice(cursor.getString(6));
-                ordered.setTotal(cursor.getString(7));
+                ordered.setTime(cursor.getString(6));
+                ordered.setPrice(cursor.getString(7));
+                ordered.setTotal(cursor.getString(8));
                 ListOrdered.add(ordered);
             }while (cursor.moveToNext());
         }
@@ -94,14 +96,41 @@ public class DatabaseOrdered extends SQLiteOpenHelper {
     public int updateOrderedPaid (Ordered ordered, String tb){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("number", ordered.getNumber());
-        contentValues.put("foodname", ordered.getFoodname());
-        contentValues.put("amount", ordered.getAmount());
+//        contentValues.put("number", ordered.getNumber());
+//        contentValues.put("foodname", ordered.getFoodname());
+//        contentValues.put("amount", ordered.getAmount());
         contentValues.put("status", ordered.getStatus());
         contentValues.put("date", ordered.getDate());
-        contentValues.put("price", ordered.getPrice());
-        contentValues.put("total", ordered.getTotal());
-        int number = db.update("ordered",contentValues,"number = ?",new String[]{tb});
+        contentValues.put("time", ordered.getTime());
+//        contentValues.put("total", ordered.getTotal());
+        int number = db.update("ordered",contentValues,"number = ? and status = 'notyet'" ,new String[]{tb});
         return number;
     }
+
+    //    Lấy dữ liêu Recent
+    public List<Ordered> getallRecent(String nb, String date, String time){
+        List<Ordered> ListOrdered = new ArrayList<>();
+        String selectQuery = "SELECT * FROM ordered WHERE number = '"+nb.trim()+"' AND status = 'done' AND date = '"+date.trim()+"' AND time = '"+time.trim()+"' " ;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery,null);
+        if (cursor.moveToFirst()){
+            do {
+                Ordered ordered = new Ordered();
+                ordered.setId(cursor.getInt(0));
+                ordered.setNumber(cursor.getString(1));
+                ordered.setFoodname(cursor.getString(2));
+                ordered.setAmount(cursor.getString(3));
+                ordered.setStatus(cursor.getString(4));
+                ordered.setDate(cursor.getString(5));
+                ordered.setTime(cursor.getString(6));
+                ordered.setPrice(cursor.getString(7));
+                ordered.setTotal(cursor.getString(8));
+                ListOrdered.add(ordered);
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return ListOrdered;
+    }
+
 }

@@ -205,6 +205,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     private void addOrdered (String number, String foodname, String amout, String price, String total, Dialog dialog){
         String status = "notyet";
         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
 
         databaseOrdered = new DatabaseOrdered(context);
         Ordered ordered = new Ordered();
@@ -213,6 +214,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         ordered.setAmount(amout);
         ordered.setStatus(status);
         ordered.setDate(date);
+        ordered.setTime(time);
         ordered.setPrice(price);
         ordered.setTotal(total);
         if (databaseOrdered.creat(ordered)){

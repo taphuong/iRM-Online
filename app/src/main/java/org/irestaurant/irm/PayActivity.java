@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,10 +20,8 @@ import org.irestaurant.irm.Database.DatabaseRevenue;
 import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
-import org.irestaurant.irm.Database.OredredAdapter;
 import org.irestaurant.irm.Database.PayAdapter;
 import org.irestaurant.irm.Database.Revenue;
-import org.irestaurant.irm.R;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -41,6 +38,7 @@ public class PayActivity extends Activity {
     String getIdNumber, getNumber, total, totalall, discount;
     Switch swPrint;
     long tongtien, after;
+
 
     List<Ordered> payList;
     PayAdapter payAdapter;
@@ -130,9 +128,9 @@ public class PayActivity extends Activity {
     private void addPay() {
         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
         String rdate = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
-        String time = new SimpleDateFormat("hh:mm", Locale.getDefault()).format(new Date());
-        total = tvTotal.getText().toString().replaceAll("'","");
-        totalall = tvTotalAll.getText().toString().replaceAll("'","");
+        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
+        total = tvTotal.getText().toString().replaceAll(",","");
+        totalall = tvTotalAll.getText().toString().replaceAll(",","");
         if (edtDiscount.getText().toString().isEmpty()){
             discount = "0";
         }else {discount = edtDiscount.getText().toString();}
@@ -142,9 +140,9 @@ public class PayActivity extends Activity {
         revenue.setRdate(rdate);
         revenue.setTime(time);
         revenue.setNumber(getNumber);
-        revenue.setTotal(String.valueOf(tongtien));
+        revenue.setTotal(String.valueOf(total));
         revenue.setDiscount(discount);
-        revenue.setTotalat(String.valueOf(after));
+        revenue.setTotalat(String.valueOf(totalall));
         if (databaseRevenue.creat(revenue)){
             Toast.makeText(PayActivity.this, "Đã thanh toán bàn số "+ getNumber, Toast.LENGTH_LONG).show();
             updateOrdered();
@@ -202,13 +200,15 @@ public class PayActivity extends Activity {
         databaseOrdered = new DatabaseOrdered(this);
         Ordered ordered = new Ordered();
         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
-//        ordered.setNumber(getNumber);
-//        ordered.setFoodname(foodname);
-//        ordered.setAmount(newamout);
+        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
+        ordered.setNumber(getNumber);
+        ordered.setFoodname(ordered.getFoodname());
+        ordered.setAmount(ordered.getAmount());
         ordered.setStatus("done");
         ordered.setDate(date);
-//        ordered.setPrice(price);
-//        ordered.setTotal(newtotal);
+        ordered.setTime(time);
+        ordered.setPrice(ordered.getPrice());
+        ordered.setTotal(ordered.getTotal());
         int result = databaseOrdered.updateOrderedPaid(ordered, getNumber);
         if (result>0){
             updateTable(getNumber);

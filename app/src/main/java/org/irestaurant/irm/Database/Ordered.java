@@ -2,7 +2,7 @@ package org.irestaurant.irm.Database;
 
 public class Ordered {
     private int id;
-    private String number, foodname, amount, status, date, price, total;
+    private String number, foodname, amount, status, date, time, price, total;
 
     public Ordered(String number, String foodname, String amount, String status, String date, String price, String total) {
         this.number = number;
@@ -65,6 +65,10 @@ public class Ordered {
     public void setDate(String date) {
         this.date = date;
     }
+
+    public String getTime() { return time; }
+
+    public void setTime(String time) { this.time = time; }
 
     public String getPrice() { return price; }
 

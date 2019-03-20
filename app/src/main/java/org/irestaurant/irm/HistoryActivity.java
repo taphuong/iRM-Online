@@ -2,18 +2,19 @@ package org.irestaurant.irm;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import org.irestaurant.irm.Database.DatabaseRevenue;
+import org.irestaurant.irm.Database.HistoryAdapter;
 import org.irestaurant.irm.Database.Revenue;
 import org.irestaurant.irm.Database.RevenueAdapter;
 
@@ -25,25 +26,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class RevenueActivity extends Activity {
-
+public class HistoryActivity extends Activity {
     Button btnHome;
     EditText edtStart,edtEnd;
-    TextView tvTotalAll;
-    ListView lvRevenue;
+    GridView gvHistory;
     String dateStart, dateEnd, rdateS, rdateE;
-    long tongtien;
 
     DatabaseRevenue databaseRevenue;
-    List<Revenue> revenueList;
-    RevenueAdapter revenueAdapter;
+    List<Revenue> hitoryList;
+    HistoryAdapter historyAdapter;
 
     private void Anhxa(){
         btnHome = findViewById(R.id.btn_home);
         edtStart= findViewById(R.id.edt_start);
         edtEnd  = findViewById(R.id.edt_end);
-        tvTotalAll = findViewById(R.id.tv_totalall);
-        lvRevenue = findViewById(R.id.lv_revenue);
+        gvHistory = findViewById(R.id.gv_history);
         dateStart = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
         dateEnd = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
         rdateS = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
@@ -52,17 +49,17 @@ public class RevenueActivity extends Activity {
         edtEnd.setText(dateEnd);
         edtStart.setFocusable(false);
         edtEnd.setFocusable(false);
-
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_revenue);
+        setContentView(R.layout.activity_history);
         Anhxa();
+
         databaseRevenue = new DatabaseRevenue(this);
-        revenueList = databaseRevenue.getallRevenue(rdateS,rdateE);
-        setLvRevenue(rdateS,rdateE);
+        hitoryList = databaseRevenue.getallRevenue(rdateS,rdateE);
+        setGvHistory(rdateS,rdateE);
 
         btnHome.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +67,6 @@ public class RevenueActivity extends Activity {
                 finish();
             }
         });
-
         edtStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,31 +79,37 @@ public class RevenueActivity extends Activity {
                 dateEnd();
             }
         });
+
+        gvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String date = hitoryList.get(position).getDate();
+                String time = hitoryList.get(position).getTime();
+                String number = hitoryList.get(position).getNumber();
+                String total = hitoryList.get(position).getTotal();
+                String discount = hitoryList.get(position).getDiscount();
+                String totalall = hitoryList.get(position).getTotalat();
+                Intent i = new Intent(HistoryActivity.this, RecentActivity.class);
+                i.putExtra("date", date);
+                i.putExtra("time", time);
+                i.putExtra("number", number);
+                i.putExtra("total", total);
+                i.putExtra("discount", discount);
+                i.putExtra("totalall", totalall);
+                startActivity(i);
+            }
+        });
     }
 
-    public void setLvRevenue(String dateS, String dateE) {
-        if (revenueAdapter == null) {
-            tongtien=0;
-            revenueAdapter = new RevenueAdapter(RevenueActivity.this, R.layout.item_revenue, revenueList);
-            lvRevenue.setAdapter(revenueAdapter);
-            for (int a =0; a<revenueList.size();a++){
-                tongtien += Integer.valueOf(revenueList.get(a).getTotalat().replaceAll(",",""));
-            }
-            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-            formatter.applyPattern("#,###,###,###");
-            tvTotalAll.setText(formatter.format(tongtien));
+    private void setGvHistory(String rdateS, String rdateE) {
+        if (historyAdapter == null) {
+            historyAdapter = new HistoryAdapter(HistoryActivity.this, R.layout.item_revenue, hitoryList);
+            gvHistory.setAdapter(historyAdapter);
         } else {
-            tongtien=0;
-            revenueList.clear();
-            revenueList.addAll(databaseRevenue.getallRevenue(dateS, dateE));
-            revenueAdapter.notifyDataSetChanged();
-            lvRevenue.setSelection(revenueAdapter.getCount() - 1);
-            for (int a =0; a<revenueList.size();a++){
-                tongtien += Integer.valueOf(revenueList.get(a).getTotalat());
-            }
-            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-            formatter.applyPattern("#,###,###,###");
-            tvTotalAll.setText(formatter.format(tongtien));
+            hitoryList.clear();
+            hitoryList.addAll(databaseRevenue.getallRevenue(rdateS, rdateE));
+            historyAdapter.notifyDataSetChanged();
+            gvHistory.setSelection(historyAdapter.getCount() - 1);
         }
     }
 
@@ -124,11 +126,11 @@ public class RevenueActivity extends Activity {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 rdateS = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(c.getTime());
                 if (Integer.valueOf(rdateS)>Integer.valueOf(rdateE)){
-                    Toast.makeText(RevenueActivity.this, "Ngày bắt đầu lớn hơn này kết thúc", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HistoryActivity.this, "Ngày bắt đầu lớn hơn này kết thúc", Toast.LENGTH_SHORT).show();
 
 
                 }
-                else {setLvRevenue(rdateS, rdateE);
+                else {setGvHistory(rdateS, rdateE);
                     edtStart.setText(simpleDateFormat.format(c.getTime()));}
 //                rDateStart.setText(rdatestart);
 
@@ -156,9 +158,9 @@ public class RevenueActivity extends Activity {
 
                 if (Integer.valueOf(rdateS)>Integer.valueOf(rdateE)){
 
-                    Toast.makeText(RevenueActivity.this, "Ngày bắt đầu lớn hơn này kết thúc", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HistoryActivity.this, "Ngày bắt đầu lớn hơn này kết thúc", Toast.LENGTH_SHORT).show();
                 }
-                else {setLvRevenue(rdateS, rdateE);
+                else {setGvHistory(rdateS, rdateE);
                     edtEnd.setText(simpleDateFormat.format(c.getTime()));}
             }
         }, yyyy, MM-1, dd);
