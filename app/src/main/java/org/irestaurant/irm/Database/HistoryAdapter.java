@@ -35,6 +35,7 @@ public class HistoryAdapter extends ArrayAdapter {
         if (convertView==null){
             convertView = LayoutInflater.from(context).inflate(R.layout.item_history,parent,false);
             viewHolder = new ViewHolder();
+            viewHolder.tvDate = (TextView)convertView.findViewById(R.id.tv_date);
             viewHolder.tvTime = (TextView)convertView.findViewById(R.id.tv_time);
             viewHolder.tvNumber = (TextView)convertView.findViewById(R.id.tv_number);
             viewHolder.tvTotal = (TextView)convertView.findViewById(R.id.tv_total);
@@ -45,6 +46,7 @@ public class HistoryAdapter extends ArrayAdapter {
         }
 
         Revenue revenue = revenueList.get(position);
+        viewHolder.tvDate.setText(revenue.getDate());
         viewHolder.tvTime.setText(revenue.getTime());
         viewHolder.tvNumber.setText(revenue.getNumber());
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
@@ -55,6 +57,6 @@ public class HistoryAdapter extends ArrayAdapter {
     }
 
     private class ViewHolder{
-        private TextView tvTime, tvNumber, tvTotal;
+        private TextView tvDate, tvTime, tvNumber, tvTotal;
     }
 }

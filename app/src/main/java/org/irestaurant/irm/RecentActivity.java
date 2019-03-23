@@ -23,7 +23,7 @@ import java.util.Locale;
 
 public class RecentActivity extends Activity {
     String getResName, getResPhone, getResAddress, number, date, time;
-    TextView tvResName, tvResPhone, tvResAddress, tvNumber, tvDate, tvTotal, tvTotalAll, tvDiscount;
+    TextView tvResName, tvResPhone, tvResAddress, tvNumber, tvDate, tvTotal, tvTotalAll, tvDiscount, tvTC, tvCK;
     ListView lvRecent;
     Button btnBack;
     SessionManager sessionManager;
@@ -39,6 +39,8 @@ public class RecentActivity extends Activity {
         tvDate = findViewById(R.id.tv_date);
         tvTotal = findViewById(R.id.tv_total);
         tvDiscount = findViewById(R.id.tv_discount);
+        tvTC        = findViewById(R.id.tv_tc);
+        tvCK        = findViewById(R.id.tv_ck);
         tvTotalAll = findViewById(R.id.tv_totalall);
         lvRecent = findViewById(R.id.lv_recent);
         btnBack = findViewById(R.id.btn_back);
@@ -52,7 +54,7 @@ public class RecentActivity extends Activity {
         sessionManager = new SessionManager(this);
         sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
-        getResName = user.get(sessionManager.NAME);
+        getResName = user.get(sessionManager.RESNAME);
         getResPhone = user.get(sessionManager.RESPHONE);
         getResAddress = user.get(sessionManager.RESADDRESS);
 
@@ -73,7 +75,16 @@ public class RecentActivity extends Activity {
         tvNumber.setText("Bàn số: "+number);
         tvDate.setText(date+"  "+time);
         tvTotal.setText(formatter.format(Integer.valueOf(total)));
-        tvDiscount.setText(discount+"%");
+
+        if (discount.equals("0")){
+            tvTC.setVisibility(View.GONE);
+            tvCK.setVisibility(View.GONE);
+            tvDiscount.setVisibility(View.GONE);
+            tvTotal.setVisibility(View.GONE);
+        }else {
+            tvDiscount.setText(discount+"%");
+        }
+
         tvTotalAll.setText(formatter.format(Integer.valueOf(totalall)));
 
         databaseOrdered = new DatabaseOrdered(this);
