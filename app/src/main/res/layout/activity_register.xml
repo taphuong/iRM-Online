@@ -134,6 +134,8 @@
         </android.support.design.widget.TextInputLayout>
     </RelativeLayout>
     <Button
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_below="@+id/restaurant"
         android:id="@+id/btn_regist"
         android:layout_width="match_parent"
