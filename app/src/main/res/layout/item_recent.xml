@@ -22,7 +22,7 @@
         android:layout_toStartOf="@id/tv_total"/>
     <TextView
         android:layout_marginLeft="4dp"
-        android:layout_width="100dp"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
         android:text="5,000,000"
         android:textColor="@color/mau_den"
