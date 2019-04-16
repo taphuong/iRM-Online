@@ -21,4 +21,11 @@
     <string name="edit">Thay đổi</string>
     <string name="delete">Xóa</string>
     <string name="choose_device">Chọn thiết bị</string>
+    <string name="other_devices">Thiết bị khác</string>
+    <string name="btn_scan">Tìm thiết bị xung quanh</string>
+    <string name="scanning">Đang tìm thiết bị</string>
+    <string name="none_paired">Chưa kết nối</string>
+    <string name="select_device">Chọn thiết bị</string>
+    <string name="none_found">Không tìm thấy thiết bị</string>
+    <string name="title_paired_devices">Thiết bị phù hợp</string>
 </resources>

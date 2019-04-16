@@ -6,8 +6,11 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -35,6 +38,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity
     private BluetoothSocket mBluetoothSocket;
     BluetoothDevice mBluetoothDevice;
 
+
     private void AnhXa(){
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -102,7 +107,12 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         databaseTable = new DatabaseTable(this);
         numberList = databaseTable.getallTable();
-
+//        CheckBluetooth
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        this.registerReceiver(mReceiver, filter);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -146,7 +156,7 @@ public class MainActivity extends AppCompatActivity
         btnPrinter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                connectPrinter();
             }
         });
 
@@ -198,6 +208,8 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
+
 
     }
 
@@ -597,6 +609,35 @@ public class MainActivity extends AppCompatActivity
         public void handleMessage(Message msg) {
             mBluetoothConnectProgressDialog.dismiss();
             Toast.makeText(MainActivity.this, "DeviceConnected", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    // The BroadcastReceiver that listens for discovered devices and changes the title when discovery is finished
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+           //Device found
+            }
+            else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                String connected = device.getName() + "\n" + device.getAddress();
+                Toast.makeText(context, connected, Toast.LENGTH_SHORT).show();
+           //Device is now connected
+            }
+            else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+           //Done searching
+                Toast.makeText(context, "Đã quét xong", Toast.LENGTH_SHORT).show();
+            }
+            else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) {
+           //Device is about to disconnect
+            }
+            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+           //Device has disconnected
+                Toast.makeText(context, "Chưa kết nối máy in", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 

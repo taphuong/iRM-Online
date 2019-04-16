@@ -167,7 +167,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/cb_print"
-            android:text="In hóa đơn (Chưa kết nối với máy in)"
+            android:text="In hóa đơn (Chưa kết nối)"
             android:checked="true"
             android:layout_below="@id/tv_totalall"/>
         <Switch
@@ -177,7 +177,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:text="In hóa đơn (Chưa kết nối với máy in)"/>
+            android:text="In hóa đơn (Chưa kết nối)"
+            android:layout_toStartOf="@id/btn_printer"/>
+        <Button
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/btn_printer"
+            android:background="@mipmap/ic_btnprinter"
+            android:layout_below="@id/tv_totalall"
+            android:layout_alignParentRight="true"/>
 
     </RelativeLayout>
     <LinearLayout
