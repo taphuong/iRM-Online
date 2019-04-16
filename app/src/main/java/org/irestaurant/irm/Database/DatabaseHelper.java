@@ -105,4 +105,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return user;
     }
+    public User fingerLogin(String phone){
+        User user = null;
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery("Select * from user where phone = ?", new String[]{phone});
+            if (cursor.moveToFirst()){
+                user = new User();
+                user.setId(cursor.getInt(0));
+                user.setName(cursor.getString(1));
+                user.setPhone(cursor.getString(2));
+                user.setPassword(cursor.getString(3));
+                user.setResname(cursor.getString(4));
+                user.setResphone(cursor.getString(5));
+                user.setResaddress(cursor.getString(6));
+            }
+        }catch (Exception e){
+            user = null;
+        }
+        return user;
+    }
 }

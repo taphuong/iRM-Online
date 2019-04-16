@@ -371,6 +371,41 @@ public class PayActivity extends Activity {
             }
         }
     }
+
+    public void onActivityResult(int mRequestCode, int mResultCode,
+                                 Intent mDataIntent) {
+        super.onActivityResult(mRequestCode, mResultCode, mDataIntent);
+
+        switch (mRequestCode) {
+            case REQUEST_CONNECT_DEVICE:
+                if (mResultCode == Activity.RESULT_OK) {
+                    Bundle mExtra = mDataIntent.getExtras();
+                    String mDeviceAddress = mExtra.getString("DeviceAddress");
+                    Log.v(TAG, "Coming incoming address " + mDeviceAddress);
+                    mBluetoothDevice = mBluetoothAdapter
+                            .getRemoteDevice(mDeviceAddress);
+                    mBluetoothConnectProgressDialog = ProgressDialog.show(this,
+                            "Connecting...", mBluetoothDevice.getName() + " : "
+                                    + mBluetoothDevice.getAddress(), true, false);
+                    Thread mBlutoothConnectThread = new Thread();
+                    mBlutoothConnectThread.start();
+                    // pairToDevice(mBluetoothDevice); This method is replaced by
+                    // progress dialog with thread
+                }
+                break;
+
+            case REQUEST_ENABLE_BT:
+                if (mResultCode == Activity.RESULT_OK) {
+                    ListPairedDevices();
+                    Intent connectIntent = new Intent(PayActivity.this,
+                            DeviceListActivity.class);
+                    startActivityForResult(connectIntent, REQUEST_CONNECT_DEVICE);
+                } else {
+                    Toast.makeText(PayActivity.this, "Message", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
     public void ListPairedDevices() {
         Set<BluetoothDevice> mPairedDevices = mBluetoothAdapter
                 .getBondedDevices();

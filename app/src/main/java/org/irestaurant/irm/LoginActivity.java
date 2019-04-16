@@ -1,7 +1,16 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.KeyguardManager;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,8 +20,24 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.irestaurant.irm.Database.DatabaseHelper;
+import org.irestaurant.irm.Database.FingerprintHandler;
 import org.irestaurant.irm.Database.SessionManager;
 import org.irestaurant.irm.Database.User;
+
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 public class LoginActivity extends Activity {
 
@@ -21,6 +46,9 @@ public class LoginActivity extends Activity {
     DatabaseHelper db;
     SessionManager sessionManager;
     ImageView ivFringer;
+
+
+
 
     private void Anhxa(){
         edtPhone    = findViewById(R.id.edt_phone);
@@ -52,10 +80,17 @@ public class LoginActivity extends Activity {
                 }
             }
         });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ivFringer.setVisibility(View.VISIBLE);
+        }else {
+            ivFringer.setVisibility(View.GONE);
+        }
         ivFringer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(LoginActivity.this, "Tính năng đang được phát triển", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LoginActivity.this, "Tính năng đang được phát triển", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, FingerActivity.class);
+                startActivityForResult(intent,1);
             }
         });
 
@@ -86,7 +121,7 @@ public class LoginActivity extends Activity {
                 finish();
             }
         }
-
-
     }
+
+
 }

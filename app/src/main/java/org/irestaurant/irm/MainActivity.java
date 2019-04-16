@@ -526,7 +526,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_recent) {
             startActivity(new Intent(this,HistoryActivity.class));
         } else if (id == R.id.nav_settings) {
-            Toast.makeText(MainActivity.this, "Tính năng đang được phát triển", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this,SettingActivity.class));
         } else if (id == R.id.nav_logout) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Bạn có muốn đăng xuất không?");
