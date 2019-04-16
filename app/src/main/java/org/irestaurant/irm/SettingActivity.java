@@ -3,6 +3,8 @@ package org.irestaurant.irm;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import org.irestaurant.irm.Database.DatabaseFinger;
+import org.irestaurant.irm.Database.FingerprintHandler;
 import org.irestaurant.irm.Database.SessionManager;
 
 import java.util.HashMap;
@@ -33,6 +36,7 @@ public class SettingActivity extends AppCompatActivity {
         btnFinger = findViewById(R.id.btn_regfinger);
         databaseFinger = new DatabaseFinger(this);
         btnFinger.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 checkDB();
@@ -40,6 +44,7 @@ public class SettingActivity extends AppCompatActivity {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkDB(){
 //        Boolean chkphone = databaseFinger.chkphone();
 //        if (chkphone == true) {
@@ -66,6 +71,7 @@ public class SettingActivity extends AppCompatActivity {
 //        }else {
             Intent intent = new Intent(SettingActivity.this, FingerActivity.class);
             startActivityForResult(intent,1);
+        FingerprintHandler.fgstt=0;
 //        }
     }
 }

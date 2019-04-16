@@ -44,7 +44,7 @@ public class DatabaseFinger extends SQLiteOpenHelper {
     }
 
     //    Lấy dữ liêu
-    public Finger getPhone(){
+    public Finger Phone(){
         Finger finger = null;
         try {
             SQLiteDatabase db = this.getReadableDatabase();

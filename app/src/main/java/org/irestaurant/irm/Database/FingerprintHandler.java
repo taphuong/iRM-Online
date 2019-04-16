@@ -24,7 +24,7 @@ import java.util.HashMap;
 public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
     SessionManager sessionManager;
     private Context context;
-    public final static int fgstt = 0;
+    public static int fgstt = 0;
 
     public FingerprintHandler(Context context) {
         this.context = context;
@@ -41,27 +41,22 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
         super.onAuthenticationSucceeded(result);
         sessionManager = new SessionManager(context);
-        sessionManager.checkLoggin();
+//        sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
         String getPhone = user.get(sessionManager.PHONE);
-
+        DatabaseFinger db = new DatabaseFinger(context);
 
         if (fgstt==1){
-            DatabaseFinger databaseFinger = new DatabaseFinger(context);
             Toast.makeText(context, "Đang đăng nhập", Toast.LENGTH_SHORT).show();
-            Finger finger = databaseFinger.getPhone();
-            if (finger == null){
-
-            }else {
+            Finger finger = db.Phone();
                 String Phone = finger.getPhone();
                 login(Phone);
-            }
         }else {
-            DatabaseFinger db = new DatabaseFinger(context);
             Finger finger = new Finger();
             finger.setPhone(getPhone);
             if (db.creat(finger)){
                 Toast.makeText(context, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
+                fgstt = 1;
 
             }else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
