@@ -20,6 +20,14 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
         <Button
+            android:id="@+id/btn_printer"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@mipmap/ic_printer"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:layout_toStartOf="@id/btn_removetable"/>
+        <Button
             android:id="@+id/btn_addtable"
             android:layout_width="25dp"
             android:layout_height="25dp"

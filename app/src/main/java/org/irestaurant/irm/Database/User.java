@@ -61,4 +61,5 @@ public class User implements Serializable {
     public void setResaddress(String resaddress) {
         this.resaddress = resaddress;
     }
+
 }

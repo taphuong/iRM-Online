@@ -3,17 +3,28 @@ package org.irestaurant.irm;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -34,21 +45,43 @@ import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.NumberAdapter;
 import org.irestaurant.irm.Database.SessionManager;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SessionManager sessionManager;
-    String getName, getResName;
+    String getName, getResName, getPhone;
     TextView tvResName, tvName;
     GridView gvNumber;
-    Button btnAddTable, btnRemoveTable;
+    Button btnAddTable, btnRemoveTable, btnPrinter;
+    Bitmap bitmap;
+    CircleImageView imgprofile;
     private List<Number> numberList;
     private DatabaseTable databaseTable;
     private NumberAdapter numberAdapter;
+    //Printer
+    protected static final String TAG = "TAG";
+    private static final int REQUEST_CONNECT_DEVICE = 1;
+    private static final int REQUEST_ENABLE_BT = 2;
+    Button mScan, mPrint, mDisc;
+    BluetoothAdapter mBluetoothAdapter;
+    private UUID applicationUUID = UUID
+            .fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private ProgressDialog mBluetoothConnectProgressDialog;
+    private BluetoothSocket mBluetoothSocket;
+    BluetoothDevice mBluetoothDevice;
 
     private void AnhXa(){
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -59,6 +92,8 @@ public class MainActivity extends AppCompatActivity
         gvNumber    = findViewById(R.id.gv_number);
         btnAddTable      = findViewById(R.id.btn_addtable);
         btnRemoveTable  = findViewById(R.id.btn_removetable);
+        btnPrinter  = findViewById(R.id.btn_printer);
+        imgprofile  = findViewById(R.id.im_profile);
     }
 
     @Override
@@ -80,6 +115,7 @@ public class MainActivity extends AppCompatActivity
         HashMap<String, String> user = sessionManager.getUserDetail();
         getName = user.get(sessionManager.NAME);
         getResName = user.get(sessionManager.RESNAME);
+        getPhone = user.get(sessionManager.PHONE);
         tvName.setText(getName);
         tvResName.setText(getResName);
         setTitle(getResName);
@@ -106,6 +142,14 @@ public class MainActivity extends AppCompatActivity
                 addTable();
             }
         });
+
+        btnPrinter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         gvNumber.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -496,4 +540,64 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    public void connectPrinter(){
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(MainActivity.this, "Message1", Toast.LENGTH_SHORT).show();
+        } else {
+            if (!mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(
+                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent,
+                        REQUEST_ENABLE_BT);
+            } else {
+                ListPairedDevices();
+                Intent connectIntent = new Intent(MainActivity.this,
+                        DeviceListActivity.class);
+                startActivityForResult(connectIntent,
+                        REQUEST_CONNECT_DEVICE);
+            }
+        }
+    }
+    public void ListPairedDevices() {
+        Set<BluetoothDevice> mPairedDevices = mBluetoothAdapter
+                .getBondedDevices();
+        if (mPairedDevices.size() > 0) {
+            for (BluetoothDevice mDevice : mPairedDevices) {
+                Log.v(TAG, "PairedDevices: " + mDevice.getName() + "  "
+                        + mDevice.getAddress());
+            }
+        }
+    }
+    public void run() {
+        try {
+            mBluetoothSocket = mBluetoothDevice
+                    .createRfcommSocketToServiceRecord(applicationUUID);
+            mBluetoothAdapter.cancelDiscovery();
+            mBluetoothSocket.connect();
+            mHandler.sendEmptyMessage(0);
+        } catch (IOException eConnectException) {
+            Log.d(TAG, "CouldNotConnectToSocket", eConnectException);
+            closeSocket(mBluetoothSocket);
+            return;
+        }
+    }
+
+    public void closeSocket(BluetoothSocket nOpenSocket) {
+        try {
+            nOpenSocket.close();
+            Log.d(TAG, "SocketClosed");
+        } catch (IOException ex) {
+            Log.d(TAG, "CouldNotCloseSocket");
+        }
+    }
+
+    public Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            mBluetoothConnectProgressDialog.dismiss();
+            Toast.makeText(MainActivity.this, "DeviceConnected", Toast.LENGTH_SHORT).show();
+        }
+    };
+
 }

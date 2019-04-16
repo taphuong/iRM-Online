@@ -20,4 +20,5 @@
     <string name="change_res">Đổi thông tin cửa hàng</string>
     <string name="edit">Thay đổi</string>
     <string name="delete">Xóa</string>
+    <string name="choose_device">Chọn thiết bị</string>
 </resources>
