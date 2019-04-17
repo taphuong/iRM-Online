@@ -533,6 +533,8 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
 
             PrintRes();
             PrintTime();
+            PrintData();
+            PrintTotal();
 
             addPay();
         } else {
@@ -560,10 +562,31 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         mService.sendMessage(time+"  "+date, "UTF-8");
         mService.write(PrinterCommands.ESC_ALIGN_CENTER);
         mService.sendMessage("================================", "UTF-8");
-        mService.write(PrinterCommands.PRINTE_TEST);
+        mService.write(PrinterCommands.ESC_ENTER);
     }
     private void PrintData (){
-
+        for (int i = 0 ; i < payList.size() ; i++){
+            String name = payList.get(i).getFoodname();
+            String amount = payList.get(i).getAmount();
+            String total = payList.get(i).getTotal();
+            mService.write(PrinterCommands.ESC_ALIGN_LEFT);
+            mService.sendMessage(amount+" "+ Config.VNCharacterUtils.removeAccent(name), "UTF-8");
+            mService.sendMessage(total, "UTF-8");
+            mService.write(PrinterCommands.ESC_ENTER);
+        }
+        mService.write(PrinterCommands.ESC_ALIGN_CENTER);
+        mService.sendMessage("================================", "UTF-8");
+        mService.write(PrinterCommands.ESC_ENTER);
+    }
+    private void PrintTotal (){
+        String total = tvTotalAll.getText().toString();
+        String discount = edtDiscount.getText().toString();
+        mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
+        if (!discount.equals("0")){
+            mService.sendMessage("Chiet khau: "+discount+" %", "UTF-8");
+        }
+        mService.sendMessage("Tong tien: "+total, "UTF-8");
+        mService.write(PrinterCommands.ESC_ENTER);
     }
     private void requestBluetooth() {
         if (mService != null) {
