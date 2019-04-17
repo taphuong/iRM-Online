@@ -20,6 +20,7 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
         <Button
+            android:visibility="gone"
             android:id="@+id/btn_printer"
             android:layout_width="25dp"
             android:layout_height="25dp"

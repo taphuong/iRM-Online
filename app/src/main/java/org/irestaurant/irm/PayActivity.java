@@ -1,5 +1,6 @@
 package org.irestaurant.irm;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -14,6 +15,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,31 +28,41 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.irestaurant.irm.Database.BluetoothHandler;
 import org.irestaurant.irm.Database.BluetoothService;
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.DatabaseOrdered;
 import org.irestaurant.irm.Database.DatabaseRevenue;
 import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.PayAdapter;
+import org.irestaurant.irm.Database.PrinterCommands;
 import org.irestaurant.irm.Database.Revenue;
+import org.irestaurant.irm.Database.SessionManager;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-public class PayActivity extends Activity {
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class PayActivity extends Activity implements EasyPermissions.PermissionCallbacks, BluetoothHandler.HandlerInterface {
+    SessionManager sessionManager;
     TextView tvTotal, tvTotalAll, tvNumber;
     EditText edtDiscount;
     ListView lvOrdered;
     Button btnPay, btnCancel, btnPrinter;
-    String getIdNumber, getNumber, total, totalall, discount;
+    String getIdNumber, getNumber, total, totalall, discount, getResName, getResPhone, getResAddress;
+    public String name = "Chưa kết nối", address = "Null";
     public Switch swPrint;
     long tongtien, after;
 
@@ -70,39 +82,13 @@ public class PayActivity extends Activity {
     private BluetoothSocket mBluetoothSocket;
     BluetoothDevice mBluetoothDevice;
     public static BluetoothService mService = null;
+    private boolean isPrinterReady = false;
 
     /******************************************************************************************************/
-    // Debugging
-    private static final boolean DEBUG = true;
-    /******************************************************************************************************/
-    // Message types sent from the BluetoothService Handler
-    public static final int MESSAGE_STATE_CHANGE = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
-    public static final int MESSAGE_CONNECTION_LOST = 6;
-    public static final int MESSAGE_UNABLE_CONNECT = 7;
-    /*******************************************************************************************************/
-    // Key names received from the BluetoothService Handler
-    public static final String DEVICE_NAME = "device_name";
-    public static final String TOAST = "toast";
 
-    // Intent request codes
-
-    private static final int REQUEST_CHOSE_BMP = 3;
-    private static final int REQUEST_CAMER = 4;
-
-    //QRcode
-    private static final int QR_WIDTH = 350;
-    private static final int QR_HEIGHT = 350;
-    /*******************************************************************************************************/
-    private static final String CHINESE = "GBK";
-    private static final String THAI = "CP874";
-    private static final String KOREAN = "EUC-KR";
-    private static final String BIG5 = "BIG5";
-
-    /*********************************************************************************/
+    public static final int RC_BLUETOOTH = 0;
+    public static final int RC_CONNECT_DEVICE = 1;
+    public static final int RC_ENABLE_BLUETOOTH = 2;
 
     private void Anhxa (){
         tvTotal     = findViewById(R.id.tv_tong);
@@ -120,15 +106,25 @@ public class PayActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pay);
+
+        sessionManager = new SessionManager(this);
+        sessionManager.checkLoggin();
+        HashMap<String, String> user = sessionManager.getUserDetail();
+        getResAddress = user.get(sessionManager.RESADDRESS);
+        getResName = user.get(sessionManager.RESNAME);
+        getResPhone = user.get(sessionManager.RESPHONE);
+
         Anhxa();
         Intent intent = getIntent();
         getIdNumber = intent.getExtras().getString("idnumber");
         getNumber = intent.getExtras().getString("number");
         tvNumber.setText("Bàn số: "+getNumber);
+        swPrint.setText("In hóa đơn ("+name+")");
 
         databaseOrdered = new DatabaseOrdered(this);
         payList = databaseOrdered.getallOrdered(getNumber);
         setLvPay();
+        setupBluetooth();
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,7 +175,17 @@ public class PayActivity extends Activity {
         btnPay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addPay();
+                if (swPrint.isChecked() && name.equals("Chưa kết nối") ){
+                    connectPrinter();
+                } else {
+                    if (swPrint.isChecked()){
+                        printText();
+                    }else {
+                        addPay();
+                    }
+                }
+
+
             }
         });
 
@@ -202,9 +208,6 @@ public class PayActivity extends Activity {
                 connectPrinter();
             }
         });
-    }
-    public void setPrinterName(String name){
-        swPrint.setText("In hóa đơn ("+name+")");
     }
     private void checkConnection(){
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -288,8 +291,8 @@ public class PayActivity extends Activity {
                 }
             });
         }
-        if (swPrint.isChecked()){
-            checkConnection();
+        if (swPrint.isChecked() && name.equals("Chưa kết nối") ){
+            connectPrinter();
         }
     }
     private void Print (){
@@ -376,32 +379,52 @@ public class PayActivity extends Activity {
                                  Intent mDataIntent) {
         super.onActivityResult(mRequestCode, mResultCode, mDataIntent);
 
+//        switch (mRequestCode) {
+//            case REQUEST_CONNECT_DEVICE:
+//                if (mResultCode == Activity.RESULT_OK) {
+//                    Bundle mExtra = mDataIntent.getExtras();
+//                    String mDeviceAddress = mExtra.getString("DeviceAddress");
+//                    Log.v(TAG, "Coming incoming address " + mDeviceAddress);
+//                    mBluetoothDevice = mBluetoothAdapter
+//                            .getRemoteDevice(mDeviceAddress);
+////                    mBluetoothConnectProgressDialog = ProgressDialog.show(this,
+////                            "Đang kết nối...", mBluetoothDevice.getName() + "\n"
+////                                    + mBluetoothDevice.getAddress(), true, false);
+//                    Thread mBlutoothConnectThread = new Thread();
+//                    mBlutoothConnectThread.start();
+//                    // pairToDevice(mBluetoothDevice); This method is replaced by
+//                    // progress dialog with thread
+//                }
+//                break;
+//
+//            case REQUEST_ENABLE_BT:
+//                if (mResultCode == Activity.RESULT_OK) {
+//                    ListPairedDevices();
+//                    Intent connectIntent = new Intent(PayActivity.this,
+//                            DeviceListActivity.class);
+//                    startActivityForResult(connectIntent, REQUEST_CONNECT_DEVICE);
+//                } else {
+//                    Toast.makeText(PayActivity.this, "Message", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
+//        }
         switch (mRequestCode) {
-            case REQUEST_CONNECT_DEVICE:
-                if (mResultCode == Activity.RESULT_OK) {
-                    Bundle mExtra = mDataIntent.getExtras();
-                    String mDeviceAddress = mExtra.getString("DeviceAddress");
-                    Log.v(TAG, "Coming incoming address " + mDeviceAddress);
-                    mBluetoothDevice = mBluetoothAdapter
-                            .getRemoteDevice(mDeviceAddress);
-                    mBluetoothConnectProgressDialog = ProgressDialog.show(this,
-                            "Connecting...", mBluetoothDevice.getName() + " : "
-                                    + mBluetoothDevice.getAddress(), true, false);
-                    Thread mBlutoothConnectThread = new Thread();
-                    mBlutoothConnectThread.start();
-                    // pairToDevice(mBluetoothDevice); This method is replaced by
-                    // progress dialog with thread
-                }
+            case RC_ENABLE_BLUETOOTH:
+                if (mResultCode == RESULT_OK) {
+                    Log.i(TAG, "onActivityResult: bluetooth aktif");
+                } else
+                    Log.i(TAG, "onActivityResult: bluetooth harus aktif untuk menggunakan fitur ini");
                 break;
+            case RC_CONNECT_DEVICE:
+                if (mResultCode == RESULT_OK) {
+                    address = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    name = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_NAME);
+                    BluetoothDevice mDevice = mService.getDevByMac(address);
+                    mService.connect(mDevice);
 
-            case REQUEST_ENABLE_BT:
-                if (mResultCode == Activity.RESULT_OK) {
-                    ListPairedDevices();
-                    Intent connectIntent = new Intent(PayActivity.this,
-                            DeviceListActivity.class);
-                    startActivityForResult(connectIntent, REQUEST_CONNECT_DEVICE);
-                } else {
-                    Toast.makeText(PayActivity.this, "Message", Toast.LENGTH_SHORT).show();
+//                    mBluetoothConnectProgressDialog = ProgressDialog.show(this,
+//                            "Đang kết nối...", name + "\n"
+//                                    + address, true, false);
                 }
                 break;
         }
@@ -442,8 +465,112 @@ public class PayActivity extends Activity {
     public Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            mBluetoothConnectProgressDialog.dismiss();
+//            mBluetoothConnectProgressDialog.dismiss();
             Toast.makeText(PayActivity.this, "DeviceConnected", Toast.LENGTH_SHORT).show();
         }
     };
+
+    @AfterPermissionGranted(RC_BLUETOOTH)
+    private void setupBluetooth() {
+        String[] params = {Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN};
+        if (!EasyPermissions.hasPermissions(this, params)) {
+            EasyPermissions.requestPermissions(this, "You need bluetooth permission",
+                    RC_BLUETOOTH, params);
+            return;
+        }
+        mService = new BluetoothService(this, new BluetoothHandler(this));
+    }
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        // TODO: 10/11/17 do something
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        // TODO: 10/11/17 do something
+    }
+
+    @Override
+    public void onDeviceConnected() {
+        isPrinterReady = true;
+//        mBluetoothConnectProgressDialog.dismiss();
+
+        swPrint.setText("In hóa đơn ("+name+")");
+        printText();
+
+    }
+
+    @Override
+    public void onDeviceConnecting() {
+
+        swPrint.setText("Đang kết nối...");
+
+    }
+
+
+    @Override
+    public void onDeviceConnectionLost() {
+        isPrinterReady = false;
+        swPrint.setText("In hóa đơn (Mất kết nối)");
+    }
+
+    @Override
+    public void onDeviceUnableToConnect() {
+        swPrint.setText("Kết nối lỗi, Vui lòng thử lại");
+    }
+
+    public void printText() {
+        if (!mService.isAvailable()) {
+            Log.i(TAG, "printText: perangkat tidak support bluetooth");
+            Toast.makeText(this, "Thiết bị không hỗ trợ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (isPrinterReady) {
+//            if (etText.getText().toString().isEmpty()) {
+//                Toast.makeText(this, "Cant print null text", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+
+            PrintRes();
+            PrintTime();
+
+            addPay();
+        } else {
+            if (mService.isBTopen())
+                startActivityForResult(new Intent(this, DeviceListActivity.class), RC_CONNECT_DEVICE);
+            else
+                requestBluetooth();
+        }
+    }
+
+    private void PrintRes (){
+        mService.write(PrinterCommands.ESC_ALIGN_CENTER);
+        mService.sendMessage(Config.VNCharacterUtils.removeAccent(getResName), "UTF-8");
+        mService.sendMessage(Config.VNCharacterUtils.removeAccent(getResPhone), "UTF-8");
+        mService.sendMessage(Config.VNCharacterUtils.removeAccent(getResAddress), "UTF-8");
+        mService.sendMessage("================================", "UTF-8");
+        mService.write(PrinterCommands.ESC_ENTER);
+    }
+    private void PrintTime (){
+        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
+        mService.write(PrinterCommands.ESC_ALIGN_LEFT);
+        mService.sendMessage("Ban so: "+getNumber, "UTF-8");
+        mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
+        mService.sendMessage(time+"  "+date, "UTF-8");
+        mService.write(PrinterCommands.ESC_ALIGN_CENTER);
+        mService.sendMessage("================================", "UTF-8");
+        mService.write(PrinterCommands.PRINTE_TEST);
+    }
+    private void PrintData (){
+
+    }
+    private void requestBluetooth() {
+        if (mService != null) {
+            if (!mService.isBTopen()) {
+                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(intent, RC_ENABLE_BLUETOOTH);
+            }
+        }
+    }
 }

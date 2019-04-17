@@ -88,9 +88,9 @@ public class LoginActivity extends Activity {
         ivFringer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Toast.makeText(LoginActivity.this, "Tính năng đang được phát triển", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, FingerActivity.class);
-                startActivityForResult(intent,1);
+                Toast.makeText(LoginActivity.this, "Tính năng đang được phát triển", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent(LoginActivity.this, FingerActivity.class);
+//                startActivityForResult(intent,1);
             }
         });
 

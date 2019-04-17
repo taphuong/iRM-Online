@@ -1,5 +1,6 @@
 package org.irestaurant.irm;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -45,6 +46,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.irestaurant.irm.Database.BluetoothService;
 import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.NumberAdapter;
@@ -87,6 +89,11 @@ public class MainActivity extends AppCompatActivity
     private BluetoothSocket mBluetoothSocket;
     BluetoothDevice mBluetoothDevice;
 
+    public static final int RC_BLUETOOTH = 0;
+    public static final int RC_CONNECT_DEVICE = 1;
+    public static final int RC_ENABLE_BLUETOOTH = 2;
+    private BluetoothService mService = null;
+
 
     private void AnhXa(){
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -112,7 +119,6 @@ public class MainActivity extends AppCompatActivity
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        this.registerReceiver(mReceiver, filter);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -571,6 +577,28 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
+    public void onActivityResult(int mRequestCode, int mResultCode,
+                                 Intent mDataIntent) {
+        super.onActivityResult(mRequestCode, mResultCode, mDataIntent);
+
+        switch (mRequestCode) {
+            case RC_ENABLE_BLUETOOTH:
+                if (mResultCode == RESULT_OK) {
+                    Log.i(TAG, "onActivityResult: bluetooth aktif");
+                } else
+                    Log.i(TAG, "onActivityResult: bluetooth harus aktif untuk menggunakan fitur ini");
+                break;
+            case RC_CONNECT_DEVICE:
+                if (mResultCode == RESULT_OK) {
+                    String address = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    BluetoothDevice mDevice = mService.getDevByMac(address);
+                    mService.connect(mDevice);
+                }
+                break;
+        }
+    }
+
     public void ListPairedDevices() {
         Set<BluetoothDevice> mPairedDevices = mBluetoothAdapter
                 .getBondedDevices();
@@ -612,33 +640,5 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    // The BroadcastReceiver that listens for discovered devices and changes the title when discovery is finished
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-           //Device found
-            }
-            else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                String connected = device.getName() + "\n" + device.getAddress();
-                Toast.makeText(context, connected, Toast.LENGTH_SHORT).show();
-           //Device is now connected
-            }
-            else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-           //Done searching
-                Toast.makeText(context, "Đã quét xong", Toast.LENGTH_SHORT).show();
-            }
-            else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) {
-           //Device is about to disconnect
-            }
-            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-           //Device has disconnected
-                Toast.makeText(context, "Chưa kết nối máy in", Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
 
 }

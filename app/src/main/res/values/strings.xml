@@ -28,4 +28,11 @@
     <string name="select_device">Chọn thiết bị</string>
     <string name="none_found">Không tìm thấy thiết bị</string>
     <string name="title_paired_devices">Thiết bị phù hợp</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="button_connect">Connect</string>
+    <string name="button_disconnect">Disconnect</string>
+    <string name="title_devices">Devices</string>
+    <string name="scan">Scan</string>
 </resources>
