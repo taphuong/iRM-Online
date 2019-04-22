@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Cài đặt máy in">
+        <CheckBoxPreference
+            android:key="cb_printer"
+            android:title="In hóa đơn"
+            android:summary="In hóa đơn qua kết nối Bluetooth"
+            android:defaultValue="true"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

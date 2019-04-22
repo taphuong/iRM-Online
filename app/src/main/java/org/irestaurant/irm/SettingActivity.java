@@ -21,7 +21,7 @@ public class SettingActivity extends AppCompatActivity {
     ImageButton btnFinger;
     DatabaseFinger databaseFinger;
     SessionManager sessionManager;
-    String getPhone;
+    String getEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,14 @@ public class SettingActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
         sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
-        getPhone = user.get(sessionManager.PHONE);
+        getEmail = user.get(sessionManager.EMAIL);
+
+        if (findViewById(R.id.fragment_container)!=null){
+            if (savedInstanceState!=null)
+                return;
+            getFragmentManager().beginTransaction().add(R.id.fragment_container, new FragmentSetting()).commit();
+
+        }
 
         btnFinger = findViewById(R.id.btn_regfinger);
         databaseFinger = new DatabaseFinger(this);

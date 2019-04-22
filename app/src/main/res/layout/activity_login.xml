@@ -43,10 +43,9 @@
             android:id="@+id/edt_phone"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="Số điện thoại"
+            android:hint="Email"
             android:gravity="center"
-            android:textSize="20sp"
-            android:inputType="number"/>
+            android:textSize="20sp"/>
         <EditText
             android:layout_below="@+id/edt_phone"
             android:layout_marginTop="10dp"

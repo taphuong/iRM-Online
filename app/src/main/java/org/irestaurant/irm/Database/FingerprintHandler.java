@@ -43,7 +43,7 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
         sessionManager = new SessionManager(context);
 //        sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
-        String getPhone = user.get(sessionManager.PHONE);
+        String getEmail = user.get(sessionManager.EMAIL);
         DatabaseFinger db = new DatabaseFinger(context);
 
         if (fgstt==1){
@@ -53,7 +53,7 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
                 login(Phone);
         }else {
             Finger finger = new Finger();
-            finger.setPhone(getPhone);
+            finger.setPhone(getEmail);
             if (db.creat(finger)){
                 Toast.makeText(context, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
                 fgstt = 1;
@@ -113,7 +113,7 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
     private void login(String Phone){
         DatabaseHelper db = new DatabaseHelper(context);
         User user = db.fingerLogin(Phone);
-        sessionManager.createSession(user.getId(),user.getName(),user.getPhone(), user.getPassword(),user.getResname(),user.getResphone(),user.getResaddress());
+//        sessionManager.createSession(user.getId(),user.getName(),user.getPhone(), user.getPassword(),user.getResname(),user.getResphone(),user.getResaddress());
         Toast.makeText(context, "Xin chào "+user.getName(), Toast.LENGTH_SHORT).show();
         Intent myIntent = new Intent(context, MainActivity.class);
         context.startActivity(myIntent);

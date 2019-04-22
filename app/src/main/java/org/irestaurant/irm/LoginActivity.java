@@ -3,6 +3,7 @@ package org.irestaurant.irm;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.KeyguardManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -10,14 +11,26 @@ import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.irestaurant.irm.Database.DatabaseHelper;
 import org.irestaurant.irm.Database.FingerprintHandler;
@@ -42,12 +55,14 @@ import javax.crypto.SecretKey;
 public class LoginActivity extends Activity {
 
     EditText edtPhone, edtPassword;
+    TextView tvForgot, tvRegister;
     Button btnLogin;
     DatabaseHelper db;
     SessionManager sessionManager;
     ImageView ivFringer;
-
-
+    private FirebaseAuth mAuth;
+    ProgressDialog progressDialog;
+    private FirebaseFirestore mFirestore;
 
 
     private void Anhxa(){
@@ -55,6 +70,8 @@ public class LoginActivity extends Activity {
         edtPassword = findViewById(R.id.edt_password);
         btnLogin    = findViewById(R.id.btn_login);
         ivFringer   = findViewById(R.id.iv_fringer);
+        tvForgot    = findViewById(R.id.tv_forgot);
+        tvRegister  = findViewById(R.id.tv_register);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +79,10 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
         db = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
+        FirebaseApp.initializeApp(this);
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.setLanguageCode("VN");
+        mFirestore = FirebaseFirestore.getInstance();
         Anhxa();
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -75,8 +96,18 @@ public class LoginActivity extends Activity {
                 }else if (password.isEmpty()){
                     edtPassword.setError("Thiếu thông tin");
                     edtPassword.requestFocus();
+                }else if (!Patterns.EMAIL_ADDRESS.matcher(phone).matches()){
+                    edtPhone.requestFocus();
+                    edtPhone.setError("Email không chính xác");
                 }else {
-                    login();
+                    tvForgot.setEnabled(false);
+                    tvRegister.setEnabled(false);
+                    edtPhone.setEnabled(false);
+                    edtPassword.setEnabled(false);
+                    btnLogin.setEnabled(false);
+                    ivFringer.setEnabled(false);
+
+                    loginFirebase();
                 }
             }
         });
@@ -100,27 +131,71 @@ public class LoginActivity extends Activity {
         startActivity(new Intent(this,RegisterActivity.class));
     }
 
-    private void login(){
-        DatabaseHelper db = new DatabaseHelper(this);
-        String phone = edtPhone.getText().toString();
-        String password = edtPassword.getText().toString();
+//    private void login(){
+//        DatabaseHelper db = new DatabaseHelper(this);
+//        String phone = edtPhone.getText().toString();
+//        String password = edtPassword.getText().toString();
+//
+//        Boolean chkphone = db.chkphone(phone);
+//        if (chkphone == true) {
+//            edtPhone.setError("Số điện thoại chưa đăng ký");
+//            edtPhone.requestFocus();
+//        }else {
+//            User user = db.userLogin(phone, password);
+//            if (user == null){
+//                edtPassword.setError("Sai mật khẩu");
+//                edtPassword.requestFocus();
+//            }else {
+//                sessionManager.createSession(user.getId(),user.getName(),user.getPhone(), user.getPassword(),user.getResname(),user.getResphone(),user.getResaddress());
+//                Toast.makeText(this, "Xin chào "+user.getName(), Toast.LENGTH_SHORT).show();
+//                startActivity(new Intent(this, MainActivity.class));
+//                finish();
+//            }
+//        }
+//    }
+    private void loginFirebase(){
+        progressDialog = ProgressDialog.show(LoginActivity.this,
+                "Đang đăng nhập", "Vui lòng đợi ...", true, false);
+        final String Email = edtPhone.getText().toString().trim();
+        final String Password = edtPassword.getText().toString().trim();
+        mAuth.signInWithEmailAndPassword(Email, Password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            progressDialog.dismiss();
+                            final String uID = mAuth.getCurrentUser().getUid();
+                            mFirestore.collection("Users").document(uID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    String mName = documentSnapshot.getString("name");
+                                    String mResname = documentSnapshot.getString("resname");
+                                    String mResaddress = documentSnapshot.getString("resaddress");
+                                    String mResphone = documentSnapshot.getString("resphone");
+                                    String mImage = documentSnapshot.getString("image");
+                                    sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(), edtPassword.getText().toString(), mResname,mResaddress,mResphone,mImage);
+                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                    finish();
+                                }
+                            });
 
-        Boolean chkphone = db.chkphone(phone);
-        if (chkphone == true) {
-            edtPhone.setError("Số điện thoại chưa đăng ký");
-            edtPhone.requestFocus();
-        }else {
-            User user = db.userLogin(phone, password);
-            if (user == null){
-                edtPassword.setError("Sai mật khẩu");
-                edtPassword.requestFocus();
-            }else {
-                sessionManager.createSession(user.getId(),user.getName(),user.getPhone(), user.getPassword(),user.getResname(),user.getResphone(),user.getResaddress());
-                Toast.makeText(this, "Xin chào "+user.getName(), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
-            }
-        }
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Thông tin đăn nhập sai", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                            tvForgot.setEnabled(true);
+                            tvRegister.setEnabled(true);
+                            edtPhone.setEnabled(true);
+                            edtPassword.setEnabled(true);
+                            btnLogin.setEnabled(true);
+                            ivFringer.setEnabled(true);
+                            progressDialog.dismiss();
+                            edtPhone.requestFocus();
+                            edtPassword.setText("");
+                        }
+
+                        // ...
+                    }
+                });
     }
 
 

@@ -14,18 +14,23 @@
         android:textColor="@color/mau_trang"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_marginBottom="16dp"
         android:id="@+id/dangky"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="ĐĂNG KÝ TÀI KHOẢN"
         android:textSize="22sp"
         android:gravity="center"/>
-
-
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/iv_picture"
+        android:layout_below="@id/dangky"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/profile"/>
 
     <RelativeLayout
-        android:layout_below="@id/dangky"
+        android:layout_below="@id/iv_picture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/restaurant"
@@ -48,13 +53,11 @@
             android:layout_below="@+id/hvt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
             <EditText
                 android:id="@+id/edt_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Số điện thoại đăng nhập"
-                android:inputType="number"
+                android:hint="Email đăng nhập"
                 android:singleLine="true" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout

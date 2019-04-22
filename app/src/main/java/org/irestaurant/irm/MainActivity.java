@@ -46,6 +46,10 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import org.irestaurant.irm.Database.BluetoothService;
 import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Number;
@@ -68,11 +72,13 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SessionManager sessionManager;
-    String getName, getResName, getPhone;
+    String getName, getResName, getEmail;
     TextView tvResName, tvName;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnPrinter;
     Bitmap bitmap;
+//    Firebase
+    private FirebaseAuth mAuth;
     CircleImageView imgprofile;
     private List<Number> numberList;
     private DatabaseTable databaseTable;
@@ -114,6 +120,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         databaseTable = new DatabaseTable(this);
         numberList = databaseTable.getallTable();
+        FirebaseApp.initializeApp(this);
+        mAuth = FirebaseAuth.getInstance();
+
+
 //        CheckBluetooth
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
@@ -131,7 +141,7 @@ public class MainActivity extends AppCompatActivity
         HashMap<String, String> user = sessionManager.getUserDetail();
         getName = user.get(sessionManager.NAME);
         getResName = user.get(sessionManager.RESNAME);
-        getPhone = user.get(sessionManager.PHONE);
+        getEmail = user.get(sessionManager.EMAIL);
         tvName.setText(getName);
         tvResName.setText(getResName);
         setTitle(getResName);
@@ -640,5 +650,12 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser == null){
+            sessionManager.logout();
+        }
+    }
 }

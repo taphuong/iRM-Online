@@ -49,11 +49,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <EditText
-                android:id="@+id/edt_phone"
+                android:id="@+id/edt_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Số điện thoại"
-                android:inputType="number"/>
+                android:hint="Email" />
         </android.support.design.widget.TextInputLayout>
         <CheckBox
             android:id="@+id/cb_changeres"

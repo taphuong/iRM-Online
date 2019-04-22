@@ -24,19 +24,19 @@ import java.util.HashMap;
 public class AccountActivity extends Activity {
 
     SessionManager sessionManager;
-    EditText edtName, edtPhone,edtResName, edtResPhone, edtResAddress, edtPassword, edtNew, edtNew2;
+    EditText edtName, edtEmail,edtResName, edtResPhone, edtResAddress, edtPassword, edtNew, edtNew2;
     Button btnSave, btnHome, btnAddPhone, btnSaveV;
     LinearLayout layoutNewPass;
     RelativeLayout layoutChangeRes;
     CheckBox cbChange, cbChangeRes;
-    String getName, getPhone, getPassword, getResName, getResPhone, getResAddress;
+    String getName, getEmail, getPassword, getResName, getResPhone, getResAddress;
     DatabaseHelper db;
     User user;
 
 
     private void Anhxa(){
         edtName     = findViewById(R.id.edt_name);
-        edtPhone    = findViewById(R.id.edt_phone);
+        edtEmail    = findViewById(R.id.edt_email);
         edtResName  = findViewById(R.id.edt_resname);
         edtResPhone = findViewById(R.id.edt_resphone);
         edtResAddress = findViewById(R.id.edt_resaddress);
@@ -62,13 +62,13 @@ public class AccountActivity extends Activity {
         sessionManager = new SessionManager(this);
         HashMap<String, String> user = sessionManager.getUserDetail();
         getName = user.get(sessionManager.NAME);
-        getPhone = user.get(sessionManager.PHONE);
+        getEmail = user.get(sessionManager.EMAIL);
         getPassword = user.get(sessionManager.PASSWORD);
         getResName = user.get(sessionManager.RESNAME);
         getResPhone = user.get(sessionManager.RESPHONE);
         getResAddress = user.get(sessionManager.RESADDRESS);
         edtName.setText(getName);
-        edtPhone.setText(getPhone);
+        edtEmail.setText(getEmail);
         edtResName.setText(getResName);
         edtResPhone.setText(getResPhone);
         edtResAddress.setText(getResAddress);
@@ -163,7 +163,7 @@ public class AccountActivity extends Activity {
     }
     private void Save (){
         String name = edtName.getText().toString();
-        String phone = edtPhone.getText().toString();
+        String email = edtEmail.getText().toString();
         String password = edtPassword.getText().toString();
         String newpass = edtNew.getText().toString();
         String newpass2 = edtNew2.getText().toString();
@@ -173,79 +173,79 @@ public class AccountActivity extends Activity {
         if (name.isEmpty()){
             edtName.setError("Thiếu thông tin");
             edtName.requestFocus();
-        }else if (phone.isEmpty()){
-            edtPhone.setError("Thiếu thông tin");
-            edtPhone.requestFocus();
+        }else if (email.isEmpty()){
+            edtEmail.setError("Thiếu thông tin");
+            edtEmail.requestFocus();
         }else if (password.isEmpty()){
             edtPassword.setError("Nhập mật khẩu");
             edtPassword.requestFocus();
-        }else {
-            if (cbChange.isChecked()){
-                if (newpass.isEmpty()){
-                    edtNew.setError("Nhập mật khẩu");
-                    edtNew.requestFocus();
-                }else if (!newpass.equals(newpass2)){
-                    edtNew2.setError("Mật khẩu xác nhận không khớp");
-                    edtNew2.requestFocus();
-                }else {
-                    User user = db.userLogin(phone, password);
-                    if (user != null){
-                        if (!getPhone.equals(phone)) {
-                            Boolean chkphone = db.chkphone(phone);
-                            if (chkphone == true) {
-                                updateUser(name, phone, newpass, resname, resphone, resaddress);
-                            } else {
-                                edtPhone.setError("Số điện thoại đã tồn tại");
-                                edtPhone.requestFocus();
-                            }
-                        }else {
-                            updateUser(name, phone, newpass, resname, resphone, resaddress);
-                        }
-                    }else {
-                        edtPassword.setError("Sai mật khẩu");
-                        edtPassword.requestFocus();
-                    }
-                }
-            }else {
-
-                User user = db.userLogin(phone, password);
-                if (user != null){
-                    if (!getPhone.equals(phone)){
-                        Boolean chkphone = db.chkphone(phone);
-                        if (chkphone == true) {
-                            updateUser(name,phone,password, resname, resphone, resaddress);
-                        }else {
-                            edtPhone.setError("Số điện thoại đã tồn tại");
-                            edtPhone.requestFocus();
-                        }
-                    } else {
-                        updateUser(name,phone,password, resname, resphone, resaddress);
-                    }
-                }else {
-                    edtPassword.setError("Sai mật khẩu");
-                    edtPassword.requestFocus();
-                }
-            }
+//        }else {
+//            if (cbChange.isChecked()){
+//                if (newpass.isEmpty()){
+//                    edtNew.setError("Nhập mật khẩu");
+//                    edtNew.requestFocus();
+//                }else if (!newpass.equals(newpass2)){
+//                    edtNew2.setError("Mật khẩu xác nhận không khớp");
+//                    edtNew2.requestFocus();
+//                }else {
+//                    User user = db.userLogin(email, password);
+//                    if (user != null){
+//                        if (!getEmail.equals(phone)) {
+//                            Boolean chkphone = db.chkphone(phone);
+//                            if (chkphone == true) {
+//                                updateUser(name, phone, newpass, resname, resphone, resaddress);
+//                            } else {
+//                                edtPhone.setError("Số điện thoại đã tồn tại");
+//                                edtPhone.requestFocus();
+//                            }
+//                        }else {
+//                            updateUser(name, phone, newpass, resname, resphone, resaddress);
+//                        }
+//                    }else {
+//                        edtPassword.setError("Sai mật khẩu");
+//                        edtPassword.requestFocus();
+//                    }
+//                }
+//            }else {
+//
+//                User user = db.userLogin(phone, password);
+//                if (user != null){
+//                    if (!getPhone.equals(phone)){
+//                        Boolean chkphone = db.chkphone(phone);
+//                        if (chkphone == true) {
+//                            updateUser(name,phone,password, resname, resphone, resaddress);
+//                        }else {
+//                            edtPhone.setError("Số điện thoại đã tồn tại");
+//                            edtPhone.requestFocus();
+//                        }
+//                    } else {
+//                        updateUser(name,phone,password, resname, resphone, resaddress);
+//                    }
+//                }else {
+//                    edtPassword.setError("Sai mật khẩu");
+//                    edtPassword.requestFocus();
+//                }
+//            }
         }
     }
 
-    private void updateUser (String name, String phone, String password, String resname, String resphone, String resaddress){
-//        user.setId();
-        user.setName(name);
-        user.setPhone(phone);
-        user.setPassword(password);
-        user.setResname(resname);
-        user.setResphone(resphone);
-        user.setResaddress(resaddress);
-        int result = db.updateUser(user);
-        if (result >0){
-            sessionManager.createSession(user.getId(), name,phone,password,resname,resphone,resaddress);
-            Toast.makeText(this, R.string.update_success, Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this,MainActivity.class));
-            finish();
-        }else {
-            Toast.makeText(this, R.string.toast_error, Toast.LENGTH_SHORT).show();
-        }
-
-    }
+//    private void updateUser (String name, String phone, String password, String resname, String resphone, String resaddress){
+////        user.setId();
+//        user.setName(name);
+//        user.setPhone(phone);
+//        user.setPassword(password);
+//        user.setResname(resname);
+//        user.setResphone(resphone);
+//        user.setResaddress(resaddress);
+//        int result = db.updateUser(user);
+//        if (result >0){
+//            sessionManager.createSession(user.getId(), name,phone,password,resname,resphone,resaddress);
+//            Toast.makeText(this, R.string.update_success, Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(this,MainActivity.class));
+//            finish();
+//        }else {
+//            Toast.makeText(this, R.string.toast_error, Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
 }

@@ -19,11 +19,12 @@ public class SessionManager {
     private static final String LOGIN = "IS_LOGIN";
     public static final String ID = "ID";
     public static final String NAME = "NAME";
-    public static final String PHONE = "PHONE";
+    public static final String EMAIL = "EMAIL";
     public static final String PASSWORD = "PASSWORD";
     public static final String RESPHONE = "RESPHONE";
     public static final String RESNAME = "RESNAME";
     public static final String RESADDRESS = "RESADDRESS";
+    public static final String IMAGE = "IMAGE";
 
     public SessionManager(Context context){
         this.context = context;
@@ -31,15 +32,16 @@ public class SessionManager {
         editor = sharedPreferences.edit();
     }
 
-    public void createSession(int id, String name, String phone, String password, String resname,String resphone, String resaddress){
+    public void createSession(String id, String name, String email, String password, String resname,String resphone, String resaddress, String image){
         editor.putBoolean(LOGIN, true);
-        editor.putInt(ID, id);
+        editor.putString(ID, id);
         editor.putString(NAME, name);
-        editor.putString(PHONE, phone);
+        editor.putString(EMAIL, email);
         editor.putString(PASSWORD, password);
         editor.putString(RESNAME, resname);
         editor.putString(RESPHONE, resphone);
         editor.putString(RESADDRESS, resaddress);
+        editor.putString(IMAGE, image);
         editor.apply();
     }
 
@@ -58,12 +60,14 @@ public class SessionManager {
 
     public HashMap<String, String> getUserDetail(){
         HashMap<String, String> user = new HashMap<>();
+        user.put(ID, sharedPreferences.getString(ID, null));
         user.put(NAME, sharedPreferences.getString(NAME, null));
-        user.put(PHONE, sharedPreferences.getString(PHONE, null));
+        user.put(EMAIL, sharedPreferences.getString(EMAIL, null));
         user.put(PASSWORD, sharedPreferences.getString(PASSWORD, null));
         user.put(RESNAME, sharedPreferences.getString(RESNAME, null));
         user.put(RESPHONE, sharedPreferences.getString(RESPHONE, null));
         user.put(RESADDRESS, sharedPreferences.getString(RESADDRESS, null));
+        user.put(IMAGE, sharedPreferences.getString(IMAGE, null));
         return user;
     }
 
