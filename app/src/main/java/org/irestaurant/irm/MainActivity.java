@@ -46,6 +46,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SessionManager sessionManager;
-    String getName, getResName, getEmail;
+    String getName, getResName, getEmail, getImage;
     TextView tvResName, tvName;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnPrinter;
@@ -142,8 +143,10 @@ public class MainActivity extends AppCompatActivity
         getName = user.get(sessionManager.NAME);
         getResName = user.get(sessionManager.RESNAME);
         getEmail = user.get(sessionManager.EMAIL);
+        getImage = user.get(sessionManager.IMAGE);
         tvName.setText(getName);
         tvResName.setText(getResName);
+        Glide.with(this).load(getImage).into(imgprofile);
         setTitle(getResName);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

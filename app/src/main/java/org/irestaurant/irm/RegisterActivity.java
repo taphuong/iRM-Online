@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
@@ -47,9 +48,10 @@ public class RegisterActivity extends Activity {
     CircleImageView ivPicture;
     ProgressDialog progressDialog;
 //    Firebase
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private StorageReference mStorage;
-    private FirebaseFirestore mFirestore;
+    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+    private CollectionReference mCollectUser = mFirestore.collection("Users");
     private String mVerificationId, firebaseID;
     private Uri imageUri;
 
@@ -74,8 +76,6 @@ public class RegisterActivity extends Activity {
         AnhXa();
         sessionManager = new SessionManager(this);
         FirebaseApp.initializeApp(this);
-        mAuth = FirebaseAuth.getInstance();
-        mFirestore = FirebaseFirestore.getInstance();
         mStorage = FirebaseStorage.getInstance().getReference().child("images");
         imageUri = null;
 
