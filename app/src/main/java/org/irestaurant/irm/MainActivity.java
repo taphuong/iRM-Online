@@ -124,6 +124,8 @@ public class MainActivity extends AppCompatActivity
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
 
+        sessionManager = new SessionManager(this);
+        sessionManager.checkLoggin();
 
 //        CheckBluetooth
         IntentFilter filter = new IntentFilter();
@@ -136,9 +138,6 @@ public class MainActivity extends AppCompatActivity
         AnhXa();
         setGvNumber();
 
-
-        sessionManager = new SessionManager(this);
-        sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
         getName = user.get(sessionManager.NAME);
         getResName = user.get(sessionManager.RESNAME);
@@ -146,7 +145,7 @@ public class MainActivity extends AppCompatActivity
         getImage = user.get(sessionManager.IMAGE);
         tvName.setText(getName);
         tvResName.setText(getResName);
-        Glide.with(this).load(getImage).into(imgprofile);
+//        Glide.with(this).load(getImage).into(imgprofile);
         setTitle(getResName);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -657,7 +656,9 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        if (firebaseUser == null){
+        if (firebaseUser == null || !sessionManager.isLoggin()){
+            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+            finish();
             sessionManager.logout();
         }
     }

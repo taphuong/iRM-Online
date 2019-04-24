@@ -131,28 +131,6 @@ public class LoginActivity extends Activity {
         startActivity(new Intent(this,RegisterActivity.class));
     }
 
-//    private void login(){
-//        DatabaseHelper db = new DatabaseHelper(this);
-//        String phone = edtPhone.getText().toString();
-//        String password = edtPassword.getText().toString();
-//
-//        Boolean chkphone = db.chkphone(phone);
-//        if (chkphone == true) {
-//            edtPhone.setError("Số điện thoại chưa đăng ký");
-//            edtPhone.requestFocus();
-//        }else {
-//            User user = db.userLogin(phone, password);
-//            if (user == null){
-//                edtPassword.setError("Sai mật khẩu");
-//                edtPassword.requestFocus();
-//            }else {
-//                sessionManager.createSession(user.getId(),user.getName(),user.getPhone(), user.getPassword(),user.getResname(),user.getResphone(),user.getResaddress());
-//                Toast.makeText(this, "Xin chào "+user.getName(), Toast.LENGTH_SHORT).show();
-//                startActivity(new Intent(this, MainActivity.class));
-//                finish();
-//            }
-//        }
-//    }
     private void loginFirebase(){
         progressDialog = ProgressDialog.show(LoginActivity.this,
                 "Đang đăng nhập", "Vui lòng đợi ...", true, false);
@@ -180,7 +158,7 @@ public class LoginActivity extends Activity {
                             });
 
                         } else {
-                            Toast.makeText(LoginActivity.this, "Thông tin đăn nhập sai", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Thông tin đăng nhập sai", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             tvForgot.setEnabled(true);
                             tvRegister.setEnabled(true);
