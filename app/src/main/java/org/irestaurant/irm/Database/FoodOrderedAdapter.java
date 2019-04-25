@@ -40,7 +40,6 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     LayoutInflater inflater;
     private int layout;
     private long price;
-    DatabaseFood databaseFood;
     DatabaseOrdered databaseOrdered;
     OrderedActivity orderedActivity;
     DatabaseTable databaseTable;
@@ -57,7 +56,6 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        databaseFood = new DatabaseFood(context);
         databaseOrdered = new DatabaseOrdered(context);
         databaseTable = new DatabaseTable(context);
 

@@ -1,40 +1,52 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.irestaurant.irm.Database.DatabaseFood;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.FoodAdapter;
 import org.irestaurant.irm.Database.SessionManager;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 public class MenuActivity extends Activity {
     SessionManager sessionManager;
-    String getResName;
+    String getResName, getEmail;
     TextView tvResname;
     Button btnHome, btnAddFood;
     EditText edtPrice;
-    ListView lvFood;
+    RecyclerView lvFood;
     List<Food> foodList;
     FoodAdapter foodAdapter;
-    DatabaseFood databaseFood;
+
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
     private void Anhxa(){
         btnHome     = findViewById(R.id.btn_home);
@@ -52,9 +64,15 @@ public class MenuActivity extends Activity {
         sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
         getResName = user.get(sessionManager.RESNAME);
+        getEmail = user.get(sessionManager.EMAIL);
         tvResname.setText(getResName);
-        databaseFood = new DatabaseFood(this);
-        foodList = databaseFood.getallFood();
+
+        foodList = new ArrayList<>();
+        foodAdapter = new FoodAdapter(this, foodList);
+        lvFood.setHasFixedSize(true);
+        lvFood.setLayoutManager(new LinearLayoutManager(this));
+        lvFood.setAdapter(foodAdapter);
+
         setLvFood();
 
 
@@ -73,15 +91,7 @@ public class MenuActivity extends Activity {
 
     }
     public void setLvFood() {
-        if (foodAdapter == null) {
-            foodAdapter = new FoodAdapter(MenuActivity.this, R.layout.item_table, foodList, this);
-            lvFood.setAdapter(foodAdapter);
-        } else {
-            foodList.clear();
-            foodList.addAll(databaseFood.getallFood());
-            foodAdapter.notifyDataSetChanged();
-            lvFood.setSelection(foodAdapter.getCount() - 1);
-        }
+
     }
 
     private void addFood(){
@@ -153,29 +163,37 @@ public class MenuActivity extends Activity {
             }
         };
     }
-    private void registFood (String foodname, String foodprice, Dialog dialog){
-        databaseFood = new DatabaseFood(this);
-        Food food = new Food();
-        food.setFoondname(foodname);
-        food.setFoodprice(foodprice);
-        if (databaseFood.creat(food)){
-            foodList.clear();
-            foodList.addAll(databaseFood.getallFood());
-            setLvFood();
-            Toast.makeText(this, "Đã thêm món "+foodname, Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        }else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.error);
-            builder.setMessage(R.string.cannot_create);
-            builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-        }
+    private void registFood (String foodname, String foodprice, final Dialog dialog){
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put(Config.FOODNAME, foodname);
+        nameMap.put(Config.FOODPRICE, foodprice);
+        mFirestore.collection("Restaurants").document(getEmail).collection("Menu").document().set(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                dialog.dismiss();
+            }
+        });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mFirestore.collection("Restaurant").document(getEmail).collection("Menu").addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot documentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Toast.makeText(MenuActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }else {
+                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
+                        if (doc.getType() == DocumentChange.Type.ADDED){
+                            Food food = doc.getDocument().toObject(Food.class);
+                            foodList.add(food);
+                            foodAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
 
+            }
+        });
+    }
 }

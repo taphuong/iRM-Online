@@ -1,11 +1,15 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -15,28 +19,47 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import org.irestaurant.irm.Database.DatabaseHelper;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.SessionManager;
-import org.irestaurant.irm.Database.User;
 
 import java.util.HashMap;
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AccountActivity extends Activity {
 
     SessionManager sessionManager;
-    EditText edtName, edtEmail,edtResName, edtResPhone, edtResAddress, edtPassword, edtNew, edtNew2;
+    EditText edtName,edtResName, edtResPhone, edtResAddress, edtPassword, edtNew, edtNew2;
     Button btnSave, btnHome, btnAddPhone, btnSaveV;
     LinearLayout layoutNewPass;
     RelativeLayout layoutChangeRes;
     CheckBox cbChange, cbChangeRes;
-    String getName, getEmail, getPassword, getResName, getResPhone, getResAddress;
-    DatabaseHelper db;
-    User user;
+    String getID, getName, getEmail, getPassword, getResName, getResPhone, getResAddress, getImage, getPosition;
+    CircleImageView ivPicture;
+    ProgressDialog progressDialog;
+    private Uri imageUri;
+
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+    private StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("images");
 
 
     private void Anhxa(){
         edtName     = findViewById(R.id.edt_name);
-        edtEmail    = findViewById(R.id.edt_email);
         edtResName  = findViewById(R.id.edt_resname);
         edtResPhone = findViewById(R.id.edt_resphone);
         edtResAddress = findViewById(R.id.edt_resaddress);
@@ -51,6 +74,7 @@ public class AccountActivity extends Activity {
         cbChangeRes = findViewById(R.id.cb_changeres);
         layoutNewPass = findViewById(R.id.newpass);
         layoutChangeRes = findViewById(R.id.resinfo);
+        ivPicture   = findViewById(R.id.iv_picture);
     }
 
     @Override
@@ -58,20 +82,29 @@ public class AccountActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
         Anhxa();
-        db = new DatabaseHelper(this);
+        imageUri = null;
         sessionManager = new SessionManager(this);
         HashMap<String, String> user = sessionManager.getUserDetail();
+        getID = user.get(sessionManager.ID);
         getName = user.get(sessionManager.NAME);
         getEmail = user.get(sessionManager.EMAIL);
         getPassword = user.get(sessionManager.PASSWORD);
         getResName = user.get(sessionManager.RESNAME);
         getResPhone = user.get(sessionManager.RESPHONE);
         getResAddress = user.get(sessionManager.RESADDRESS);
+        getImage = user.get(sessionManager.IMAGE);
+        getPosition = user.get(sessionManager.POSITION);
         edtName.setText(getName);
-        edtEmail.setText(getEmail);
         edtResName.setText(getResName);
         edtResPhone.setText(getResPhone);
         edtResAddress.setText(getResAddress);
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.placeholder(R.drawable.profile);
+        Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(getImage).into(ivPicture);
+
+        if (!getPosition.equals("admin")){
+            cbChangeRes.setVisibility(View.INVISIBLE);
+        }
 
         edtResPhone.addTextChangedListener(new TextWatcher() {
             @Override
@@ -144,6 +177,7 @@ public class AccountActivity extends Activity {
         btnHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startActivity(new Intent(AccountActivity.this, MainActivity.class));
                 finish();
             }
         });
@@ -160,92 +194,153 @@ public class AccountActivity extends Activity {
                 Save();
             }
         });
+        ivPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Chọn ảnh đại diện"),1 );
+            }
+        });
     }
     private void Save (){
-        String name = edtName.getText().toString();
-        String email = edtEmail.getText().toString();
-        String password = edtPassword.getText().toString();
-        String newpass = edtNew.getText().toString();
-        String newpass2 = edtNew2.getText().toString();
-        String resname = edtResName.getText().toString();
-        String resphone = edtResPhone.getText().toString();
-        String resaddress = edtResAddress.getText().toString();
-        if (name.isEmpty()){
+        final String mName = edtName.getText().toString().trim();
+        final String mResName = edtResName.getText().toString().trim();
+        final String mResPhone = edtResPhone.getText().toString().trim();
+        final String mResAddress = edtResAddress.getText().toString().trim();
+        String mPassword = edtPassword.getText().toString();
+        if (mName.isEmpty()){
             edtName.setError("Thiếu thông tin");
             edtName.requestFocus();
-        }else if (email.isEmpty()){
-            edtEmail.setError("Thiếu thông tin");
-            edtEmail.requestFocus();
-        }else if (password.isEmpty()){
-            edtPassword.setError("Nhập mật khẩu");
+        }else if (mResName.isEmpty()){
+            edtResName.setError("Thiếu thông tin");
+            edtResName.requestFocus();
+        }else if (mResPhone.isEmpty()){
+            edtResPhone.setError("Thiếu thông tin");
+            edtResPhone.requestFocus();
+        }else if (mResAddress.isEmpty()){
+            edtResAddress.setError("Thiếu thông tin");
+            edtResAddress.requestFocus();
+        }else if (mPassword.isEmpty()){
+            edtPassword.setError("Thiếu thông tin");
             edtPassword.requestFocus();
-//        }else {
-//            if (cbChange.isChecked()){
-//                if (newpass.isEmpty()){
-//                    edtNew.setError("Nhập mật khẩu");
-//                    edtNew.requestFocus();
-//                }else if (!newpass.equals(newpass2)){
-//                    edtNew2.setError("Mật khẩu xác nhận không khớp");
-//                    edtNew2.requestFocus();
-//                }else {
-//                    User user = db.userLogin(email, password);
-//                    if (user != null){
-//                        if (!getEmail.equals(phone)) {
-//                            Boolean chkphone = db.chkphone(phone);
-//                            if (chkphone == true) {
-//                                updateUser(name, phone, newpass, resname, resphone, resaddress);
-//                            } else {
-//                                edtPhone.setError("Số điện thoại đã tồn tại");
-//                                edtPhone.requestFocus();
-//                            }
-//                        }else {
-//                            updateUser(name, phone, newpass, resname, resphone, resaddress);
-//                        }
-//                    }else {
-//                        edtPassword.setError("Sai mật khẩu");
-//                        edtPassword.requestFocus();
-//                    }
-//                }
-//            }else {
-//
-//                User user = db.userLogin(phone, password);
-//                if (user != null){
-//                    if (!getPhone.equals(phone)){
-//                        Boolean chkphone = db.chkphone(phone);
-//                        if (chkphone == true) {
-//                            updateUser(name,phone,password, resname, resphone, resaddress);
-//                        }else {
-//                            edtPhone.setError("Số điện thoại đã tồn tại");
-//                            edtPhone.requestFocus();
-//                        }
-//                    } else {
-//                        updateUser(name,phone,password, resname, resphone, resaddress);
-//                    }
-//                }else {
-//                    edtPassword.setError("Sai mật khẩu");
-//                    edtPassword.requestFocus();
-//                }
-//            }
+        }else {
+            if (cbChange.isChecked()){
+                String mNew = edtNew.getText().toString();
+                String mNew2 = edtNew2.getText().toString();
+                if (!mPassword.equals(getPassword)){
+                    edtPassword.setError("Sai mật khẩu");
+                    edtPassword.requestFocus();
+                }else if (!mNew.equals(mNew2)){
+                    edtNew2.setError("Xác nhận mật khẩu không khớp");
+                    edtNew2.requestFocus();
+                }else {
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    final String newPassword = edtNew.getText().toString().trim();
+
+                    user.updatePassword(newPassword)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Map<String, Object> nameMap = new HashMap<>();
+                                        if (cbChangeRes.isChecked()) {
+                                            nameMap.put(Config.NAME, mName);
+                                            nameMap.put(Config.RESNAME, mResName);
+                                            nameMap.put(Config.RESPHONE, mResPhone);
+                                            nameMap.put(Config.RESADDRESS, mResAddress);
+                                        } else {
+                                            nameMap.put(Config.NAME, mName);
+                                        }
+                                        mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                sessionManager.createSession(getID,mName,getEmail,newPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
+                                                Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                                                finish();
+                                            }
+                                        });
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(AccountActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                            mAuth.signInWithEmailAndPassword(getEmail, getPassword);
+                        }
+                    });
+                }
+            }else {
+                if (!mPassword.equals(getPassword)){
+                    edtPassword.setError("Sai mật khẩu");
+                    edtPassword.requestFocus();
+                }else {
+                    Map<String, Object> nameMap = new HashMap<>();
+                    if (cbChangeRes.isChecked()) {
+                        nameMap.put(Config.NAME, mName);
+                        nameMap.put(Config.RESNAME, mResName);
+                        nameMap.put(Config.RESPHONE, mResPhone);
+                        nameMap.put(Config.RESADDRESS, mResAddress);
+                    } else {
+                        nameMap.put(Config.NAME, mName);
+                    }
+                    mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            sessionManager.createSession(getID,mName,getEmail,getPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
+                            Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                            finish();
+                        }
+                    });
+                }
+            }
+        }
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK){
+            imageUri = data.getData();
+            if (imageUri != null) {
+                ivPicture.setImageURI(imageUri);
+                final StorageReference user_profile = mStorage.child(getEmail+".jpg");
+                progressDialog = ProgressDialog.show(AccountActivity.this,
+                        "Cập nhật ảnh", "Đang tải ảnh lên ...", true, false);
+                user_profile.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()){
+                            user_profile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    final String download_url = uri.toString();
+                                    Map<String ,Object> userMap = new HashMap<>();
+                                    userMap.put("image", download_url);
+                                    mFirestore.collection("Users").document(getEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            progressDialog.dismiss();
+                                            Toast.makeText(AccountActivity.this, "Cập nhật ảnh thành công", Toast.LENGTH_SHORT).show();
+                                            sessionManager.createSession(getID, getName, getEmail, getPassword, getResName, getResPhone, getResAddress, getPosition, download_url);
+                                        }
+                                    });
+
+                                }
+                            });
+
+                        }else {
+                            Toast.makeText(AccountActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
         }
     }
 
-//    private void updateUser (String name, String phone, String password, String resname, String resphone, String resaddress){
-////        user.setId();
-//        user.setName(name);
-//        user.setPhone(phone);
-//        user.setPassword(password);
-//        user.setResname(resname);
-//        user.setResphone(resphone);
-//        user.setResaddress(resaddress);
-//        int result = db.updateUser(user);
-//        if (result >0){
-//            sessionManager.createSession(user.getId(), name,phone,password,resname,resphone,resaddress);
-//            Toast.makeText(this, R.string.update_success, Toast.LENGTH_SHORT).show();
-//            startActivity(new Intent(this,MainActivity.class));
-//            finish();
-//        }else {
-//            Toast.makeText(this, R.string.toast_error, Toast.LENGTH_SHORT).show();
-//        }
-//
-//    }
 }

@@ -43,13 +43,13 @@
             android:layout_marginRight="16dp"
             android:layout_alignParentRight="true"/>
     </RelativeLayout>
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/lv_food"
         android:layout_below="@id/menu"
         android:divider="@null">
-    </ListView>
+    </android.support.v7.widget.RecyclerView>
 
 
 </RelativeLayout>

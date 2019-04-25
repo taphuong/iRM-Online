@@ -47,11 +47,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.irestaurant.irm.Database.BluetoothService;
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.NumberAdapter;
@@ -73,13 +78,14 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SessionManager sessionManager;
-    String getName, getResName, getEmail, getImage;
+    String getName, getResName, getEmail, getImage, getPosition;
     TextView tvResName, tvName;
     GridView gvNumber;
-    Button btnAddTable, btnRemoveTable, btnPrinter;
+    Button btnAddTable, btnRemoveTable, btnPrinter, btnNewRes, btnJoinRes;
     Bitmap bitmap;
 //    Firebase
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     CircleImageView imgprofile;
     private List<Number> numberList;
     private DatabaseTable databaseTable;
@@ -111,8 +117,10 @@ public class MainActivity extends AppCompatActivity
         gvNumber    = findViewById(R.id.gv_number);
         btnAddTable      = findViewById(R.id.btn_addtable);
         btnRemoveTable  = findViewById(R.id.btn_removetable);
+        btnNewRes   = findViewById(R.id.btn_newres);
+        btnJoinRes  = findViewById(R.id.btn_joinres);
         btnPrinter  = findViewById(R.id.btn_printer);
-        imgprofile  = findViewById(R.id.im_profile);
+        imgprofile  = hView.findViewById(R.id.im_profile);
     }
 
     @Override
@@ -122,12 +130,48 @@ public class MainActivity extends AppCompatActivity
         databaseTable = new DatabaseTable(this);
         numberList = databaseTable.getallTable();
         FirebaseApp.initializeApp(this);
-        mAuth = FirebaseAuth.getInstance();
+        AnhXa();
 
         sessionManager = new SessionManager(this);
         sessionManager.checkLoggin();
+        HashMap<String, String> user = sessionManager.getUserDetail();
+        getName = user.get(sessionManager.NAME);
+        getResName = user.get(sessionManager.RESNAME);
+        getEmail = user.get(sessionManager.EMAIL);
+        getImage = user.get(sessionManager.IMAGE);
+        getPosition = user.get(sessionManager.POSITION);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser==null || getName == null || getName.isEmpty()){
+            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+            finish();
+            sessionManager.logout();
+        }else {
+            tvName.setText(getName);
+            tvResName.setText(getResName);
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.placeholder(R.drawable.profile);
+            Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(getImage).into(imgprofile);
+            setTitle(getResName);
+            if (getPosition.equals("admin")){
+                btnNewRes.setVisibility(View.GONE);
+                btnJoinRes.setVisibility(View.GONE);
+                setGvNumber();
+            }else if (getPosition.equals("employee")){
+                btnAddTable.setVisibility(View.GONE);
+                btnRemoveTable.setVisibility(View.GONE);
+                btnNewRes.setVisibility(View.GONE);
+                btnJoinRes.setVisibility(View.GONE);
+                setGvNumber();
+            } else if (getPosition.equals("none")){
+                btnRemoveTable.setVisibility(View.GONE);
+                btnAddTable.setVisibility(View.GONE);
+                gvNumber.setVisibility(View.GONE);
+                btnNewRes.setVisibility(View.VISIBLE);
+                btnJoinRes.setVisibility(View.VISIBLE);
+            }
+        }
 
-//        CheckBluetooth
+        //        CheckBluetooth
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
@@ -135,18 +179,6 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        AnhXa();
-        setGvNumber();
-
-        HashMap<String, String> user = sessionManager.getUserDetail();
-        getName = user.get(sessionManager.NAME);
-        getResName = user.get(sessionManager.RESNAME);
-        getEmail = user.get(sessionManager.EMAIL);
-        getImage = user.get(sessionManager.IMAGE);
-        tvName.setText(getName);
-        tvResName.setText(getResName);
-        Glide.with(this).load(getImage).into(imgprofile);
-        setTitle(getResName);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -655,8 +687,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        if (firebaseUser == null || !sessionManager.isLoggin()){
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser==null || !sessionManager.isLoggin()){
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             finish();
             sessionManager.logout();

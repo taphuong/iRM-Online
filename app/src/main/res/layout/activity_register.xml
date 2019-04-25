@@ -9,7 +9,6 @@
     android:background="@drawable/gradient_background">
 
 
-
     <TextView
         android:textColor="@color/mau_trang"
         android:paddingTop="10dp"
@@ -17,7 +16,7 @@
         android:id="@+id/dangky"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ĐĂNG KÝ TÀI KHOẢN"
+        android:text="@string/register"
         android:textSize="22sp"
         android:gravity="center"/>
     <de.hdodenhof.circleimageview.CircleImageView
@@ -29,126 +28,156 @@
         android:layout_marginBottom="8dp"
         android:src="@drawable/profile"/>
 
-    <RelativeLayout
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_below="@id/iv_picture"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/restaurant"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp">
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/hvt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:singleLine="true"
-                android:id="@+id/edt_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Họ và tên" />
-        </android.support.design.widget.TextInputLayout>
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/phone"
-            android:layout_below="@+id/hvt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/edt_phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email đăng nhập"
-                android:singleLine="true" />
-        </android.support.design.widget.TextInputLayout>
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/password"
-            android:layout_below="@+id/phone"
+        android:layout_above="@id/btn_regist">
+        <RelativeLayout
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:passwordToggleEnabled="true">
-            <EditText
-                android:id="@+id/edt_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Mật khẩu"
-                android:inputType="numberPassword"
-                android:singleLine="true" />
-        </android.support.design.widget.TextInputLayout>
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/cpassword"
-            android:layout_below="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:passwordToggleEnabled="true">
-            <EditText
-                android:id="@+id/edt_cpassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Xác nhận mật khẩu"
-                android:inputType="numberPassword"
-                android:singleLine="true"/>
-        </android.support.design.widget.TextInputLayout>
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/resname"
-            android:layout_below="@id/cpassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:singleLine="true"
-                android:id="@+id/edt_resname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Tên cửa hàng" />
-        </android.support.design.widget.TextInputLayout>
+            android:id="@+id/restaurant"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp">
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/resphone"
-            android:layout_below="@id/resname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:singleLine="true"
-                android:id="@+id/edt_resphone"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/hvt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:singleLine="true"
+                    android:id="@+id/edt_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/name" />
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/phone"
+                android:layout_below="@+id/hvt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:id="@+id/edt_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/email"
+                    android:singleLine="true" />
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/password"
+                android:layout_below="@+id/phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Số điện thoại cửa hàng"
-                android:inputType="number"/>
-        </android.support.design.widget.TextInputLayout>
-        <Button
-            android:visibility="invisible"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:id="@+id/btn_addphone"
-            android:background="@mipmap/ic_add"
-            android:layout_below="@id/resname"
-            android:layout_alignParentRight="true"/>
+                app:passwordToggleEnabled="true">
+                <EditText
+                    android:id="@+id/edt_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/password"
+                    android:inputType="numberPassword"
+                    android:singleLine="true" />
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/cpassword"
+                android:layout_below="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:passwordToggleEnabled="true">
+                <EditText
+                    android:id="@+id/edt_cpassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/cpassword"
+                    android:inputType="numberPassword"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/resaddress"
-            android:layout_below="@+id/resphone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:singleLine="true"
-                android:id="@+id/edt_resaddress"
+            <Switch
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Địa chỉ cửa hàng" />
-        </android.support.design.widget.TextInputLayout>
-    </RelativeLayout>
+                android:text="@string/switch_res"
+                android:textSize="18sp"
+                android:id="@+id/sw_newres"
+                android:layout_below="@+id/cpassword"
+                android:checked="false"/>
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/res"
+                android:layout_below="@id/sw_newres">
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/resname"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:singleLine="true"
+                        android:id="@+id/edt_resname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/resname" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/resphone"
+                    android:layout_below="@id/resname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:singleLine="true"
+                        android:id="@+id/edt_resphone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/resphone"
+                        android:inputType="number"/>
+                </android.support.design.widget.TextInputLayout>
+                <Button
+                    android:visibility="invisible"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:id="@+id/btn_addphone"
+                    android:background="@mipmap/ic_add"
+                    android:layout_below="@id/resname"
+                    android:layout_alignParentRight="true"/>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/resaddress"
+                    android:layout_below="@+id/resphone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:singleLine="true"
+                        android:id="@+id/edt_resaddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/resaddress" />
+                </android.support.design.widget.TextInputLayout>
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
+
     <Button
+        android:layout_alignParentBottom="true"
         android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_below="@+id/restaurant"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:id="@+id/btn_regist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_primary"
-        android:text="Đăng ký"
+        android:text="@string/btnregister"
+        android:textAllCaps="false"
+        android:textSize="20sp"
         android:textColor="@color/mau_trang"/>
 
     <ProgressBar
-        android:layout_below="@+id/restaurant"
         android:visibility="invisible"
         android:id="@+id/pgb_register"
         style="?android:attr/progressBarStyleHorizontal"

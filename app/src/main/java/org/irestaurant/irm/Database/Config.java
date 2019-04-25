@@ -3,6 +3,19 @@ package org.irestaurant.irm.Database;
 import java.util.Arrays;
 
 public class Config {
+    public static final String NAME = "name";
+    public static final String EMAIL = "email";
+    public static final String PASSWORD = "password";
+    public static final String RESNAME = "resname";
+    public static final String RESPHONE = "resphone";
+    public static final String RESADDRESS = "resaddress";
+    public static final String POSITION = "position";
+    public static final String IMAGE = "image";
+    public static final String TOKENID = "token_id";
+
+    public static final String FOODNAME = "foodname";
+    public static final String FOODPRICE = "foodprice";
+
     public static int Printer = 0;
     public static class VNCharacterUtils {
         // Mang cac ky tu goc co dau

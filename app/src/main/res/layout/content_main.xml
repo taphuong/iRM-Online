@@ -18,6 +18,30 @@
         android:columnWidth="100dp"
         android:numColumns="auto_fit"
         android:gravity="center"></GridView>
-
-
+    <RelativeLayout
+        android:visibility="gone"
+        android:layout_margin="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_nores"
+        android:layout_centerInParent="true">
+        <Button
+            android:background="@drawable/rounded_primary"
+            android:textColor="@color/mau_trang"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_newres"
+            android:text="@string/newres"
+            android:textAllCaps="false"
+            android:layout_marginBottom="16dp"/>
+        <Button
+            android:background="@drawable/rounded_primary"
+            android:textColor="@color/mau_trang"
+            android:layout_below="@id/btn_newres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_joinres"
+            android:text="@string/joinres"
+            android:textAllCaps="false"/>
+    </RelativeLayout>
 </RelativeLayout>

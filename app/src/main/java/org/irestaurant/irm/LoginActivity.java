@@ -32,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.DatabaseHelper;
 import org.irestaurant.irm.Database.FingerprintHandler;
 import org.irestaurant.irm.Database.SessionManager;
@@ -60,9 +61,9 @@ public class LoginActivity extends Activity {
     DatabaseHelper db;
     SessionManager sessionManager;
     ImageView ivFringer;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     ProgressDialog progressDialog;
-    private FirebaseFirestore mFirestore;
+    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
 
     private void Anhxa(){
@@ -80,9 +81,7 @@ public class LoginActivity extends Activity {
         db = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
         FirebaseApp.initializeApp(this);
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.setLanguageCode("VN");
-        mFirestore = FirebaseFirestore.getInstance();
+
         Anhxa();
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -143,17 +142,30 @@ public class LoginActivity extends Activity {
                         if (task.isSuccessful()) {
                             progressDialog.dismiss();
                             final String uID = mAuth.getCurrentUser().getUid();
-                            mFirestore.collection("Users").document(uID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            mFirestore.collection("Users").document(Email).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     String mName = documentSnapshot.getString("name");
-                                    String mResname = documentSnapshot.getString("resname");
-                                    String mResaddress = documentSnapshot.getString("resaddress");
-                                    String mResphone = documentSnapshot.getString("resphone");
-                                    String mImage = documentSnapshot.getString("image");
-                                    sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(), edtPassword.getText().toString(), mResname,mResaddress,mResphone,mImage);
-                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                    finish();
+                                    String mImage = documentSnapshot.getString(Config.IMAGE);
+                                    String mPosition = documentSnapshot.getString(Config.POSITION);
+                                    if (mPosition.equals("admin")){
+                                        String mResname = documentSnapshot.getString(Config.RESNAME);
+                                        String mResaddress = documentSnapshot.getString(Config.RESADDRESS);
+                                        String mResphone = documentSnapshot.getString(Config.RESPHONE);
+                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(), edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
+                                        Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                        finish();
+                                    }else {
+                                        String mResname = "Chưa có cửa hàng";
+                                        String mResphone = "Chưa có cửa hàng";
+                                        String mResaddress = "Chưa có cửa hàng";
+                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(), edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
+                                        Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                        finish();
+                                    }
+
                                 }
                             });
 

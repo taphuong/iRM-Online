@@ -43,7 +43,7 @@
             android:id="@+id/edt_phone"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="Email"
+            android:hint="@string/email"
             android:gravity="center"
             android:textSize="20sp"/>
         <EditText
@@ -53,7 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/rounded"
-            android:hint="Mật khẩu"
+            android:hint="@string/password"
             android:gravity="center"
             android:textSize="20sp"
             android:inputType="numberPassword"/>
@@ -72,7 +72,7 @@
                 android:layout_height="50dp"
                 android:background="@drawable/rounded_primary"
                 android:textColor="@color/mau_trang"
-                android:text="Đăng nhập"
+                android:text="@string/login"
                 android:textAllCaps="false"
                 android:textSize="20sp" />
 
@@ -96,7 +96,7 @@
         android:id="@+id/tv_forgot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Quên mật khẩu"
+        android:text="@string/forgot"
         android:gravity="center"
         android:textColor="@color/mau_trang"
         android:textSize="18dp"
@@ -107,7 +107,7 @@
         android:id="@+id/tv_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Đăng ký tài khoản"
+        android:text="@string/register"
         android:gravity="center"
         android:textStyle="bold"
         android:textColor="@color/mau_trang"

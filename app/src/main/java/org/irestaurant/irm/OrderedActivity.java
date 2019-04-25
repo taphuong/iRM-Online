@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,11 +21,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.irestaurant.irm.Database.DatabaseFood;
 import org.irestaurant.irm.Database.DatabaseOrdered;
 import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Food;
-import org.irestaurant.irm.Database.FoodAdapter;
 import org.irestaurant.irm.Database.FoodOrderedAdapter;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
@@ -52,7 +49,6 @@ public class OrderedActivity extends Activity {
     FoodOrderedAdapter foodOrderedAdapter;
     OredredAdapter oredredAdapter;
 
-    DatabaseFood databaseFood;
     DatabaseOrdered databaseOrdered;
     DatabaseTable databaseTable;
 
@@ -87,8 +83,7 @@ public class OrderedActivity extends Activity {
             }
         });
 
-        databaseFood = new DatabaseFood(this);
-        foodList = databaseFood.getallFood();
+
         databaseOrdered = new DatabaseOrdered(this);
         orderedList = databaseOrdered.getallOrdered(getNumber);
         setLvFood();
@@ -251,7 +246,7 @@ public class OrderedActivity extends Activity {
             lvFood.setAdapter(foodOrderedAdapter);
         } else {
             foodList.clear();
-            foodList.addAll(databaseFood.getallFood());
+
             foodOrderedAdapter.notifyDataSetChanged();
             lvFood.setSelection(foodOrderedAdapter.getCount() - 1);
         }
