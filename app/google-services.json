@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "731797920580",
+    "firebase_url": "https://irmfirebasedatabase.firebaseio.com",
+    "project_id": "irmfirebasedatabase",
+    "storage_bucket": "irmfirebasedatabase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731797920580:android:49859b3e03ed1d32",
+        "android_client_info": {
+          "package_name": "org.irestaurant.irm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "731797920580-pqs9ns72dcsb3316lf2rplrnd03ppj4i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.irestaurant.irm",
+            "certificate_hash": "0b904d1a61467254781b365e9872c98a77c32fc4"
+          }
+        },
+        {
+          "client_id": "731797920580-pt0605akk44ob4tgj2eobrets9ejnbi3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfzvp6spr0QWzn7lriUzgpSdmXxrqE8ec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "731797920580-pt0605akk44ob4tgj2eobrets9ejnbi3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

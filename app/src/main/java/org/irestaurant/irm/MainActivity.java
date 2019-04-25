@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity
         getImage = user.get(sessionManager.IMAGE);
         tvName.setText(getName);
         tvResName.setText(getResName);
-//        Glide.with(this).load(getImage).into(imgprofile);
+        Glide.with(this).load(getImage).into(imgprofile);
         setTitle(getResName);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
