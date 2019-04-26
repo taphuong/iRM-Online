@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SessionManager sessionManager;
-    String getName, getResName, getEmail, getImage, getPosition;
+    String getName, getResName, getEmail, getImage, getPosition, getResEmail;
     TextView tvResName, tvName;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnPrinter, btnNewRes, btnJoinRes;
@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         databaseTable = new DatabaseTable(this);
+
         numberList = databaseTable.getallTable();
         FirebaseApp.initializeApp(this);
         AnhXa();
@@ -140,6 +141,8 @@ public class MainActivity extends AppCompatActivity
         getEmail = user.get(sessionManager.EMAIL);
         getImage = user.get(sessionManager.IMAGE);
         getPosition = user.get(sessionManager.POSITION);
+        getResEmail = user.get(sessionManager.RESEMAIL);
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser==null || getName == null || getName.isEmpty()){
             startActivity(new Intent(MainActivity.this,LoginActivity.class));

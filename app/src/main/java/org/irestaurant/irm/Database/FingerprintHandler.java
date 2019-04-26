@@ -111,10 +111,7 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
         Toast.makeText(context, "Xác nhận vân tay lỗi, Vui lòng thử lại", Toast.LENGTH_SHORT).show();
     }
     private void login(String Phone){
-        DatabaseHelper db = new DatabaseHelper(context);
-        User user = db.fingerLogin(Phone);
 //        sessionManager.createSession(user.getId(),user.getName(),user.getPhone(), user.getPassword(),user.getResname(),user.getResphone(),user.getResaddress());
-        Toast.makeText(context, "Xin chào "+user.getName(), Toast.LENGTH_SHORT).show();
         Intent myIntent = new Intent(context, MainActivity.class);
         context.startActivity(myIntent);
     }

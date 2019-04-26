@@ -6,12 +6,15 @@ public class Config {
     public static final String NAME = "name";
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+    public static final String RESEMAIL = "resemail";
     public static final String RESNAME = "resname";
     public static final String RESPHONE = "resphone";
     public static final String RESADDRESS = "resaddress";
     public static final String POSITION = "position";
     public static final String IMAGE = "image";
     public static final String TOKENID = "token_id";
+    public static final String RESTAURANTS = "Restaurants";
+    public static final String MENU = "Menu";
 
     public static final String FOODNAME = "foodname";
     public static final String FOODPRICE = "foodprice";

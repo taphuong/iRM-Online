@@ -70,7 +70,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
         int stt = position +1;
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         formatter.applyPattern("#,###,###,###");
-        vholder.tvFood.setText(stt+". "+food.getFoondname());
+        vholder.tvFood.setText(stt+". "+food.getFoodname());
         vholder.layoutButton.setVisibility(View.GONE);
 
         vholder.tvPrice.setText(formatter.format(Integer.valueOf(food.getFoodprice())));
@@ -95,7 +95,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                 Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
                 btnConfirm.setText("Chọn");
                 TextView tvFood = dialog.findViewById(R.id.themban);
-                tvFood.setText(food.getFoondname());
+                tvFood.setText(food.getFoodname());
                 final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
                 price = Integer.valueOf(food.getFoodprice());
                 dialog.show();
@@ -165,7 +165,7 @@ public class FoodOrderedAdapter extends ArrayAdapter {
                     @Override
                     public void onClick(View v) {
                         String number = orderedActivity.getNumber;
-                        String foodname = food.getFoondname();
+                        String foodname = food.getFoodname();
                         String amount = edtAmount.getText().toString();
                         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
                         String total = String.valueOf(price*Integer.valueOf(amount));

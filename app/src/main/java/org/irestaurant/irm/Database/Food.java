@@ -1,22 +1,20 @@
 package org.irestaurant.irm.Database;
 
-public class Food {
-    private String foondname, foodprice;
+public class Food extends FoodId {
+    private String foodname, foodprice;
 
-    public Food(String foondname, String foodprice) {
-        this.foondname = foondname;
+    public Food(String foodname, String foodprice) {
+        this.foodname = foodname;
         this.foodprice = foodprice;
     }
 
     public Food() {
     }
 
-    public String getFoondname() {
-        return foondname;
-    }
+    public String getFoodname() { return foodname; }
 
-    public void setFoondname(String foondname) {
-        this.foondname = foondname;
+    public void setFoodname(String foodname) {
+        this.foodname = foodname;
     }
 
     public String getFoodprice() {

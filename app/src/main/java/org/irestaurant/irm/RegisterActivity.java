@@ -1,13 +1,10 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,9 +31,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import org.irestaurant.irm.Database.Config;
-import org.irestaurant.irm.Database.DatabaseHelper;
 import org.irestaurant.irm.Database.SessionManager;
-import org.irestaurant.irm.Database.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +42,6 @@ public class RegisterActivity extends Activity {
 
     EditText edtName, edtPhone, edtResName, edtResPhone, edtResAddress, edtPassword, edtCPassword;
     Button btnConfirm, btnAddPhone;
-    DatabaseHelper db;
     SessionManager sessionManager;
     CircleImageView ivPicture;
     ProgressDialog progressDialog;
@@ -80,7 +74,6 @@ public class RegisterActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        db = new DatabaseHelper(this);
         AnhXa();
         sessionManager = new SessionManager(this);
         FirebaseApp.initializeApp(this);
@@ -229,7 +222,7 @@ public class RegisterActivity extends Activity {
 
                         Map<String, Object> nameMap = new HashMap<>();
                         if (swNewRes.isChecked()) {
-                            nameMap.put(Config.EMAIL, mEmail);
+                            nameMap.put(Config.RESEMAIL, mEmail);
                             nameMap.put(Config.NAME, mName);
                             nameMap.put(Config.RESNAME, mResname);
                             nameMap.put(Config.RESPHONE, mResphone);
@@ -237,7 +230,7 @@ public class RegisterActivity extends Activity {
                             nameMap.put(Config.POSITION, "admin");
                             nameMap.put(Config.TOKENID, token_id);
                         } else {
-                            nameMap.put(Config.EMAIL, mEmail);
+                            nameMap.put(Config.RESEMAIL, "none");
                             nameMap.put(Config.NAME, mName);
                             nameMap.put(Config.POSITION, "none");
                             nameMap.put(Config.TOKENID, token_id);

@@ -1,19 +1,10 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.KeyguardManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -33,32 +24,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.irestaurant.irm.Database.Config;
-import org.irestaurant.irm.Database.DatabaseHelper;
-import org.irestaurant.irm.Database.FingerprintHandler;
 import org.irestaurant.irm.Database.SessionManager;
-import org.irestaurant.irm.Database.User;
-
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 public class LoginActivity extends Activity {
 
     EditText edtPhone, edtPassword;
     TextView tvForgot, tvRegister;
     Button btnLogin;
-    DatabaseHelper db;
     SessionManager sessionManager;
     ImageView ivFringer;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -78,7 +50,6 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        db = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
         FirebaseApp.initializeApp(this);
 
@@ -148,19 +119,21 @@ public class LoginActivity extends Activity {
                                     String mName = documentSnapshot.getString("name");
                                     String mImage = documentSnapshot.getString(Config.IMAGE);
                                     String mPosition = documentSnapshot.getString(Config.POSITION);
+                                    String ResEmail = documentSnapshot.getString(Config.RESEMAIL);
                                     if (mPosition.equals("admin")){
                                         String mResname = documentSnapshot.getString(Config.RESNAME);
                                         String mResaddress = documentSnapshot.getString(Config.RESADDRESS);
                                         String mResphone = documentSnapshot.getString(Config.RESPHONE);
-                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(), edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
+                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(),ResEmail, edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
                                         Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         finish();
                                     }else {
+                                        String mResemail = "Chưa có cửa hàng";
                                         String mResname = "Chưa có cửa hàng";
                                         String mResphone = "Chưa có cửa hàng";
                                         String mResaddress = "Chưa có cửa hàng";
-                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(), edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
+                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(),mResemail, edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
                                         Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         finish();

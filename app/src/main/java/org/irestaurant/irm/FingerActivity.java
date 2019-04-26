@@ -2,21 +2,17 @@ package org.irestaurant.irm;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
-import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.widget.Toast;
 
-import org.irestaurant.irm.Database.DatabaseHelper;
 import org.irestaurant.irm.Database.FingerprintHandler;
 import org.irestaurant.irm.Database.SessionManager;
-import org.irestaurant.irm.Database.User;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;

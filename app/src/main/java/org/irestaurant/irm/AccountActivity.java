@@ -48,7 +48,7 @@ public class AccountActivity extends Activity {
     LinearLayout layoutNewPass;
     RelativeLayout layoutChangeRes;
     CheckBox cbChange, cbChangeRes;
-    String getID, getName, getEmail, getPassword, getResName, getResPhone, getResAddress, getImage, getPosition;
+    String getID, getName, getEmail, getResEmail, getPassword, getResName, getResPhone, getResAddress, getImage, getPosition;
     CircleImageView ivPicture;
     ProgressDialog progressDialog;
     private Uri imageUri;
@@ -94,6 +94,7 @@ public class AccountActivity extends Activity {
         getResAddress = user.get(sessionManager.RESADDRESS);
         getImage = user.get(sessionManager.IMAGE);
         getPosition = user.get(sessionManager.POSITION);
+        getResEmail = user.get(sessionManager.RESEMAIL);
         edtName.setText(getName);
         edtResName.setText(getResName);
         edtResPhone.setText(getResPhone);
@@ -256,7 +257,7 @@ public class AccountActivity extends Activity {
                                         mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                sessionManager.createSession(getID,mName,getEmail,newPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
+                                                sessionManager.createSession(getID,mName,getEmail,getResEmail,newPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
                                                 Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
                                                 startActivity(new Intent(AccountActivity.this, MainActivity.class));
                                                 finish();
@@ -289,7 +290,7 @@ public class AccountActivity extends Activity {
                     mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            sessionManager.createSession(getID,mName,getEmail,getPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
+                            sessionManager.createSession(getID,mName,getEmail,getResEmail,getPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
                             Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(AccountActivity.this, MainActivity.class));
                             finish();
@@ -327,7 +328,7 @@ public class AccountActivity extends Activity {
                                         public void onSuccess(Void aVoid) {
                                             progressDialog.dismiss();
                                             Toast.makeText(AccountActivity.this, "Cập nhật ảnh thành công", Toast.LENGTH_SHORT).show();
-                                            sessionManager.createSession(getID, getName, getEmail, getPassword, getResName, getResPhone, getResAddress, getPosition, download_url);
+                                            sessionManager.createSession(getID, getName, getEmail, getResEmail, getPassword, getResName, getResPhone, getResAddress, getPosition, download_url);
                                         }
                                     });
 

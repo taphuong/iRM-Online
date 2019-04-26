@@ -22,6 +22,7 @@ public class SessionManager {
     public static final String ID = "ID";
     public static final String NAME = "NAME";
     public static final String EMAIL = "EMAIL";
+    public static final String RESEMAIL = "RESEMAIL";
     public static final String PASSWORD = "PASSWORD";
     public static final String RESPHONE = "RESPHONE";
     public static final String RESNAME = "RESNAME";
@@ -36,11 +37,12 @@ public class SessionManager {
         editor = sharedPreferences.edit();
     }
 
-    public void createSession(String id, String name, String email, String password, String resname,String resphone, String resaddress,String position, String image){
+    public void createSession(String id, String name, String email,String resemail, String password, String resname,String resphone, String resaddress,String position, String image){
         editor.putBoolean(LOGIN, true);
         editor.putString(ID, id);
         editor.putString(NAME, name);
         editor.putString(EMAIL, email);
+        editor.putString(RESEMAIL, resemail);
         editor.putString(PASSWORD, password);
         editor.putString(RESNAME, resname);
         editor.putString(RESPHONE, resphone);
@@ -57,9 +59,10 @@ public class SessionManager {
     public void checkLoggin(){
 
         if (!this.isLoggin()){
-            Intent i = new Intent(context, LoginActivity.class);
-            context.startActivity(i);
-            ((MainActivity) context).finish();
+            logout();
+//            Intent i = new Intent(context, LoginActivity.class);
+//            context.startActivity(i);
+//            ((MainActivity) context).finish();
         }
     }
 
@@ -68,6 +71,7 @@ public class SessionManager {
         user.put(ID, sharedPreferences.getString(ID, null));
         user.put(NAME, sharedPreferences.getString(NAME, null));
         user.put(EMAIL, sharedPreferences.getString(EMAIL, null));
+        user.put(RESEMAIL, sharedPreferences.getString(RESEMAIL, null));
         user.put(PASSWORD, sharedPreferences.getString(PASSWORD, null));
         user.put(RESNAME, sharedPreferences.getString(RESNAME, null));
         user.put(RESPHONE, sharedPreferences.getString(RESPHONE, null));
