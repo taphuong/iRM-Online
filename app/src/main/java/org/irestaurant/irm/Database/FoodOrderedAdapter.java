@@ -42,7 +42,6 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     private long price;
     DatabaseOrdered databaseOrdered;
     OrderedActivity orderedActivity;
-    DatabaseTable databaseTable;
 
     public FoodOrderedAdapter(@NonNull Context context, int layout, @NonNull List<Food> foodList, OrderedActivity orderedActivity) {
         super(context, layout, foodList);
@@ -57,7 +56,6 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
         databaseOrdered = new DatabaseOrdered(context);
-        databaseTable = new DatabaseTable(context);
 
         if(inflater == null){
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -252,10 +250,10 @@ public class FoodOrderedAdapter extends ArrayAdapter {
     }
 
     private void updateTable (String status, String tb){
-        databaseTable = new DatabaseTable(context);
-        Number number = new Number();
-        number.setStatus(status);
-        databaseTable.updateTable(number, tb);
+//        databaseTable = new DatabaseTable(context);
+//        Number number = new Number();
+//        number.setStatus(status);
+//        databaseTable.updateTable(number, tb);
     }
 
 

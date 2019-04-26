@@ -15,7 +15,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -33,7 +32,6 @@ import org.irestaurant.irm.Database.BluetoothService;
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.DatabaseOrdered;
 import org.irestaurant.irm.Database.DatabaseRevenue;
-import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.PayAdapter;
@@ -70,7 +68,6 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     PayAdapter payAdapter;
     DatabaseOrdered databaseOrdered;
     DatabaseRevenue databaseRevenue;
-    DatabaseTable databaseTable;
 
     protected static final String TAG = "TAG";
     private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -328,10 +325,10 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     }
 
     private void updateTable (String tb){
-        databaseTable = new DatabaseTable(this);
+//        databaseTable = new DatabaseTable(this);
         Number number = new Number();
         number.setStatus("free");
-        databaseTable.updateTable(number, tb);
+//        databaseTable.updateTable(number, tb);
         startActivity(new Intent(PayActivity.this, MainActivity.class));
         finish();
     }

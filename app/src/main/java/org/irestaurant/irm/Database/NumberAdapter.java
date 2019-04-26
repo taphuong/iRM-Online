@@ -14,6 +14,7 @@ import org.irestaurant.irm.R;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,17 +25,22 @@ public class NumberAdapter extends ArrayAdapter {
     DatabaseOrdered databaseOrdered;
     List<Ordered>orderedList;
     long tongtien;
+    SessionManager sessionManager;
+    String getResEmail;
 
     public NumberAdapter(@NonNull Context context, int resource, @NonNull List<Number> numberList) {
         super(context, resource, numberList);
         this.context = context;
-        this.resource = resource;
         this.numberList = numberList;
     }
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder viewHolder;
+        sessionManager = new SessionManager(context);
+        HashMap<String, String> user = sessionManager.getUserDetail();
+        getResEmail = user.get(sessionManager.RESEMAIL);
+
         if (convertView==null){
             convertView = LayoutInflater.from(context).inflate(R.layout.item_table,parent,false);
             viewHolder = new ViewHolder();
@@ -58,15 +64,15 @@ public class NumberAdapter extends ArrayAdapter {
 //            viewHolder.ivStatus.setBackgroundResource(R.drawable.rounded_busy);
             viewHolder.ivStatus.setImageResource(R.drawable.rounded_busy);
 
-            databaseOrdered = new DatabaseOrdered(context);
-            orderedList = databaseOrdered.getallOrdered(number.getNumber());
-            tongtien = 0;
-            for (int a =0; a<orderedList.size();a++){
-                tongtien += Integer.valueOf(orderedList.get(a).getTotal());
-            }
-            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-            formatter.applyPattern("#,###,###,###");
-            viewHolder.tvTotal.setText(formatter.format(tongtien));
+//            databaseOrdered = new DatabaseOrdered(context);
+//            orderedList = databaseOrdered.getallOrdered(number.getNumber());
+//            tongtien = 0;
+//            for (int a =0; a<orderedList.size();a++){
+//                tongtien += Integer.valueOf(orderedList.get(a).getTotal());
+//            }
+//            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+//            formatter.applyPattern("#,###,###,###");
+//            viewHolder.tvTotal.setText(formatter.format(tongtien));
         }
 
 

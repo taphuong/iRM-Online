@@ -15,6 +15,8 @@ public class Config {
     public static final String TOKENID = "token_id";
     public static final String RESTAURANTS = "Restaurants";
     public static final String MENU = "Menu";
+    public static final String NUMBER = "Number";
+    public static final String STATUS = "status";
 
     public static final String FOODNAME = "foodname";
     public static final String FOODPRICE = "foodprice";

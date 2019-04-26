@@ -1,25 +1,17 @@
 package org.irestaurant.irm.Database;
 
-public class Number {
-    private int id;
+public class Number extends NumberId {
     private String number, status;
 
-//    public Number(String number, String status) {
-//        this.number = number;
-//        this.status = status;
-//    }
-//
-//    public Number() {
-//
-//    }
-
-    public int getId() {
-        return id;
+    public Number(String number, String status) {
+        this.number = number;
+        this.status = status;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public Number() {
+
     }
+
 
     public String getNumber() {
         return number;

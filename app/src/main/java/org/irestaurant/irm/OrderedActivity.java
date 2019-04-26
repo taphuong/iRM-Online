@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.irestaurant.irm.Database.DatabaseOrdered;
-import org.irestaurant.irm.Database.DatabaseTable;
 import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.FoodOrderedAdapter;
 import org.irestaurant.irm.Database.Number;
@@ -50,7 +49,6 @@ public class OrderedActivity extends Activity {
     OredredAdapter oredredAdapter;
 
     DatabaseOrdered databaseOrdered;
-    DatabaseTable databaseTable;
 
     private void Anhxa(){
         lvFood = findViewById(R.id.lv_food);
@@ -218,10 +216,10 @@ public class OrderedActivity extends Activity {
                                         setLvOrdered();
                                         orderedList = databaseOrdered.getallOrdered(getNumber);
                                         if (orderedList.size()==0){
-                                            databaseTable = new DatabaseTable(OrderedActivity.this);
-                                            Number number = new Number();
-                                            number.setStatus("free");
-                                            databaseTable.updateTable(number, getNumber);
+//                                            databaseTable = new DatabaseTable(OrderedActivity.this);
+//                                            Number number = new Number();
+//                                            number.setStatus("free");
+//                                            databaseTable.updateTable(number, getNumber);
                                         }
                                     }
                                 });

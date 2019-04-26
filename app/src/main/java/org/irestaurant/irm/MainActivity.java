@@ -1,34 +1,18 @@
 package org.irestaurant.irm;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.support.design.button.MaterialButton;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -36,10 +20,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -48,29 +30,35 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import org.irestaurant.irm.Database.BluetoothService;
 import org.irestaurant.irm.Database.Config;
-import org.irestaurant.irm.Database.DatabaseTable;
+import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.NumberAdapter;
 import org.irestaurant.irm.Database.SessionManager;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -81,31 +69,15 @@ public class MainActivity extends AppCompatActivity
     String getName, getResName, getEmail, getImage, getPosition, getResEmail;
     TextView tvResName, tvName;
     GridView gvNumber;
-    Button btnAddTable, btnRemoveTable, btnPrinter, btnNewRes, btnJoinRes;
-    Bitmap bitmap;
+    Button btnAddTable, btnRemoveTable, btnNewRes, btnJoinRes;
 //    Firebase
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     CircleImageView imgprofile;
     private List<Number> numberList;
-    private DatabaseTable databaseTable;
     private NumberAdapter numberAdapter;
-    //Printer
-    protected static final String TAG = "TAG";
-    private static final int REQUEST_CONNECT_DEVICE = 1;
-    private static final int REQUEST_ENABLE_BT = 2;
-    Button mScan, mPrint, mDisc;
-    BluetoothAdapter mBluetoothAdapter;
-    private UUID applicationUUID = UUID
-            .fromString("00001101-0000-1000-8000-00805F9B34FB");
-    private ProgressDialog mBluetoothConnectProgressDialog;
-    private BluetoothSocket mBluetoothSocket;
-    BluetoothDevice mBluetoothDevice;
+    private CollectionReference numberRef;
 
-    public static final int RC_BLUETOOTH = 0;
-    public static final int RC_CONNECT_DEVICE = 1;
-    public static final int RC_ENABLE_BLUETOOTH = 2;
-    private BluetoothService mService = null;
 
 
     private void AnhXa(){
@@ -119,7 +91,6 @@ public class MainActivity extends AppCompatActivity
         btnRemoveTable  = findViewById(R.id.btn_removetable);
         btnNewRes   = findViewById(R.id.btn_newres);
         btnJoinRes  = findViewById(R.id.btn_joinres);
-        btnPrinter  = findViewById(R.id.btn_printer);
         imgprofile  = hView.findViewById(R.id.im_profile);
     }
 
@@ -127,9 +98,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        databaseTable = new DatabaseTable(this);
 
-        numberList = databaseTable.getallTable();
         FirebaseApp.initializeApp(this);
         AnhXa();
 
@@ -158,13 +127,13 @@ public class MainActivity extends AppCompatActivity
             if (getPosition.equals("admin")){
                 btnNewRes.setVisibility(View.GONE);
                 btnJoinRes.setVisibility(View.GONE);
-                setGvNumber();
+//                setGvNumber();
             }else if (getPosition.equals("employee")){
                 btnAddTable.setVisibility(View.GONE);
                 btnRemoveTable.setVisibility(View.GONE);
                 btnNewRes.setVisibility(View.GONE);
                 btnJoinRes.setVisibility(View.GONE);
-                setGvNumber();
+//                setGvNumber();
             } else if (getPosition.equals("none")){
                 btnRemoveTable.setVisibility(View.GONE);
                 btnAddTable.setVisibility(View.GONE);
@@ -174,11 +143,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        //        CheckBluetooth
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -191,6 +155,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        numberList = new ArrayList<>();
+        numberAdapter = new NumberAdapter(this, R.layout.item_table, numberList);
+        gvNumber.setAdapter(numberAdapter);
+
+        numberRef = mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.NUMBER);
 
         btnRemoveTable.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,22 +176,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        btnPrinter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                connectPrinter();
-            }
-        });
 
         gvNumber.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 String status = numberList.get(position).getStatus();
                 if (status.equals("free")){
-                    String idnumber = String.valueOf(numberList.get(position).getId());
+//                    String idnumber = String.valueOf(numberList.get(position).getId());
                     String number = numberList.get(position).getNumber();
                     Intent i = new Intent(MainActivity.this, OrderedActivity.class);
-                    i.putExtra("idnumber", idnumber);
+//                    i.putExtra("idnumber", idnumber);
                     i.putExtra("number", number);
                     startActivity(i);
                 }else if (status.equals("busy")){
@@ -237,10 +201,10 @@ public class MainActivity extends AppCompatActivity
                     builder.setNegativeButton("Thêm món", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            String idnumber = String.valueOf(numberList.get(position).getId());
+//                            String idnumber = String.valueOf(numberList.get(position).getId());
                             String number = numberList.get(position).getNumber();
                             Intent e = new Intent(MainActivity.this, OrderedActivity.class);
-                            e.putExtra("idnumber", idnumber);
+//                            e.putExtra("idnumber", idnumber);
                             e.putExtra("number", number);
                             startActivity(e);
                         }
@@ -248,10 +212,10 @@ public class MainActivity extends AppCompatActivity
                     builder.setNeutralButton("Tính tiền", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            String idnumber = String.valueOf(numberList.get(position).getId());
+//                            String idnumber = String.valueOf(numberList.get(position).getId());
                             String number = numberList.get(position).getNumber();
                             Intent i = new Intent(MainActivity.this, PayActivity.class);
-                            i.putExtra("idnumber", idnumber);
+//                            i.putExtra("idnumber", idnumber);
                             i.putExtra("number", number);
                             startActivity(i);
                         }
@@ -266,44 +230,49 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void setGvNumber() {
-        if (numberAdapter == null) {
-            numberAdapter = new NumberAdapter(MainActivity.this, R.layout.item_table, numberList);
-            gvNumber.setAdapter(numberAdapter);
-        } else {
-            numberList.clear();
-            numberList.addAll(databaseTable.getallTable());
-            numberAdapter.notifyDataSetChanged();
-            gvNumber.setSelection(numberAdapter.getCount() - 1);
-        }
-        if (numberList.size()<1){
-            btnRemoveTable.setVisibility(View.INVISIBLE);
+    private void deleteNumber(int s) {
+        String id = null;
+        if (s<10){
+            id = "00"+s;
+        }else if (s<100){
+            id = "0"+s;
         }else {
-            btnRemoveTable.setVisibility(View.VISIBLE);
+            id = String.valueOf(s);
         }
+        numberRef.document(id).delete().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
     }
 
 
 
     private void RegistNumber (long s){
-        DatabaseTable db = new DatabaseTable(getApplicationContext());
-        Number number = new Number();
-        number.setNumber(String.valueOf(s));
-        number.setStatus("free");
-        if (db.creat(number)){
-            numberList.clear();
-            numberList.addAll(databaseTable.getallTable());
+        String id = null;
+        String number = String.valueOf(s);
+        if (s<10){
+            id = "00"+s;
+        }else if (s<100){
+            id = "0"+s;
         }else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.error);
-            builder.setMessage(R.string.cannot_create);
-            builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
+            id = String.valueOf(s);
         }
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put("number", number);
+        nameMap.put("status", "free");
+        numberRef.document(id).set(nameMap).addOnSuccessListener(this, new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     private void removeTable(){
         final Dialog dialog = new Dialog(MainActivity.this);
@@ -403,23 +372,24 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-                            progressDialog.setMessage("Đang thêm bàn");
+                            progressDialog.setMessage("Đang xóa bàn");
                             progressDialog.show();
                             int nbsize = numberList.size();
                             int amount = Integer.valueOf(edtAmount.getText().toString());
                             int a;
                             for (a = 0; a < amount; a++) {
-                                databaseTable.deleteTable(nbsize);
+                                deleteNumber(nbsize);
                                 nbsize--;
                             }
-                            setGvNumber();
                             if (amount==nbsize){
                                 btnRemoveTable.setVisibility(View.INVISIBLE);
                             }
-                            Toast.makeText(MainActivity.this, "Đã xóa " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Đã xóa " + Integer.valueOf(edtAmount.getText().toString()) + " bàn", Toast.LENGTH_LONG).show();
                             dialog.dismiss();
                             progressDialog.dismiss();
                             dialogInterface.dismiss();
+                            finish();
+                            startActivity(getIntent());
                         }
                     });
                     AlertDialog alertDialog = builder.create();
@@ -520,8 +490,7 @@ public class MainActivity extends AppCompatActivity
                         size++;
                     }
                     btnRemoveTable.setVisibility(View.VISIBLE);
-                    setGvNumber();
-                    Toast.makeText(MainActivity.this, "Đã thêm " + String.valueOf(Integer.valueOf(edtAmount.getText().toString())) + " bàn", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Đã thêm " + Integer.valueOf(edtAmount.getText().toString()) + " bàn", Toast.LENGTH_LONG).show();
                     dialog.dismiss();
                     progressDialog.dismiss();
                 }
@@ -605,87 +574,7 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void connectPrinter(){
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(MainActivity.this, "Message1", Toast.LENGTH_SHORT).show();
-        } else {
-            if (!mBluetoothAdapter.isEnabled()) {
-                Intent enableBtIntent = new Intent(
-                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent,
-                        REQUEST_ENABLE_BT);
-            } else {
-                ListPairedDevices();
-                Intent connectIntent = new Intent(MainActivity.this,
-                        DeviceListActivity.class);
-                startActivityForResult(connectIntent,
-                        REQUEST_CONNECT_DEVICE);
-            }
-        }
-    }
 
-    public void onActivityResult(int mRequestCode, int mResultCode,
-                                 Intent mDataIntent) {
-        super.onActivityResult(mRequestCode, mResultCode, mDataIntent);
-
-        switch (mRequestCode) {
-            case RC_ENABLE_BLUETOOTH:
-                if (mResultCode == RESULT_OK) {
-                    Log.i(TAG, "onActivityResult: bluetooth aktif");
-                } else
-                    Log.i(TAG, "onActivityResult: bluetooth harus aktif untuk menggunakan fitur ini");
-                break;
-            case RC_CONNECT_DEVICE:
-                if (mResultCode == RESULT_OK) {
-                    String address = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                    BluetoothDevice mDevice = mService.getDevByMac(address);
-                    mService.connect(mDevice);
-                }
-                break;
-        }
-    }
-
-    public void ListPairedDevices() {
-        Set<BluetoothDevice> mPairedDevices = mBluetoothAdapter
-                .getBondedDevices();
-        if (mPairedDevices.size() > 0) {
-            for (BluetoothDevice mDevice : mPairedDevices) {
-                Log.v(TAG, "PairedDevices: " + mDevice.getName() + "  "
-                        + mDevice.getAddress());
-            }
-        }
-    }
-    public void run() {
-        try {
-            mBluetoothSocket = mBluetoothDevice
-                    .createRfcommSocketToServiceRecord(applicationUUID);
-            mBluetoothAdapter.cancelDiscovery();
-            mBluetoothSocket.connect();
-            mHandler.sendEmptyMessage(0);
-        } catch (IOException eConnectException) {
-            Log.d(TAG, "CouldNotConnectToSocket", eConnectException);
-            closeSocket(mBluetoothSocket);
-            return;
-        }
-    }
-
-    public void closeSocket(BluetoothSocket nOpenSocket) {
-        try {
-            nOpenSocket.close();
-            Log.d(TAG, "SocketClosed");
-        } catch (IOException ex) {
-            Log.d(TAG, "CouldNotCloseSocket");
-        }
-    }
-
-    public Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            mBluetoothConnectProgressDialog.dismiss();
-            Toast.makeText(MainActivity.this, "DeviceConnected", Toast.LENGTH_SHORT).show();
-        }
-    };
 
     @Override
     protected void onStart() {
@@ -698,5 +587,61 @@ public class MainActivity extends AppCompatActivity
             finish();
             sessionManager.logout();
         }
+        numberList.clear();
+        numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                if (e != null){
+                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+//                else {
+                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
+                        if (doc.getType() == DocumentChange.Type.ADDED){
+                            String numberId = doc.getDocument().getId();
+                            Number number = doc.getDocument().toObject(Number.class).withId(numberId);
+                            numberList.add(number);
+                            numberAdapter.notifyDataSetChanged();
+                        }else if (doc.getType() == DocumentChange.Type.REMOVED){
+
+                            String numberId = doc.getDocument().getId();
+
+//                            Number number = doc.getDocument().toObject(Number.class).withId(numberId);
+                            numberList.remove(Integer.valueOf(numberId));
+                            numberAdapter.notifyDataSetChanged();
+                        }
+                    }
+
+//                }
+
+            }
+        });
+
+//        numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+//                if (e != null){
+//                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+//                    String numberId = documentSnapshot.getId();
+//                    Number number = documentSnapshot.toObject(Number.class).withId(numberId);
+////                    String status = documentSnapshot.getString(Config.STATUS);
+//                    int s = numberList.size();
+//                    numberList.clear();
+//                    int i;
+//                    for (i = 0; i<=s; i++){
+//                        String Id = documentSnapshot.getId();
+//                        Number number2 = documentSnapshot.toObject(Number.class).withId(Id);
+//                        numberList.add(number2);
+//                        numberAdapter.notifyDataSetChanged();
+//                    }
+//                    numberAdapter.notifyDataSetChanged();
+//
+//                }
+//            }
+//        });
+
     }
 }
