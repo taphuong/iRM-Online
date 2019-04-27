@@ -1,5 +1,7 @@
 package org.irestaurant.irm.Database;
 
+import java.util.List;
+
 public class Number extends NumberId {
     private String number, status;
 
@@ -24,4 +26,6 @@ public class Number extends NumberId {
     public String getStatus() { return status; }
 
     public void setStatus(String status) { this.status = status; }
+
+
 }

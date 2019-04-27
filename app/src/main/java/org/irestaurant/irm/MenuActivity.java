@@ -192,15 +192,16 @@ public class MenuActivity extends Activity {
                     Toast.makeText(MenuActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }else {
                     for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
-                        if (doc.getType() == DocumentChange.Type.ADDED){
-                            String foodId = doc.getDocument().getId();
-                            Food food = doc.getDocument().toObject(Food.class).withId(foodId);
-                            foodList.add(food);
-                            foodAdapter.notifyDataSetChanged();
-                        }else if (doc.getType() == DocumentChange.Type.REMOVED){
-                            Food food = doc.getDocument().toObject(Food.class);
-                            foodList.remove(food);
-                            foodAdapter.notifyDataSetChanged();
+                        String foodId = doc.getDocument().getId();
+                        switch (doc.getType()){
+                            case ADDED:
+                                Food food = doc.getDocument().toObject(Food.class).withId(foodId);
+                                foodList.add(food);
+                                foodAdapter.notifyDataSetChanged();
+                                break;
+                            case REMOVED:
+
+                                break;
                         }
                     }
                 }

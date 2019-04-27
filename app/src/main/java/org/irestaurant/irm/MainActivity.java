@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -58,8 +59,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity
@@ -103,6 +102,7 @@ public class MainActivity extends AppCompatActivity
         AnhXa();
 
         sessionManager = new SessionManager(this);
+
         sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
         getName = user.get(sessionManager.NAME);
@@ -388,8 +388,6 @@ public class MainActivity extends AppCompatActivity
                             dialog.dismiss();
                             progressDialog.dismiss();
                             dialogInterface.dismiss();
-                            finish();
-                            startActivity(getIntent());
                         }
                     });
                     AlertDialog alertDialog = builder.create();
@@ -597,25 +595,40 @@ public class MainActivity extends AppCompatActivity
                 }
 //                else {
                     for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
-                        if (doc.getType() == DocumentChange.Type.ADDED){
-                            String numberId = doc.getDocument().getId();
-                            Number number = doc.getDocument().toObject(Number.class).withId(numberId);
-                            numberList.add(number);
-                            numberAdapter.notifyDataSetChanged();
-                        }else if (doc.getType() == DocumentChange.Type.REMOVED){
-
-                            String numberId = doc.getDocument().getId();
+                        String numberId = doc.getDocument().getId();
+                        switch (doc.getType()){
+                            case ADDED:
+                                Number number = doc.getDocument().toObject(Number.class).withId(numberId);
+                                numberList.add(number);
+                                numberAdapter.notifyDataSetChanged();
+                                break;
+                            case REMOVED:
 
 //                            Number number = doc.getDocument().toObject(Number.class).withId(numberId);
-                            numberList.remove(Integer.valueOf(numberId));
-                            numberAdapter.notifyDataSetChanged();
+                                numberList.remove(Integer.valueOf(numberId)-1);
+                                numberAdapter.notifyDataSetChanged();
+                                break;
+                            case MODIFIED:
+                                String status = doc.getDocument().getString("status");
+                                String nb = doc.getDocument().getString("number");
+
+                                Number number1 = doc.getDocument().toObject(Number.class).withId(numberId);
+
+                                numberList.set(Integer.valueOf(numberId)-1, number1);
+
+                                numberAdapter.notifyDataSetChanged();
+                                Toast.makeText(MainActivity.this, nb+" đang "+status, Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+
+
                         }
                     }
 
 //                }
 
-            }
-        });
+            });
+        }
 
 //        numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
 //            @Override
@@ -643,5 +656,5 @@ public class MainActivity extends AppCompatActivity
 //            }
 //        });
 
-    }
+
 }

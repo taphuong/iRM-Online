@@ -85,4 +85,9 @@ public class NumberAdapter extends ArrayAdapter {
     private void setTotal(){
 
     }
+    public void refresh(List<Number> items)
+    {
+        this.numberList = items;
+        notifyDataSetChanged();
+    }
 }
