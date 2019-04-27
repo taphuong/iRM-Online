@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.irestaurant.irm.Database.DatabaseOrdered;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.OredredAdapter;
 import org.irestaurant.irm.Database.RecentAdapter;
@@ -27,7 +26,6 @@ public class RecentActivity extends Activity {
     ListView lvRecent;
     Button btnBack;
     SessionManager sessionManager;
-    DatabaseOrdered databaseOrdered;
     RecentAdapter recentAdapter;
     List<Ordered> orderedList;
 
@@ -87,8 +85,6 @@ public class RecentActivity extends Activity {
 
         tvTotalAll.setText(formatter.format(Integer.valueOf(totalall)));
 
-        databaseOrdered = new DatabaseOrdered(this);
-        orderedList = databaseOrdered.getallRecent(number,date, time);
         setLvRecent();
 
         btnBack.setOnClickListener(new View.OnClickListener() {
@@ -105,7 +101,7 @@ public class RecentActivity extends Activity {
             lvRecent.setAdapter(recentAdapter);
         } else {
             orderedList.clear();
-            orderedList.addAll(databaseOrdered.getallRecent(number,date, time));
+//            orderedList.addAll(databaseOrdered.getallRecent(number,date, time));
             recentAdapter.notifyDataSetChanged();
             lvRecent.setSelection(recentAdapter.getCount() - 1);
         }

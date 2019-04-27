@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:gravity="center"
+    android:id="@+id/layout_main">
+    <RelativeLayout
+        android:id="@+id/layout_item"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/rounded_menu"
+        android:paddingRight="8dp"
+        android:paddingLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp">
+
+        <TextView
+            android:gravity="center_vertical|left"
+            android:id="@+id/tv_foodname"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="16dp"
+            android:layout_toStartOf="@+id/tv_foodprice"
+            android:ellipsize="marquee"
+            android:freezesText="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="Tên món ăn"
+            android:textColor="@color/mau_den"
+            android:textSize="22sp" />
+        <TextView
+            android:gravity="center_vertical|right"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/tv_foodprice"
+            android:text="100.000"
+            android:textColor="@color/mau_den"
+            android:textSize="22sp"/>
+    </RelativeLayout>
+
+</RelativeLayout>

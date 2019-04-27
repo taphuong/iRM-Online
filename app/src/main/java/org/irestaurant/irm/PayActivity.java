@@ -30,7 +30,6 @@ import android.widget.Toast;
 import org.irestaurant.irm.Database.BluetoothHandler;
 import org.irestaurant.irm.Database.BluetoothService;
 import org.irestaurant.irm.Database.Config;
-import org.irestaurant.irm.Database.DatabaseOrdered;
 import org.irestaurant.irm.Database.DatabaseRevenue;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
@@ -66,7 +65,6 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
 
     List<Ordered> payList;
     PayAdapter payAdapter;
-    DatabaseOrdered databaseOrdered;
     DatabaseRevenue databaseRevenue;
 
     protected static final String TAG = "TAG";
@@ -118,8 +116,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         tvNumber.setText("Bàn số: "+getNumber);
         swPrint.setText("In hóa đơn ("+name+")");
 
-        databaseOrdered = new DatabaseOrdered(this);
-        payList = databaseOrdered.getallOrdered(getNumber);
+
         setLvPay();
         setupBluetooth();
 
@@ -311,7 +308,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         } else {
             tongtien=0;
             payList.clear();
-            payList.addAll(databaseOrdered.getallOrdered(getNumber));
+//            payList.addAll(databaseOrdered.getallOrdered(getNumber));
             payAdapter.notifyDataSetChanged();
             lvOrdered.setSelection(payAdapter.getCount() - 1);
             for (int a =0; a<payList.size();a++){
@@ -334,22 +331,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     }
 
     private void updateOrdered (){
-        databaseOrdered = new DatabaseOrdered(this);
-        Ordered ordered = new Ordered();
-        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
-        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
-        ordered.setNumber(getNumber);
-        ordered.setFoodname(ordered.getFoodname());
-        ordered.setAmount(ordered.getAmount());
-        ordered.setStatus("done");
-        ordered.setDate(date);
-        ordered.setTime(time);
-        ordered.setPrice(ordered.getPrice());
-        ordered.setTotal(ordered.getTotal());
-        int result = databaseOrdered.updateOrderedPaid(ordered, getNumber);
-        if (result>0){
-            updateTable(getNumber);
-        }
+
     }
 
     public void connectPrinter(){

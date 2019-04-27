@@ -262,6 +262,7 @@ public class MainActivity extends AppCompatActivity
         Map<String, Object> nameMap = new HashMap<>();
         nameMap.put("number", number);
         nameMap.put("status", "free");
+        nameMap.put("total", "");
         numberRef.document(id).set(nameMap).addOnSuccessListener(this, new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -603,21 +604,18 @@ public class MainActivity extends AppCompatActivity
                                 numberAdapter.notifyDataSetChanged();
                                 break;
                             case REMOVED:
-
-//                            Number number = doc.getDocument().toObject(Number.class).withId(numberId);
                                 numberList.remove(Integer.valueOf(numberId)-1);
                                 numberAdapter.notifyDataSetChanged();
                                 break;
                             case MODIFIED:
-                                String status = doc.getDocument().getString("status");
-                                String nb = doc.getDocument().getString("number");
+//                                String status = doc.getDocument().getString("status");
+//                                String nb = doc.getDocument().getString("number");
 
                                 Number number1 = doc.getDocument().toObject(Number.class).withId(numberId);
 
                                 numberList.set(Integer.valueOf(numberId)-1, number1);
 
                                 numberAdapter.notifyDataSetChanged();
-                                Toast.makeText(MainActivity.this, nb+" đang "+status, Toast.LENGTH_SHORT).show();
                                 break;
                         }
 

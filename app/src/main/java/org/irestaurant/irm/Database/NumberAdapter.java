@@ -22,7 +22,6 @@ public class NumberAdapter extends ArrayAdapter {
     private Context context;
     private int resource;
     private List<Number> numberList;
-    DatabaseOrdered databaseOrdered;
     List<Ordered>orderedList;
     long tongtien;
     SessionManager sessionManager;
@@ -55,7 +54,15 @@ public class NumberAdapter extends ArrayAdapter {
 
         Number number = numberList.get(position);
         viewHolder.tvNumber.setText(number.getNumber());
-        viewHolder.tvTotal.setText("");
+        String total = number.getTotal();
+        if (total.isEmpty()){
+            viewHolder.tvTotal.setText("");
+        }else {
+            DecimalFormat formatPrice = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+            formatPrice.applyPattern("###,###,###");
+            viewHolder.tvTotal.setText(formatPrice.format(Integer.valueOf(total)));
+        }
+
         if (number.getStatus().equals("free")){
 //            viewHolder.ivStatus.setBackgroundResource(R.drawable.rounded_food);
             viewHolder.ivStatus.setImageResource(R.drawable.rounded_food);
@@ -64,8 +71,6 @@ public class NumberAdapter extends ArrayAdapter {
 //            viewHolder.ivStatus.setBackgroundResource(R.drawable.rounded_busy);
             viewHolder.ivStatus.setImageResource(R.drawable.rounded_busy);
 
-//            databaseOrdered = new DatabaseOrdered(context);
-//            orderedList = databaseOrdered.getallOrdered(number.getNumber());
 //            tongtien = 0;
 //            for (int a =0; a<orderedList.size();a++){
 //                tongtien += Integer.valueOf(orderedList.get(a).getTotal());
@@ -84,10 +89,5 @@ public class NumberAdapter extends ArrayAdapter {
     }
     private void setTotal(){
 
-    }
-    public void refresh(List<Number> items)
-    {
-        this.numberList = items;
-        notifyDataSetChanged();
     }
 }

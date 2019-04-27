@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -12,9 +13,11 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -98,6 +101,7 @@ public class MenuActivity extends Activity {
         final TextView tvThem = dialog.findViewById(R.id.themmon);
         final Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
         final EditText edtFoodname = (EditText) dialog.findViewById(R.id.edt_foodname);
+        final RelativeLayout layoutAdd = dialog.findViewById(R.id.layout_add);
         edtPrice = (EditText) dialog.findViewById(R.id.edt_foodprice);
         dialog.show();
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -121,7 +125,7 @@ public class MenuActivity extends Activity {
                     edtPrice.requestFocus();
                 }else {
                     tvThem.setText("Đang thêm ...");
-                    btnConfirm.setEnabled(false);
+                    layoutAdd.setVisibility(View.GONE);
                     registFood(name, price,dialog);
                 }
             }
@@ -162,7 +166,7 @@ public class MenuActivity extends Activity {
         };
     }
     private void registFood (String foodname, String foodprice, final Dialog dialog){
-        String foodID = Config.VNCharacterUtils.removeAccent(foodname) + (foodAdapter.getItemCount()+1);
+        String foodID = Config.VNCharacterUtils.removeAccent(foodname).trim();
 
         Map<String, Object> nameMap = new HashMap<>();
         nameMap.put(Config.FOODNAME, foodname);
@@ -170,6 +174,12 @@ public class MenuActivity extends Activity {
         mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(foodID).set(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                dialog.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MenuActivity.this, R.string.dacoloi+"\n"+e, Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }
         });

@@ -72,15 +72,15 @@
             android:layout_height="wrap_content"
             android:id="@+id/tv_idnumber"/>
     </RelativeLayout>
-    <ListView
-        android:layout_below="@id/menu"
-        android:id="@+id/lv_food"
-        android:layout_above="@id/half"
+
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/lv_food"
         android:divider="@null"
         android:layout_weight="4">
-    </ListView>
+    </android.support.v7.widget.RecyclerView>
+
     <View
         android:id="@+id/half"
         android:layout_width="match_parent"
@@ -88,13 +88,15 @@
         android:layout_centerVertical="true"
         android:layout_margin="4dp"
         android:background="@color/mau_xam"/>
-    <ListView
+
+    <android.support.v7.widget.RecyclerView
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/half"
-        android:id="@+id/lv_ordered">
-    </ListView>
+        android:id="@+id/lv_ordered"
+        android:layout_weight="6">
+    </android.support.v7.widget.RecyclerView>
 
 </LinearLayout>

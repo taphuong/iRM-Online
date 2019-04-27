@@ -1,37 +1,19 @@
 package org.irestaurant.irm.Database;
 
-public class Ordered {
-    private int id;
-    private String number, foodname, amount, status, date, time, price, total;
+public class Ordered extends OrderedId{
+    private String foodname, amount, date, time, price, total;
 
-    public Ordered(String number, String foodname, String amount, String status, String date, String price, String total) {
-        this.number = number;
+    public Ordered(String foodname, String amount, String date,String time, String price, String total) {
         this.foodname = foodname;
         this.amount = amount;
-        this.status = status;
         this.date = date;
+        this.time = time;
         this.price = price;
         this.total = total;
     }
 
     public Ordered() {
 
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
     }
 
     public String getFoodname() {
@@ -48,14 +30,6 @@ public class Ordered {
 
     public void setAmount(String amount) {
         this.amount = amount;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public String getDate() {

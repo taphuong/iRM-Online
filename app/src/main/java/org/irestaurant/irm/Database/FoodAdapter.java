@@ -114,6 +114,46 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.ViewHolder> {
                 return true;
             }
         });
+        viewHolder.btnEdit.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (!pos[0].equals("0")) {
+                    TranslateAnimation animate = new TranslateAnimation(0, -viewHolder.layoutButton.getWidth(), 0, 0);
+                    animate.setDuration(200);
+                    animate.setFillAfter(true);
+                    viewHolder.layoutItem.startAnimation(animate);
+                    pos[0] = "0";
+
+                }else {
+                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
+                    animate.setDuration(200);
+                    animate.setFillAfter(true);
+                    viewHolder.layoutItem.startAnimation(animate);
+                    pos[0] = foodId;
+                }
+                return true;
+            }
+        });
+        viewHolder.btnDelete.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (!pos[0].equals("0")) {
+                    TranslateAnimation animate = new TranslateAnimation(0, -viewHolder.layoutButton.getWidth(), 0, 0);
+                    animate.setDuration(200);
+                    animate.setFillAfter(true);
+                    viewHolder.layoutItem.startAnimation(animate);
+                    pos[0] = "0";
+
+                }else {
+                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
+                    animate.setDuration(200);
+                    animate.setFillAfter(true);
+                    viewHolder.layoutItem.startAnimation(animate);
+                    pos[0] = foodId;
+                }
+                return true;
+            }
+        });
         viewHolder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

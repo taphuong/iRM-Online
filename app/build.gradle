@@ -47,5 +47,5 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     apply plugin: 'com.google.gms.google-services'
-    implementation 'com.cpiz.bubbleview:bubbleview:{1.0.3}'
+    implementation 'com.github.lguipeng:BubbleView:1.0.1'
 }
