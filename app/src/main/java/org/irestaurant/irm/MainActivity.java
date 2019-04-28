@@ -10,10 +10,13 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.button.MaterialButton;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +73,8 @@ public class MainActivity extends AppCompatActivity
     TextView tvResName, tvName;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnNewRes, btnJoinRes;
+    RelativeLayout layoutNores;
+
 //    Firebase
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
@@ -76,6 +82,7 @@ public class MainActivity extends AppCompatActivity
     private List<Number> numberList;
     private NumberAdapter numberAdapter;
     private CollectionReference numberRef;
+    boolean doubleBackToExitPressedOnce = false;
 
 
 
@@ -91,6 +98,7 @@ public class MainActivity extends AppCompatActivity
         btnNewRes   = findViewById(R.id.btn_newres);
         btnJoinRes  = findViewById(R.id.btn_joinres);
         imgprofile  = hView.findViewById(R.id.im_profile);
+        layoutNores = findViewById(R.id.layout_nores);
     }
 
     @Override
@@ -112,38 +120,6 @@ public class MainActivity extends AppCompatActivity
         getPosition = user.get(sessionManager.POSITION);
         getResEmail = user.get(sessionManager.RESEMAIL);
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser==null || getName == null || getName.isEmpty()){
-            startActivity(new Intent(MainActivity.this,LoginActivity.class));
-            finish();
-            sessionManager.logout();
-        }else {
-            tvName.setText(getName);
-            tvResName.setText(getResName);
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.placeholder(R.drawable.profile);
-            Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(getImage).into(imgprofile);
-            setTitle(getResName);
-            if (getPosition.equals("admin")){
-                btnNewRes.setVisibility(View.GONE);
-                btnJoinRes.setVisibility(View.GONE);
-//                setGvNumber();
-            }else if (getPosition.equals("employee")){
-                btnAddTable.setVisibility(View.GONE);
-                btnRemoveTable.setVisibility(View.GONE);
-                btnNewRes.setVisibility(View.GONE);
-                btnJoinRes.setVisibility(View.GONE);
-//                setGvNumber();
-            } else if (getPosition.equals("none")){
-                btnRemoveTable.setVisibility(View.GONE);
-                btnAddTable.setVisibility(View.GONE);
-                gvNumber.setVisibility(View.GONE);
-                btnNewRes.setVisibility(View.VISIBLE);
-                btnJoinRes.setVisibility(View.VISIBLE);
-            }
-        }
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -155,6 +131,58 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        Menu menuNav = navigationView.getMenu();
+        MenuItem navNewRes = menuNav.findItem(R.id.nav_addres);
+        MenuItem navJoinRes = menuNav.findItem(R.id.nav_joinress);
+        MenuItem navMenu = menuNav.findItem(R.id.nav_menu);
+        MenuItem navPeople = menuNav.findItem(R.id.nav_people);
+        MenuItem navRevenue = menuNav.findItem(R.id.nav_revenue);
+        MenuItem navRecent = menuNav.findItem(R.id.nav_recent);
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser==null || getName == null || getName.isEmpty()){
+            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+            finish();
+            sessionManager.logout();
+        }else {
+            tvName.setText(getName);
+            if (getPosition.equals("none")){
+                btnRemoveTable.setVisibility(View.GONE);
+                btnAddTable.setVisibility(View.GONE);
+                gvNumber.setVisibility(View.GONE);
+                layoutNores.setVisibility(View.VISIBLE);
+                tvResName.setText("Chưa có cửa hàng");
+                setTitle("Chưa có cửa hàng");
+                navMenu.setVisible(false);
+                navRevenue.setVisible(false);
+                navPeople.setVisible(false);
+                navRecent.setVisible(false);
+            } else if (getPosition.equals("admin")){
+                layoutNores.setVisibility(View.GONE);
+                tvResName.setText(getResName);
+                setTitle(getResName);
+                navJoinRes.setVisible(false);
+                navNewRes.setVisible(false);
+            }else if (getPosition.equals("employe")){
+                btnAddTable.setVisibility(View.GONE);
+                btnRemoveTable.setVisibility(View.GONE);
+                layoutNores.setVisibility(View.GONE);
+                tvResName.setText(getResName);
+                setTitle(getResName);
+                navJoinRes.setVisible(false);
+                navMenu.setVisible(false);
+                navNewRes.setVisible(false);
+                navRevenue.setVisible(false);
+            }
+
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.placeholder(R.drawable.profile);
+            Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(getImage).into(imgprofile);
+
+//            Toast.makeText(this, getPosition, Toast.LENGTH_SHORT).show();
+
+        }
+
 
         numberList = new ArrayList<>();
         numberAdapter = new NumberAdapter(this, R.layout.item_table, numberList);
@@ -225,9 +253,34 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        
+        btnJoinRes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                joinRes();
+            }
+        });
 
 
 
+    }
+
+    private void joinRes() {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.dialog_joinres);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        EditText edtResEmail    = dialog.findViewById(R.id.edt_resemail);
+        Button btnClose         = dialog.findViewById(R.id.btn_close);
+        Button btnConfirm = dialog.findViewById(R.id.btn_confirm);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     private void deleteNumber(int s) {
@@ -506,7 +559,22 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (doubleBackToExitPressedOnce) {
+                super.onBackPressed();
+                return;
+            }
+
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Ấn 1 lần nữa để thoát ứng dụng", Toast.LENGTH_SHORT).show();
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce=false;
+                }
+            }, 2000);
+//            super.onBackPressed();
         }
     }
 
@@ -540,11 +608,18 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_account) {
             startActivity(new Intent(this,AccountActivity.class));
-        } else if (id == R.id.nav_revenue) {
+        }
+        else if (id == R.id.nav_addres) {
+//            startActivity(new Intent(this,RevenueActivity.class));
+        } else if (id == R.id.nav_joinress) {
+            joinRes();
+        }else if (id == R.id.nav_revenue) {
             startActivity(new Intent(this,RevenueActivity.class));
         } else if (id == R.id.nav_menu) {
             startActivity(new Intent(this,MenuActivity.class));
-        } else if (id == R.id.nav_recent) {
+        } else if (id == R.id.nav_people) {
+            startActivity(new Intent(this,PeopleActivity.class));
+        }else if (id == R.id.nav_recent) {
             startActivity(new Intent(this,HistoryActivity.class));
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this,SettingActivity.class));
@@ -627,32 +702,5 @@ public class MainActivity extends AppCompatActivity
 
             });
         }
-
-//        numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-//                if (e != null){
-//                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
-//                    String numberId = documentSnapshot.getId();
-//                    Number number = documentSnapshot.toObject(Number.class).withId(numberId);
-////                    String status = documentSnapshot.getString(Config.STATUS);
-//                    int s = numberList.size();
-//                    numberList.clear();
-//                    int i;
-//                    for (i = 0; i<=s; i++){
-//                        String Id = documentSnapshot.getId();
-//                        Number number2 = documentSnapshot.toObject(Number.class).withId(Id);
-//                        numberList.add(number2);
-//                        numberAdapter.notifyDataSetChanged();
-//                    }
-//                    numberAdapter.notifyDataSetChanged();
-//
-//                }
-//            }
-//        });
-
 
 }

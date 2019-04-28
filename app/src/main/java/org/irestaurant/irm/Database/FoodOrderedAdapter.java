@@ -196,7 +196,7 @@ public class FoodOrderedAdapter extends RecyclerView.Adapter<FoodOrderedAdapter.
                                             if (task.isSuccessful()){
                                                 for (DocumentSnapshot doc : task.getResult()){
                                                     if (doc.getId().equals((foodList.get(i).foodId))){
-                                                        updateOrdered();
+                                                        updateOrdered(dialog);
                                                         return;
                                                     }
                                                 }
@@ -283,8 +283,9 @@ public class FoodOrderedAdapter extends RecyclerView.Adapter<FoodOrderedAdapter.
             }
         });
     }
-    private void updateOrdered(){
-        Toast.makeText(context, "Chưa có", Toast.LENGTH_SHORT).show();
+    private void updateOrdered(Dialog dialog){
+        Toast.makeText(context, "Đã có", Toast.LENGTH_SHORT).show();
+        dialog.dismiss();
     }
     private void updateTable(final String tt){
         final String numberId;

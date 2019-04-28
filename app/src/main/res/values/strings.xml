@@ -44,6 +44,7 @@
     <string name="cpassword">Xác nhận mật khẩu</string>
     <string name="switch_res">Đăng ký cửa hàng mới</string>
     <string name="resname">Tên cửa hàng</string>
+    <string name="resemail">Email cửa hàng</string>
     <string name="resphone">Số điện thoại cửa hàng</string>
     <string name="resaddress">Đại chỉ cửa hàng</string>
     <string name="btnregister">Đăng Ký</string>

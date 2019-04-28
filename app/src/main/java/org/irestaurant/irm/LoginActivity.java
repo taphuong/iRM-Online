@@ -120,7 +120,7 @@ public class LoginActivity extends Activity {
                                     String mImage = documentSnapshot.getString(Config.IMAGE);
                                     String mPosition = documentSnapshot.getString(Config.POSITION);
                                     String ResEmail = documentSnapshot.getString(Config.RESEMAIL);
-                                    if (mPosition.equals("admin")){
+//                                    if (mPosition.equals("admin")){
                                         String mResname = documentSnapshot.getString(Config.RESNAME);
                                         String mResaddress = documentSnapshot.getString(Config.RESADDRESS);
                                         String mResphone = documentSnapshot.getString(Config.RESPHONE);
@@ -128,16 +128,16 @@ public class LoginActivity extends Activity {
                                         Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         finish();
-                                    }else {
-                                        String mResemail = "Chưa có cửa hàng";
-                                        String mResname = "Chưa có cửa hàng";
-                                        String mResphone = "Chưa có cửa hàng";
-                                        String mResaddress = "Chưa có cửa hàng";
-                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(),mResemail, edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
-                                        Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                        finish();
-                                    }
+//                                    }else {
+//                                        String mResemail = "Chưa có cửa hàng";
+//                                        String mResname = "Chưa có cửa hàng";
+//                                        String mResphone = "Chưa có cửa hàng";
+//                                        String mResaddress = "Chưa có cửa hàng";
+//                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(),mResemail, edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
+//                                        Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
+//                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//                                        finish();
+//                                    }
 
                                 }
                             });

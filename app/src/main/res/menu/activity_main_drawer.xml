@@ -10,9 +10,21 @@
             android:icon="@drawable/account"
             android:title="Cấu hình tài khoản" />
         <item
+            android:id="@+id/nav_addres"
+            android:icon="@drawable/add_res"
+            android:title="Đăng ký cửa hàng" />
+        <item
+            android:id="@+id/nav_joinress"
+            android:icon="@drawable/join_res"
+            android:title="Xin vào cửa hàng" />
+        <item
             android:id="@+id/nav_menu"
             android:icon="@mipmap/ic_menu"
             android:title="Thực đơn" />
+        <item
+            android:id="@+id/nav_people"
+            android:icon="@drawable/people"
+            android:title="Nhân sự" />
         <item
             android:id="@+id/nav_revenue"
             android:icon="@drawable/money"

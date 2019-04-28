@@ -218,7 +218,7 @@ public class RegisterActivity extends Activity {
                         String mResname = edtResName.getText().toString().trim();
                         String mResphone = edtResPhone.getText().toString().trim();
                         String mResaddress = edtResAddress.getText().toString().trim();
-                        String token_id = FirebaseInstanceId.getInstance().getToken();
+                        final String token_id = FirebaseInstanceId.getInstance().getToken();
 
                         Map<String, Object> nameMap = new HashMap<>();
                         if (swNewRes.isChecked()) {
@@ -232,6 +232,9 @@ public class RegisterActivity extends Activity {
                         } else {
                             nameMap.put(Config.RESEMAIL, "none");
                             nameMap.put(Config.NAME, mName);
+                            nameMap.put(Config.RESNAME, "none");
+                            nameMap.put(Config.RESPHONE, "none");
+                            nameMap.put(Config.RESADDRESS, "none");
                             nameMap.put(Config.POSITION, "none");
                             nameMap.put(Config.TOKENID, token_id);
                         }
@@ -249,16 +252,20 @@ public class RegisterActivity extends Activity {
                                             user_profile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                 @Override
                                                 public void onSuccess(Uri uri) {
-                                                    String download_url = uri.toString();
+                                                    final String download_url = uri.toString();
                                                     Map<String ,Object> userMap = new HashMap<>();
-                                                    userMap.put("image", download_url);
+                                                    userMap.put(Config.IMAGE, download_url);
                                                     mFirestore.collection("Users").document(mEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
                                                             if (swNewRes.isChecked()) {
                                                                 Map<String, Object> resMap = new HashMap<>();
-                                                                resMap.put(mEmail, "admin");
-                                                                mFirestore.collection("Restaurants").document(mEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                resMap.put(Config.NAME, mName);
+                                                                resMap.put(Config.EMAIL, mEmail);
+                                                                resMap.put(Config.STATUS, "admin");
+                                                                resMap.put(Config.TOKENID, token_id);
+                                                                resMap.put(Config.IMAGE, download_url);
+                                                                mFirestore.collection("Restaurants").document(mEmail).collection("People").document(mEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
                                                                     public void onSuccess(Void aVoid) {
                                                                         Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();

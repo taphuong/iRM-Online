@@ -94,11 +94,12 @@ public class OrderedActivity extends Activity {
         HashMap<String, String> user = sessionManager.getUserDetail();
         getResEmail = user.get(sessionManager.RESEMAIL);
         numberRef = mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER);
+        loadTotal();
 
         btnHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(OrderedActivity.this, MainActivity.class));
+//                startActivity(new Intent(OrderedActivity.this, MainActivity.class));
                 finish();
             }
         });
@@ -349,7 +350,7 @@ public class OrderedActivity extends Activity {
                                 Ordered ordered = doc.getDocument().toObject(Ordered.class).withId(orderId);
                                 orderedList.add(ordered);
                                 oredredAdapter.notifyDataSetChanged();
-                                loadTotal();
+
                                 break;
                             case REMOVED:
 //                                loadTotal();
