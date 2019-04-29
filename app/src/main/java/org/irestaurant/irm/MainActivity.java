@@ -260,9 +260,6 @@ public class MainActivity extends AppCompatActivity
                 joinRes();
             }
         });
-
-
-
     }
 
     private void joinRes() {
@@ -270,13 +267,31 @@ public class MainActivity extends AppCompatActivity
         dialog.setContentView(R.layout.dialog_joinres);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCanceledOnTouchOutside(false);
-        EditText edtResEmail    = dialog.findViewById(R.id.edt_resemail);
+        final EditText edtResEmail    = dialog.findViewById(R.id.edt_resemail);
         Button btnClose         = dialog.findViewById(R.id.btn_close);
         Button btnConfirm = dialog.findViewById(R.id.btn_confirm);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+            }
+        });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String resEmail = edtResEmail.getText().toString().trim();
+                mFirestore.collection(Config.RESTAURANTS).document(resEmail).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()){
+                            mFirestore.collection(Config.RESTAURANTS).document(resEmail).update(getEmail,"join");
+                        }else {
+                            edtResEmail.requestFocus();
+                            edtResEmail.setError("Sai địa chỉ Email");
+                        }
+                    }
+                });
+
             }
         });
 
@@ -299,9 +314,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
-
-
-
     private void RegistNumber (long s){
         String id = null;
         String number = String.valueOf(s);
@@ -550,9 +562,6 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-
-
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -655,11 +664,11 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser==null || !sessionManager.isLoggin()){
+            sessionManager.logout();
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             finish();
-            sessionManager.logout();
+
         }
         numberList.clear();
         numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
