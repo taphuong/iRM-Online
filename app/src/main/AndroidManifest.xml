@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="barcode"/>
 
     <application
         android:allowBackup="true"
@@ -15,7 +20,18 @@
         android:roundIcon="@drawable/icon_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PeopleActivity"></activity>
+        <activity android:name=".JoinActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
+        <activity
+            android:name=".InviteActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
+        <activity android:name=".PeopleSingleActivity" />
+        <activity android:name=".NewresActivity" />
+        <activity
+            android:name=".PeopleActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SettingActivity" />
         <activity
             android:name=".FingerActivity"

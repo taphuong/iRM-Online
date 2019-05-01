@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewresActivity"
+    android:padding="16dp"
+    android:background="@drawable/gradient_background">
+    <Button
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/btn_home"
+        android:background="@mipmap/ic_home"/>
+    <Button
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/btn_saveV"
+        android:background="@mipmap/ic_save"
+        android:layout_alignParentRight="true"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/QLNH"
+        android:text="Thông Tin Cửa Hàng"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/mau_den"/>
+        <android.support.design.widget.TextInputLayout
+            android:layout_below="@id/QLNH"
+            android:layout_marginTop="8dp"
+            android:id="@+id/resname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/edt_resname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tên cửa hàng" />
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_below="@id/resname"
+            android:id="@+id/resphone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/edt_resphone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Điện thoại cửa hàng"
+                android:inputType="number"/>
+        </android.support.design.widget.TextInputLayout>
+        <Button
+            android:visibility="invisible"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:id="@+id/btn_addphone"
+            android:background="@mipmap/ic_add"
+            android:layout_below="@id/resname"
+            android:layout_alignParentRight="true"/>
+        <android.support.design.widget.TextInputLayout
+            android:layout_below="@id/resphone"
+            android:id="@+id/resaddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/edt_resaddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Địa chỉ cửa hàng" />
+        </android.support.design.widget.TextInputLayout>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_confirm"
+            android:layout_below="@id/resaddress"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_primary"
+            android:shadowColor="@color/mau_trang"
+            android:text="Đăng Ký"
+            android:textSize="20sp"/>
+
+</RelativeLayout>

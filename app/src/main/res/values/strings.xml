@@ -48,6 +48,11 @@
     <string name="resphone">Số điện thoại cửa hàng</string>
     <string name="resaddress">Đại chỉ cửa hàng</string>
     <string name="btnregister">Đăng Ký</string>
+    <string name="btninput">Nhập Email</string>
+    <string name="btnQR">Mã QR</string>
+    <string name="btnQRscanner">Quét Mã QR</string>
+    <string name="btnconfirm">Xác Nhận</string>
+    <string name="btnsave">Lưu</string>
     <!-- Đăng ký -->
     <string name="login">Đăng Nhập</string>
     <string name="forgot">Quên mật khẩu</string>

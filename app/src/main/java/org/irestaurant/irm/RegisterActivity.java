@@ -259,21 +259,32 @@ public class RegisterActivity extends Activity {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
                                                             if (swNewRes.isChecked()) {
+                                                                progressDialog.dismiss();
+                                                                progressDialog = ProgressDialog.show(RegisterActivity.this,
+                                                                        "Đang đăng ký cửa hàng", "Đang cập nhật thông tin", true, false);
                                                                 Map<String, Object> resMap = new HashMap<>();
-                                                                resMap.put(Config.NAME, mName);
-                                                                resMap.put(Config.EMAIL, mEmail);
-                                                                resMap.put(Config.STATUS, "admin");
-                                                                resMap.put(Config.TOKENID, token_id);
-                                                                resMap.put(Config.IMAGE, download_url);
-                                                                mFirestore.collection("Restaurants").document(mEmail).collection("People").document(mEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                resMap.put(mEmail, "admin");
+                                                                mFirestore.collection(Config.RESTAURANTS).document(mEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
                                                                     public void onSuccess(Void aVoid) {
-                                                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-                                                                        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                                                                        finish();
-                                                                        progressDialog.dismiss();
+                                                                        Map<String, Object> resMap = new HashMap<>();
+                                                                        resMap.put(Config.NAME, mName);
+                                                                        resMap.put(Config.EMAIL, mEmail);
+                                                                        resMap.put(Config.STATUS, "admin");
+                                                                        resMap.put(Config.TOKENID, token_id);
+                                                                        resMap.put(Config.IMAGE, download_url);
+                                                                        mFirestore.collection(Config.RESTAURANTS).document(mEmail).collection("People").document(mEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                            @Override
+                                                                            public void onSuccess(Void aVoid) {
+                                                                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
+                                                                                progressDialog.dismiss();
+                                                                                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                                                                finish();
+                                                                            }
+                                                                        });
                                                                     }
                                                                 });
+
                                                             }else {
                                                                 Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
                                                                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));

@@ -4,19 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
     tools:context=".PeopleActivity">
     <RelativeLayout
         android:id="@+id/menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary">
         <Button
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
@@ -25,14 +19,6 @@
             android:layout_height="40dp"
             android:id="@+id/btn_home"
             android:background="@mipmap/ic_home"/>
-        <TextView
-            android:layout_centerVertical="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/tv_resname"
-            android:textSize="20sp"
-            android:layout_toEndOf="@id/btn_home"
-            android:textColor="@color/mau_trang"/>
         <Button
             android:id="@+id/btn_addaddpeople"
             android:layout_width="25dp"
@@ -40,14 +26,25 @@
             android:background="@mipmap/ic_addnobd"
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
             android:layout_alignParentRight="true"/>
+        <com.kekstudio.dachshundtablayout.DachshundTabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@id/btn_addaddpeople"
+            android:layout_toEndOf="@id/btn_home"
+            app:ddIndicatorColor="@color/mau_trang"
+            app:tabRippleColor="@color/mau_do_nhat"
+            app:tabSelectedTextColor="@color/mau_trang"
+            app:tabTextAppearance="@style/CustomTextTablayout">
+        </com.kekstudio.dachshundtablayout.DachshundTabLayout>
     </RelativeLayout>
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/lv_people"
+    <android.support.v4.view.ViewPager
         android:layout_below="@id/menu"
-        android:divider="@null">
-    </android.support.v7.widget.RecyclerView>
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

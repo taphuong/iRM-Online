@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -51,6 +52,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.Food;
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SessionManager sessionManager;
-    String getName, getResName, getEmail, getImage, getPosition, getResEmail;
+    String getName, getResName, getEmail, getImage, getPosition, getResEmail, getToken;
     TextView tvResName, tvName;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnNewRes, btnJoinRes;
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity
         getImage = user.get(sessionManager.IMAGE);
         getPosition = user.get(sessionManager.POSITION);
         getResEmail = user.get(sessionManager.RESEMAIL);
+        getToken = FirebaseInstanceId.getInstance().getToken();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -260,42 +263,79 @@ public class MainActivity extends AppCompatActivity
                 joinRes();
             }
         });
+        btnNewRes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newRes();
+            }
+        });
+    }
+
+    private void newRes() {
+        startActivity(new Intent(this, NewresActivity.class));
+        finish();
     }
 
     private void joinRes() {
-        final Dialog dialog = new Dialog(MainActivity.this);
-        dialog.setContentView(R.layout.dialog_joinres);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCanceledOnTouchOutside(false);
-        final EditText edtResEmail    = dialog.findViewById(R.id.edt_resemail);
-        Button btnClose         = dialog.findViewById(R.id.btn_close);
-        Button btnConfirm = dialog.findViewById(R.id.btn_confirm);
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String resEmail = edtResEmail.getText().toString().trim();
-                mFirestore.collection(Config.RESTAURANTS).document(resEmail).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()){
-                            mFirestore.collection(Config.RESTAURANTS).document(resEmail).update(getEmail,"join");
-                        }else {
-                            edtResEmail.requestFocus();
-                            edtResEmail.setError("Sai địa chỉ Email");
-                        }
-                    }
-                });
-
-            }
-        });
-
-        dialog.show();
+        startActivity(new Intent(this, JoinActivity.class));
+//        final Dialog dialog = new Dialog(MainActivity.this);
+//        dialog.setContentView(R.layout.dialog_joinres);
+//        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//        dialog.setCanceledOnTouchOutside(false);
+//        final EditText edtResEmail    = dialog.findViewById(R.id.edt_resemail);
+//        Button btnClose         = dialog.findViewById(R.id.btn_close);
+//        Button btnConfirm = dialog.findViewById(R.id.btn_confirm);
+//        btnClose.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                dialog.dismiss();
+//            }
+//        });
+//        btnConfirm.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                final String resEmail = edtResEmail.getText().toString().trim();
+//                if (resEmail.isEmpty()){
+//                    edtResEmail.requestFocus();
+//                    edtResEmail.setError(String.valueOf(R.string.isempty));
+//                }else if (!Patterns.EMAIL_ADDRESS.matcher(resEmail).matches()) {
+//                    edtResEmail.requestFocus();
+//                    edtResEmail.setError("Email sai định dạng");
+//                }else {
+//                    mFirestore.collection(Config.RESTAURANTS).document(resEmail).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                        @Override
+//                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                            if (documentSnapshot.exists()){
+//                                Map<String ,Object> joinMap = new HashMap<>();
+//                                joinMap.put(Config.NAME, getName);
+//                                joinMap.put(Config.EMAIL, getEmail);
+//                                joinMap.put(Config.IMAGE, getImage);
+//                                joinMap.put(Config.STATUS, "join");
+//                                joinMap.put(Config.TOKENID, getToken);
+//                                mFirestore.collection(Config.RESTAURANTS).document(resEmail).collection(Config.PEOPLE).document(getEmail).set(joinMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void aVoid) {
+//                                        Toast.makeText(MainActivity.this, "Đã gửi yêu cầu tham gia", Toast.LENGTH_SHORT).show();
+//                                        dialog.dismiss();
+//                                    }
+//                                });
+//
+//                            }else {
+//                                edtResEmail.setError("Sai địa chỉ Email");
+//                                edtResEmail.requestFocus();
+//                            }
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                }
+//            }
+//        });
+//
+//        dialog.show();
     }
 
     private void deleteNumber(int s) {
@@ -307,12 +347,7 @@ public class MainActivity extends AppCompatActivity
         }else {
             id = String.valueOf(s);
         }
-        numberRef.document(id).delete().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
+        numberRef.document(id).delete();
     }
     private void RegistNumber (long s){
         String id = null;
@@ -561,6 +596,39 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+    public void joinSC (final String resEmail, final String resName){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Gửi yêu cầu tham gia vào "+resName);
+        builder.setCancelable(false);
+        builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("Gửi", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialogInterface, int i) {
+                Map<String ,Object> joinMap = new HashMap<>();
+                joinMap.put(Config.NAME, getName);
+                joinMap.put(Config.EMAIL, getEmail);
+                joinMap.put(Config.IMAGE, getImage);
+                joinMap.put(Config.STATUS, "join");
+                joinMap.put(Config.TOKENID, getToken);
+                mFirestore.collection(Config.RESTAURANTS).document(resEmail).collection(Config.PEOPLE).document(getEmail).set(joinMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getApplicationContext(), "Đã gửi yêu cầu đến "+ resName, Toast.LENGTH_SHORT).show();
+                        dialogInterface.dismiss();
+                        finish();
+                    }
+                });
+
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
 
     @Override
     public void onBackPressed() {
@@ -619,6 +687,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this,AccountActivity.class));
         }
         else if (id == R.id.nav_addres) {
+            newRes();
 //            startActivity(new Intent(this,RevenueActivity.class));
         } else if (id == R.id.nav_joinress) {
             joinRes();
@@ -627,8 +696,12 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_menu) {
             startActivity(new Intent(this,MenuActivity.class));
         } else if (id == R.id.nav_people) {
-            startActivity(new Intent(this,PeopleActivity.class));
-        }else if (id == R.id.nav_recent) {
+            if (getPosition.equals("admin")) {
+                startActivity(new Intent(this, PeopleActivity.class));
+            }else {
+                startActivity(new Intent(this, PeopleSingleActivity.class));
+            }
+        } else if (id == R.id.nav_recent) {
             startActivity(new Intent(this,HistoryActivity.class));
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this,SettingActivity.class));
@@ -668,7 +741,6 @@ public class MainActivity extends AppCompatActivity
             sessionManager.logout();
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             finish();
-
         }
         numberList.clear();
         numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
