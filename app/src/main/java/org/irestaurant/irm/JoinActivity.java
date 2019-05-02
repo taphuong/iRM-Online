@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -222,9 +223,19 @@ public class JoinActivity extends Activity {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 final String resName = documentSnapshot.getString(Config.RESNAME);
-                                finish();
-                                MainActivity mainActivity = new MainActivity();
-                                mainActivity.joinSC(resemail, resName);
+                                Map<String ,Object> joinMap = new HashMap<>();
+                                joinMap.put(Config.NAME, getName);
+                                joinMap.put(Config.EMAIL, getEmail);
+                                joinMap.put(Config.IMAGE, getImage);
+                                joinMap.put(Config.STATUS, "join");
+                                joinMap.put(Config.TOKENID, getToken);
+                                mFirestore.collection(Config.RESTAURANTS).document(resemail).collection(Config.PEOPLE).document(getEmail).set(joinMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(getApplicationContext(), "Đã gửi yêu cầu đến "+ resName, Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                });
                             }
                         });
 

@@ -596,39 +596,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
-    public void joinSC (final String resEmail, final String resName){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Gửi yêu cầu tham gia vào "+resName);
-        builder.setCancelable(false);
-        builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setNegativeButton("Gửi", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface dialogInterface, int i) {
-                Map<String ,Object> joinMap = new HashMap<>();
-                joinMap.put(Config.NAME, getName);
-                joinMap.put(Config.EMAIL, getEmail);
-                joinMap.put(Config.IMAGE, getImage);
-                joinMap.put(Config.STATUS, "join");
-                joinMap.put(Config.TOKENID, getToken);
-                mFirestore.collection(Config.RESTAURANTS).document(resEmail).collection(Config.PEOPLE).document(getEmail).set(joinMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(getApplicationContext(), "Đã gửi yêu cầu đến "+ resName, Toast.LENGTH_SHORT).show();
-                        dialogInterface.dismiss();
-                        finish();
-                    }
-                });
-
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
 
     @Override
     public void onBackPressed() {
