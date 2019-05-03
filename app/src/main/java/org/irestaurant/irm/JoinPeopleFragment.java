@@ -48,7 +48,6 @@ public class JoinPeopleFragment extends Fragment {
         lvJoinPeople.setHasFixedSize(true);
         lvJoinPeople.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvJoinPeople.setAdapter(peopleAdapter);
-
         return view;
     }
 

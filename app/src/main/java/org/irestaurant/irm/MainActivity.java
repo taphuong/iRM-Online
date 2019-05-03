@@ -15,6 +15,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
+import android.support.design.widget.FloatingActionButton;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Pair;
@@ -28,9 +29,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -80,6 +84,8 @@ public class MainActivity extends AppCompatActivity
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnNewRes, btnJoinRes;
     RelativeLayout layoutNores;
+    FloatingActionButton btnNoti, fab1, fab2, fab3;
+    int fab = 0;
 
 //    Firebase
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -106,6 +112,10 @@ public class MainActivity extends AppCompatActivity
         imgprofile  = hView.findViewById(R.id.im_profile);
         layoutNores = findViewById(R.id.layout_nores);
         btvNotifi   = findViewById(R.id.tv_noti);
+        btnNoti     = findViewById(R.id.btn_noti);
+        fab1        = findViewById(R.id.fab1);
+        fab2        = findViewById(R.id.fab2);
+        fab3        = findViewById(R.id.fab3);
     }
 
     @Override
@@ -218,10 +228,10 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 String status = numberList.get(position).getStatus();
                 if (status.equals("free")){
-//                    String idnumber = String.valueOf(numberList.get(position).getId());
+                    String idnumber = String.valueOf(numberList.get(position).numberId);
                     String number = numberList.get(position).getNumber();
                     Intent i = new Intent(MainActivity.this, OrderedActivity.class);
-//                    i.putExtra("idnumber", idnumber);
+                    i.putExtra("idnumber", idnumber);
                     i.putExtra("number", number);
                     startActivity(i);
                 }else if (status.equals("busy")){
@@ -237,10 +247,10 @@ public class MainActivity extends AppCompatActivity
                     builder.setNegativeButton("Thêm món", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-//                            String idnumber = String.valueOf(numberList.get(position).getId());
+                            String idnumber = String.valueOf(numberList.get(position).numberId);
                             String number = numberList.get(position).getNumber();
                             Intent e = new Intent(MainActivity.this, OrderedActivity.class);
-//                            e.putExtra("idnumber", idnumber);
+                            e.putExtra("idnumber", idnumber);
                             e.putExtra("number", number);
                             startActivity(e);
                         }
@@ -274,6 +284,37 @@ public class MainActivity extends AppCompatActivity
                 newRes();
             }
         });
+        btnNoti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fab == 0) {
+                    fab =1;
+                    showFab();
+                }else {
+                    fab = 0;
+                    hideFab();
+                }
+            }
+        });
+    }
+
+    private void showFab (){
+        Animation show_fab_1 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab1_show);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) fab1.getLayoutParams();
+        layoutParams.rightMargin += (int) (fab1.getWidth() * 1.7);
+        layoutParams.bottomMargin += (int) (fab1.getHeight() * 0.25);
+        fab1.setLayoutParams(layoutParams);
+        fab1.startAnimation(show_fab_1);
+        fab1.setClickable(true);
+    }
+    private void hideFab (){
+        Animation hide_fab_1 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab1_hide);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) fab1.getLayoutParams();
+        layoutParams.rightMargin -= (int) (fab1.getWidth() * 1.7);
+        layoutParams.bottomMargin -= (int) (fab1.getHeight() * 0.25);
+        fab1.setLayoutParams(layoutParams);
+        fab1.startAnimation(hide_fab_1);
+        fab1.setClickable(false);
     }
 
     private void newRes() {

@@ -59,36 +59,74 @@
         android:layout_height="wrap_content"
         android:id="@+id/layout_noti"
         android:layout_marginTop="16dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginLeft="16dp">
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/btn_noti"
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:rippleColor="@color/colorAccent"
-            app:backgroundTint="@color/mau_trang"
-            app:srcCompat="@drawable/noti_size"
-            android:scaleType="center"/>
-        <com.github.library.bubbleview.BubbleTextView
-            android:visibility="gone"
-            android:layout_marginRight="8dp"
-            android:id="@+id/tv_noti"
-            android:layout_toStartOf="@id/btn_noti"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Bàn số 2: 3 phần Gà nướng \n Row 2 \n Row 3"
-            android:textSize="18sp"
-            android:textColor="@color/mau_den"
-            android:padding="8dp"
-            app:arrowWidth="10dp"
-            app:angle="8dp"
-            app:arrowHeight="8dp"
-            app:arrowPosition="20dp"
-            app:arrowLocation="right"
-            app:bubbleColor="@color/mau_trang"
-            />
+            android:id="@+id/layout_fab">
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@android:drawable/ic_menu_compass"
+                android:visibility="invisible"
+                app:backgroundTint="@color/mau_xanhbien"
+                app:fabSize="mini" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:visibility="invisible"
+                app:backgroundTint="@color/mau_xanhbien"
+                app:fabSize="mini" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@android:drawable/ic_menu_share"
+                android:visibility="invisible"
+                app:backgroundTint="@color/mau_xanhbien"
+                app:fabSize="mini" />
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/btn_noti"
+                android:layout_marginBottom="12dp"
+                android:layout_gravity="bottom|end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:rippleColor="@color/colorAccent"
+                app:backgroundTint="@color/mau_trang"
+                app:srcCompat="@drawable/noti_size"
+                android:scaleType="center"
+                app:fabSize="normal"/>
+            <com.github.library.bubbleview.BubbleTextView
+                android:visibility="gone"
+                android:layout_marginRight="8dp"
+                android:id="@+id/tv_noti"
+                android:layout_toStartOf="@id/btn_noti"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/mau_den"
+                android:padding="8dp"
+                app:arrowWidth="10dp"
+                app:angle="8dp"
+                app:arrowHeight="8dp"
+                app:arrowPosition="20dp"
+                app:arrowLocation="right"
+                app:bubbleColor="@color/mau_trang" />
+        </FrameLayout>
+
 
     </RelativeLayout>
 

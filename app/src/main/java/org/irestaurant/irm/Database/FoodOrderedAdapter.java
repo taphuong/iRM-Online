@@ -57,10 +57,9 @@ public class FoodOrderedAdapter extends RecyclerView.Adapter<FoodOrderedAdapter.
     private long price;
 
 
-    public FoodOrderedAdapter(Context context, List<Food> foodList, OrderedActivity orderedActivity){
+    public FoodOrderedAdapter(Context context, List<Food> foodList){
         this.context = context;
         this.foodList = foodList;
-        this.orderedActivity = orderedActivity;
     }
 
     @Override
