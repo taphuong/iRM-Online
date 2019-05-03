@@ -56,7 +56,7 @@ public class PeopleActivity extends AppCompatActivity  {
     }
 
     //  add Fragment
-    private void addControl() {
+    public void addControl() {
         pager = (ViewPager) findViewById(R.id.view_pager);
         tabLayout = (DachshundTabLayout) findViewById(R.id.tab_layout);
 
@@ -70,5 +70,9 @@ public class PeopleActivity extends AppCompatActivity  {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(pager));
     }
 
+    public void refreshPeople(){
 
+        startActivity(new Intent(PeopleActivity.this, PeopleActivity.class));
+        finish();
+    }
 }

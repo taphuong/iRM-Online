@@ -321,14 +321,21 @@ public class AccountActivity extends Activity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     final String download_url = uri.toString();
-                                    Map<String ,Object> userMap = new HashMap<>();
+                                    final Map<String ,Object> userMap = new HashMap<>();
                                     userMap.put("image", download_url);
                                     mFirestore.collection("Users").document(getEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(AccountActivity.this, "Cập nhật ảnh thành công", Toast.LENGTH_SHORT).show();
-                                            sessionManager.createSession(getID, getName, getEmail, getResEmail, getPassword, getResName, getResPhone, getResAddress, getPosition, download_url);
+                                            if (!getPosition.equals("none")){
+                                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(getEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        progressDialog.dismiss();
+                                                        Toast.makeText(AccountActivity.this, "Cập nhật ảnh thành công", Toast.LENGTH_SHORT).show();
+                                                        sessionManager.createSession(getID, getName, getEmail, getResEmail, getPassword, getResName, getResPhone, getResAddress, getPosition, download_url);
+                                                    }
+                                                });
+                                            }
                                         }
                                     });
 

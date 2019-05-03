@@ -34,6 +34,7 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.SessionManager;
@@ -72,9 +73,7 @@ public class JoinActivity extends Activity {
         scannerOverlay = findViewById(R.id.sc_overlay);
         barcodeDetector = new BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build();
         cameraSource = new CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(640, 480).build();
-
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +84,7 @@ public class JoinActivity extends Activity {
         getEmail = user.get(sessionManager.EMAIL);
         getName = user.get(sessionManager.NAME);
         getImage = user.get(sessionManager.IMAGE);
+        getToken = FirebaseInstanceId.getInstance().getToken();
 
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,14 +131,10 @@ public class JoinActivity extends Activity {
                 }catch (IOException e){
                     e.printStackTrace();
                 }
-
             }
-
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
             }
-
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 cameraSource.stop();
@@ -147,9 +143,7 @@ public class JoinActivity extends Activity {
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
-
             }
-
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> qrCodes = detections.getDetectedItems();
@@ -167,8 +161,6 @@ public class JoinActivity extends Activity {
                             scannerOverlay.setVisibility(View.GONE);
                         }
                     });
-
-
                 }
             }
         });
@@ -200,7 +192,6 @@ public class JoinActivity extends Activity {
                                 finish();
                             }
                         });
-
                     }else {
                         edtEmail.setError("Sai địa chỉ Email");
                         edtEmail.requestFocus();
@@ -238,7 +229,6 @@ public class JoinActivity extends Activity {
                                 });
                             }
                         });
-
                     }else {
                         edtEmail.setError("Sai địa chỉ Email");
                         edtEmail.requestFocus();
