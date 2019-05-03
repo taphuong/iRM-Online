@@ -13,7 +13,13 @@
         android:id="@+id/iv_people"
         android:layout_marginRight="8dp"
         app:civ_border_width="1dp" />
-
+    <ImageView
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:id="@+id/iv_admin"
+        android:layout_alignEnd="@id/iv_people"
+        android:layout_alignBottom="@id/iv_people"
+        android:src="@drawable/admin"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="50dp"

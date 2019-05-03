@@ -1,5 +1,6 @@
 package org.irestaurant.irm;
 
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -16,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Pair;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.View;
@@ -166,7 +168,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle(getResName);
                 navJoinRes.setVisible(false);
                 navNewRes.setVisible(false);
-            }else if (getPosition.equals("employe")){
+            }else {
                 btnAddTable.setVisibility(View.GONE);
                 btnRemoveTable.setVisibility(View.GONE);
                 layoutNores.setVisibility(View.GONE);
@@ -651,7 +653,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_account) {
-            startActivity(new Intent(this,AccountActivity.class));
+            Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+            Pair[] pairs = new Pair[1];
+            pairs[0] = new Pair<View, String>(imgprofile, "imageTransition");
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, pairs);
+            startActivity(intent, options.toBundle());
         }
         else if (id == R.id.nav_addres) {
             newRes();

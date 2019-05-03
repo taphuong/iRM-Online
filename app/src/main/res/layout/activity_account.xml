@@ -33,7 +33,8 @@
         android:layout_below="@id/QLNH"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
-        android:src="@drawable/profile"/>
+        android:src="@drawable/profile"
+        android:transitionName="imageTransition"/>
     <ScrollView
         android:layout_below="@+id/iv_picture"
         android:layout_width="match_parent"
@@ -52,7 +53,8 @@
                     android:id="@+id/edt_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Họ và Tên" />
+                    android:hint="Họ và Tên"
+                    android:transitionName="nameTransition"/>
             </android.support.design.widget.TextInputLayout>
             <CheckBox
                 android:id="@+id/cb_changeres"

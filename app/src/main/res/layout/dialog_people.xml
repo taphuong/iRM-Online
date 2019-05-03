@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:background="@color/mau_trang">
+
+    <TextView
+        android:textColor="@color/mau_trang"
+        android:background="@color/colorPrimary"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:id="@+id/tv_res"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chức vụ nhân viên"
+        android:textSize="20sp"
+        android:gravity="center"/>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:id="@+id/iv_people"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/tv_res"
+        android:layout_margin="8dp"/>
+    <TextView
+        android:gravity="center_vertical"
+        android:textColor="@color/mau_den"
+        android:id="@+id/tv_name"
+        android:layout_below="@+id/iv_people"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:textSize="20sp"
+        android:text="Họ và tên"/>
+    <TextView
+        android:gravity="center_vertical"
+        android:id="@+id/tv_email"
+        android:layout_below="@+id/tv_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:textSize="18sp"
+        android:text="Email"/>
+    <TextView
+        android:gravity="center_vertical"
+        android:paddingTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_below="@+id/tv_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/position"
+        android:text="Chức vụ: "
+        android:textSize="20sp" />
+    <Spinner
+        android:layout_toEndOf="@+id/position"
+        android:id="@+id/spn_position"
+        android:layout_below="@+id/tv_email"
+        android:layout_above="@id/btn_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:scrollbarSize="20sp">
+    </Spinner>
+    <Button
+        android:padding="8dp"
+        android:id="@+id/btn_confirm"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/position"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/rounded_primary"
+        android:text="@string/btnconfirm"
+        android:textAllCaps="false"
+        android:textSize="20sp"/>
+</RelativeLayout>

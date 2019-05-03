@@ -18,6 +18,7 @@ public class Config {
     public static final String NUMBER = "Number";
     public static final String STATUS = "status";
     public static final String PEOPLE = "People";
+    public static final String USERS = "Users";
 
     public static final String FOODNAME = "foodname";
     public static final String FOODPRICE = "foodprice";
