@@ -11,9 +11,9 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -66,6 +66,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -705,6 +707,62 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    public void pushNoti(final String number){
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(number).collection("unpaid").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e!=null){
+                    return;
+                }else {
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                        String foodname = doc.getDocument().getString("foodname");
+                        String amount = doc.getDocument().getString("amount");
+                        switch (doc.getType()){
+                            case ADDED:
+                                btvNotifi.setVisibility(View.VISIBLE);
+                                btvNotifi.setText("Bàn số "+number+" thêm "+amount+" phần\n"+foodname);
+                                new CountDownTimer(3000, 3000) {
+
+                                    public void onTick(long millisUntilFinished) {
+                                    }
+
+                                    public void onFinish() {
+                                        btvNotifi.setVisibility(View.GONE);
+                                    }
+                                }.start();
+                                break;
+                            case MODIFIED:
+                                btvNotifi.setVisibility(View.VISIBLE);
+                                btvNotifi.setText("Bàn số "+number+" thay đổi "+amount+" phần\n"+foodname);
+                                new CountDownTimer(3000, 3000) {
+
+                                    public void onTick(long millisUntilFinished) {
+                                    }
+
+                                    public void onFinish() {
+                                        btvNotifi.setVisibility(View.GONE);
+                                    }
+                                }.start();
+                                break;
+                            case REMOVED:
+                                btvNotifi.setVisibility(View.VISIBLE);
+                                btvNotifi.setText("Bàn số "+number+" bỏ "+amount+" phần\n"+foodname);
+                                new CountDownTimer(3000, 3000) {
+
+                                    public void onTick(long millisUntilFinished) {
+                                    }
+
+                                    public void onFinish() {
+                                        btvNotifi.setVisibility(View.GONE);
+                                    }
+                                }.start();
+                                break;
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     @Override
     protected void onStart() {
@@ -727,29 +785,26 @@ public class MainActivity extends AppCompatActivity
 //                else {
                     for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
                         String numberId = doc.getDocument().getId();
+                        String table = doc.getDocument().getString("number");
                         switch (doc.getType()){
                             case ADDED:
                                 Number number = doc.getDocument().toObject(Number.class).withId(numberId);
                                 numberList.add(number);
                                 numberAdapter.notifyDataSetChanged();
-                                numberAdapter.notifyDataSetChanged();
-                                btvNotifi.setText("Test bubble Textview Added \n Row 2 \n Row 3");
+                                pushNoti(table);
                                 break;
                             case REMOVED:
+                                pushNoti(table);
                                 numberList.remove(Integer.valueOf(numberId)-1);
                                 numberAdapter.notifyDataSetChanged();
-                                btvNotifi.setText("Test bubble Textview Removed \n Row 2 \n Row 3");
-                                btvNotifi.setVisibility(View.VISIBLE);
                                 break;
                             case MODIFIED:
 //                                String status = doc.getDocument().getString("status");
 //                                String nb = doc.getDocument().getString("number");
-
+                                pushNoti(table);
                                 Number number1 = doc.getDocument().toObject(Number.class).withId(numberId);
                                 numberList.set(Integer.valueOf(numberId)-1, number1);
                                 numberAdapter.notifyDataSetChanged();
-                                btvNotifi.setText("Test bubble Textview Modified \n Row 2 \n Row 3");
-                                btvNotifi.setVisibility(View.VISIBLE);
                                 break;
                         }
 

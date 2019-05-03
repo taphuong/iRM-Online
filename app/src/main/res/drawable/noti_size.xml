@@ -3,8 +3,8 @@
 
     <item
         android:drawable="@drawable/notification"
-        android:width="35dp"
-        android:height="35dp"
+        android:width="36dp"
+        android:height="36dp"
         />
 
 </layer-list >

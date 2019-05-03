@@ -54,10 +54,12 @@
         <include layout="@layout/content_main" />
     </LinearLayout>
     <RelativeLayout
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/layout_noti"
         android:layout_marginTop="16dp"
+        android:paddingBottom="16dp"
         android:layout_marginRight="8dp"
         android:layout_marginLeft="16dp">
         <android.support.design.widget.FloatingActionButton
@@ -67,8 +69,10 @@
             android:layout_height="wrap_content"
             app:rippleColor="@color/colorAccent"
             app:backgroundTint="@color/mau_trang"
-            app:srcCompat="@drawable/noti_size"/>
+            app:srcCompat="@drawable/noti_size"
+            android:scaleType="center"/>
         <com.github.library.bubbleview.BubbleTextView
+            android:visibility="gone"
             android:layout_marginRight="8dp"
             android:id="@+id/tv_noti"
             android:layout_toStartOf="@id/btn_noti"
