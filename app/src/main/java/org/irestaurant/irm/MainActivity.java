@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity
 
     SessionManager sessionManager;
     String getName, getResName, getEmail, getImage, getPosition, getResEmail, getToken;
-    TextView tvResName, tvName;
+    TextView tvResName, tvName, btvNotifi;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnNewRes, btnJoinRes;
     RelativeLayout layoutNores;
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity
         btnJoinRes  = findViewById(R.id.btn_joinres);
         imgprofile  = hView.findViewById(R.id.im_profile);
         layoutNores = findViewById(R.id.layout_nores);
+        btvNotifi   = findViewById(R.id.tv_noti);
     }
 
     @Override
@@ -725,20 +726,24 @@ public class MainActivity extends AppCompatActivity
                                 Number number = doc.getDocument().toObject(Number.class).withId(numberId);
                                 numberList.add(number);
                                 numberAdapter.notifyDataSetChanged();
+                                numberAdapter.notifyDataSetChanged();
+                                btvNotifi.setText("Test bubble Textview Added \n Row 2 \n Row 3");
                                 break;
                             case REMOVED:
                                 numberList.remove(Integer.valueOf(numberId)-1);
                                 numberAdapter.notifyDataSetChanged();
+                                btvNotifi.setText("Test bubble Textview Removed \n Row 2 \n Row 3");
+                                btvNotifi.setVisibility(View.VISIBLE);
                                 break;
                             case MODIFIED:
 //                                String status = doc.getDocument().getString("status");
 //                                String nb = doc.getDocument().getString("number");
 
                                 Number number1 = doc.getDocument().toObject(Number.class).withId(numberId);
-
                                 numberList.set(Integer.valueOf(numberId)-1, number1);
-
                                 numberAdapter.notifyDataSetChanged();
+                                btvNotifi.setText("Test bubble Textview Modified \n Row 2 \n Row 3");
+                                btvNotifi.setVisibility(View.VISIBLE);
                                 break;
                         }
 

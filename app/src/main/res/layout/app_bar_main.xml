@@ -44,9 +44,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
             android:layout_toStartOf="@id/btn_addtable"/>
-
     </RelativeLayout>
-
 
     <LinearLayout
         android:id="@+id/content"
@@ -55,6 +53,40 @@
         android:layout_height="match_parent">
         <include layout="@layout/content_main" />
     </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_noti"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="16dp">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_noti"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:rippleColor="@color/colorAccent"
+            app:backgroundTint="@color/mau_trang"
+            app:srcCompat="@drawable/noti_size"/>
+        <com.github.library.bubbleview.BubbleTextView
+            android:layout_marginRight="8dp"
+            android:id="@+id/tv_noti"
+            android:layout_toStartOf="@id/btn_noti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bàn số 2: 3 phần Gà nướng \n Row 2 \n Row 3"
+            android:textSize="18sp"
+            android:textColor="@color/mau_den"
+            android:padding="8dp"
+            app:arrowWidth="10dp"
+            app:angle="8dp"
+            app:arrowHeight="8dp"
+            app:arrowPosition="20dp"
+            app:arrowLocation="right"
+            app:bubbleColor="@color/mau_trang"
+            />
+
+    </RelativeLayout>
 
 
 
