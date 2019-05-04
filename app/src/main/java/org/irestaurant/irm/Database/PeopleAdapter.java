@@ -198,8 +198,6 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                                         mFirestore.collection(Config.USERS).document(email).update(Config.POSITION, finalPos).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                CurrentPeopleFragment currentPeopleFragment = new CurrentPeopleFragment();
-                                                currentPeopleFragment.refreshCurrent();
                                                 dialog.dismiss();
                                             }
                                         });
@@ -256,8 +254,6 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
                                                             Toast.makeText(context, "Đã đuổi việc "+name, Toast.LENGTH_SHORT).show();
-                                                            CurrentPeopleFragment currentPeopleFragment = new CurrentPeopleFragment();
-                                                            currentPeopleFragment.refreshCurrent();
                                                             dialog.dismiss();
                                                         }
                                                     });

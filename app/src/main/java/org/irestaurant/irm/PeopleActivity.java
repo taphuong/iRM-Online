@@ -70,9 +70,4 @@ public class PeopleActivity extends AppCompatActivity  {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(pager));
     }
 
-    public void refreshPeople(){
-
-        startActivity(new Intent(PeopleActivity.this, PeopleActivity.class));
-        finish();
-    }
 }

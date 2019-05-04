@@ -14,10 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.irestaurant.irm.Database.Config;
@@ -52,10 +57,6 @@ public class CurrentPeopleFragment extends Fragment {
         return view;
     }
     //    gotoChat
-    public void refreshCurrent (){
-        PeopleActivity peopleActivity = new PeopleActivity();
-        peopleActivity.refreshPeople();
-    }
     @Override
     public void onStart() {
         super.onStart();
@@ -68,7 +69,7 @@ public class CurrentPeopleFragment extends Fragment {
                 }else {
                     for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
                         String numberId = doc.getDocument().getId();
-                        People people = doc.getDocument().toObject(People.class).withId(numberId);
+                        final People people = doc.getDocument().toObject(People.class).withId(numberId);
                         String status = doc.getDocument().getString("status");
                         if (!status.equals("join")) {
                             switch (doc.getType()) {
@@ -82,14 +83,40 @@ public class CurrentPeopleFragment extends Fragment {
                                     }
                                     break;
                                 case REMOVED:
-                                    currentList.remove(numberId);
-                                    peopleAdapter.notifyDataSetChanged();
+                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()){
+                                                currentList.clear();
+                                                for (QueryDocumentSnapshot doctask : task.getResult()){
+                                                    if (doctask.exists()){
+                                                        People people1 = doctask.toObject(People.class);
+                                                        currentList.add(people1);
+                                                        peopleAdapter.notifyDataSetChanged();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+//                                    currentList.remove(numberId);
+//                                    peopleAdapter.notifyDataSetChanged();
                                     break;
                                 case MODIFIED:
-//                                    currentList.remove(people);
-//                                    peopleAdapter.notifyDataSetChanged();
-//                                    currentList.add(people);
-//                                    peopleAdapter.notifyDataSetChanged();
+                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()){
+                                                currentList.clear();
+                                                for (QueryDocumentSnapshot doctask : task.getResult()){
+                                                    if (doctask.exists()){
+                                                        People people1 = doctask.toObject(People.class);
+                                                        currentList.add(people1);
+                                                        peopleAdapter.notifyDataSetChanged();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
                                     break;
                             }
                         }

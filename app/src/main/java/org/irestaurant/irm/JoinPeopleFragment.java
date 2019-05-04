@@ -89,8 +89,6 @@ public class JoinPeopleFragment extends Fragment {
                                     break;
                             }
                         }
-
-
                     }
                 }
             }
