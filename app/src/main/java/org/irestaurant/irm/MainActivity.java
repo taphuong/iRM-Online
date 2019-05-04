@@ -49,6 +49,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.snapshot.StringNode;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SessionManager sessionManager;
-    String getName, getResName, getEmail, getImage, getPosition, getResEmail, getToken;
+    String getName, getResName, getEmail, getImage, getPosition, getResEmail, getToken, getId, getPassword, getResPhone, getResAddress;
     TextView tvResName, tvName, btvNotifi;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnNewRes, btnJoinRes;
@@ -137,6 +138,10 @@ public class MainActivity extends AppCompatActivity
         getPosition = user.get(sessionManager.POSITION);
         getResEmail = user.get(sessionManager.RESEMAIL);
         getToken = FirebaseInstanceId.getInstance().getToken();
+        getId = mAuth.getCurrentUser().getUid();
+        getPassword = user.get(sessionManager.PASSWORD);
+        getResAddress = user.get(sessionManager.RESADDRESS);
+        getResPhone = user.get(sessionManager.RESPHONE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -698,10 +703,11 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_account) {
             Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-            Pair[] pairs = new Pair[1];
-            pairs[0] = new Pair<View, String>(imgprofile, "imageTransition");
-            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, pairs);
-            startActivity(intent, options.toBundle());
+//            Pair[] pairs = new Pair[1];
+//            pairs[0] = new Pair<View, String>(imgprofile, "imageTransition");
+//            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, pairs);
+//            startActivity(intent, options.toBundle());
+            startActivity(intent);
         }
         else if (id == R.id.nav_addres) {
             newRes();
@@ -815,6 +821,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             finish();
         }
+
+//      list number
         numberList.clear();
         numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
@@ -856,6 +864,52 @@ public class MainActivity extends AppCompatActivity
 //                }
 
             });
-        }
+
+//        check position
+        mFirestore.collection(Config.USERS).document(getEmail).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                if (e!=null){
+                    return;
+                }
+                String position = documentSnapshot.getString(Config.POSITION);
+                if (documentSnapshot!=null && documentSnapshot.exists() && !position.equals(getPosition)){
+                    sessionManager.createSession(getId, getName, getEmail, getResEmail, getPassword, getResName, getResPhone, getResAddress, position, getImage);
+                    finish();
+                    startActivity(getIntent());
+                }
+            }
+        });
+
+//        check res
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e!=null){
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    final String resname = documentSnapshot.getString(Config.RESNAME);
+                    final String resphone = documentSnapshot.getString(Config.RESPHONE);
+                    final String resaddress = documentSnapshot.getString(Config.RESADDRESS);
+                    if (!resname.equals(getResName) || !resphone.equals(getResPhone) || !resaddress.equals(getResAddress)) {
+                        Map<String, Object> updateMap = new HashMap<>();
+                        updateMap.put(Config.RESNAME, resname);
+                        updateMap.put(Config.RESPHONE, resphone);
+                        updateMap.put(Config.RESADDRESS, resaddress);
+                        mFirestore.collection(Config.USERS).document(getEmail).update(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                sessionManager.createSession(getId, getName, getEmail, getResEmail, getPassword, resname, resphone, resaddress, getPosition, getImage);
+                                finish();
+                                startActivity(getIntent());
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    }
 
 }

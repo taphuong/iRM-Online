@@ -215,12 +215,12 @@ public class RegisterActivity extends Activity {
                         final String user_id = mAuth.getCurrentUser().getUid();
                         final StorageReference user_profile = mStorage.child(mEmail+".jpg");
                         final String mName = edtName.getText().toString().trim();
-                        String mResname = edtResName.getText().toString().trim();
-                        String mResphone = edtResPhone.getText().toString().trim();
-                        String mResaddress = edtResAddress.getText().toString().trim();
+                        final String mResname = edtResName.getText().toString().trim();
+                        final String mResphone = edtResPhone.getText().toString().trim();
+                        final String mResaddress = edtResAddress.getText().toString().trim();
                         final String token_id = FirebaseInstanceId.getInstance().getToken();
 
-                        Map<String, Object> nameMap = new HashMap<>();
+                        final Map<String, Object> nameMap = new HashMap<>();
                         if (swNewRes.isChecked()) {
                             nameMap.put(Config.RESEMAIL, mEmail);
                             nameMap.put(Config.NAME, mName);
@@ -263,7 +263,9 @@ public class RegisterActivity extends Activity {
                                                                 progressDialog = ProgressDialog.show(RegisterActivity.this,
                                                                         "Đang đăng ký cửa hàng", "Đang cập nhật thông tin", true, false);
                                                                 Map<String, Object> resMap = new HashMap<>();
-                                                                resMap.put(mEmail, "admin");
+                                                                resMap.put(Config.RESNAME, mResname);
+                                                                resMap.put(Config.RESPHONE, mResphone);
+                                                                resMap.put(Config.RESADDRESS, mResaddress);
                                                                 mFirestore.collection(Config.RESTAURANTS).document(mEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
                                                                     public void onSuccess(Void aVoid) {

@@ -257,10 +257,20 @@ public class AccountActivity extends Activity {
                                         mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                sessionManager.createSession(getID,mName,getEmail,getResEmail,newPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
-                                                Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(AccountActivity.this, MainActivity.class));
-                                                finish();
+                                                Map<String, Object> resMap = new HashMap<>();
+                                                resMap.put(Config.RESNAME, mResName);
+                                                resMap.put(Config.RESPHONE, mResPhone);
+                                                resMap.put(Config.RESADDRESS, mResAddress);
+                                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).update(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        sessionManager.createSession(getID,mName,getEmail,getResEmail,newPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
+                                                        Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
+                                                        startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                                                        finish();
+                                                    }
+                                                });
+
                                             }
                                         });
                                     }
@@ -290,10 +300,20 @@ public class AccountActivity extends Activity {
                     mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            sessionManager.createSession(getID,mName,getEmail,getResEmail,getPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
-                            Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(AccountActivity.this, MainActivity.class));
-                            finish();
+                            Map<String, Object> resMap = new HashMap<>();
+                            resMap.put(Config.RESNAME, mResName);
+                            resMap.put(Config.RESPHONE, mResPhone);
+                            resMap.put(Config.RESADDRESS, mResAddress);
+                            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).update(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    sessionManager.createSession(getID,mName,getEmail,getResEmail,getPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
+                                    Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                                    finish();
+                                }
+                            });
+
                         }
                     });
                 }
