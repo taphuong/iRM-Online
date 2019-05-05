@@ -20,6 +20,8 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,23 +34,26 @@ import org.irestaurant.irm.MenuActivity;
 import org.irestaurant.irm.R;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.ViewHolder> {
+public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.ViewHolder> implements Filterable {
     private Context context;
-    private List<Food> foodList;
+    private List<Food> foodList, filterList;
 
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     SessionManager sessionManager;
     String getResEmail;
     MenuActivity menuActivity;
+    CustomFilter cs;
 
 
     public FoodAdapter(Context context, List<Food> foodList, MenuActivity menuActivity){
         this.context = context;
         this.foodList = foodList;
+        this.filterList = foodList;
         this.menuActivity = menuActivity;
     }
 
@@ -212,6 +217,44 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.ViewHolder> {
         return foodList.size();
     }
 
+    @Override
+    public Filter getFilter() {
+        if (cs  == null){
+            cs  = new CustomFilter();
+        }
+        return cs;
+    }
+    class CustomFilter extends Filter{
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults results = new FilterResults();
+            if (constraint!=null && constraint.length()>0) {
+                constraint = constraint.toString().toUpperCase();
+                ArrayList<Food> filter = new ArrayList<>();
+
+                for (int i = 0; i < filterList.size(); i++) {
+                    if (filterList.get(i).getFoodname().toUpperCase().contains(constraint)) {
+                        Food food = new Food(filterList.get(i).getFoodname(),filterList.get(i).getFoodprice());
+                        filter.add(food);
+                    }
+                }
+                results.count = filter.size();
+                results.values =filter;
+            }else {
+                results.count = filterList.size();
+                results.values =filterList;
+            }
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            foodList = (List<Food>) results.values;
+            notifyDataSetChanged();
+        }
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         private View mView;
         private TextView tvFoodName, tvFoodPrice;
@@ -243,5 +286,8 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.ViewHolder> {
                 Log.d("Loi", e.getMessage());
             }
         });
+    }
+    private void updateFood (){
+
     }
 }

@@ -11,9 +11,11 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,11 +45,13 @@ public class MenuActivity extends Activity {
     SessionManager sessionManager;
     String getResName, getEmail, getResEmail;
     TextView tvResname;
-    Button btnHome, btnAddFood;
+    Button btnHome, btnAddFood, btnSearch, btnClose;
+    SearchView svSearch;
     EditText edtPrice;
     RecyclerView lvFood;
     public List<Food> foodList;
     public FoodAdapter foodAdapter;
+    RelativeLayout layoutMenu;
 
     public FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
@@ -56,6 +60,16 @@ public class MenuActivity extends Activity {
         btnAddFood  = findViewById(R.id.btn_addfood);
         lvFood      = findViewById(R.id.lv_food);
         tvResname   = findViewById(R.id.tv_resname);
+        btnSearch   = findViewById(R.id.btn_search);
+        btnClose    = findViewById(R.id.btn_close);
+        svSearch    = findViewById(R.id.sv_search);
+        layoutMenu  = findViewById(R.id.menu);
+        int id = svSearch.getContext()
+                .getResources()
+                .getIdentifier("android:id/search_src_text", null, null);
+        TextView svText = (TextView) svSearch.findViewById(id);
+        svText.setTextColor(Color.BLACK);
+//        searchEditText.setHintTextColor(getResources().getColor(R.color.mau_xanhbien));
     }
 
     @Override
@@ -87,6 +101,45 @@ public class MenuActivity extends Activity {
             @Override
             public void onClick(View v) {
                 addFood();
+            }
+        });
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnSearch.setVisibility(View.GONE);
+                btnClose.setVisibility(View.VISIBLE);
+                TranslateAnimation animate = new TranslateAnimation(layoutMenu.getWidth(),0,0,0);
+                animate.setDuration(300);
+                animate.setFillAfter(true);
+                svSearch.startAnimation(animate);
+                svSearch.setVisibility(View.VISIBLE);
+                svSearch.requestFocus();
+                svSearch.onActionViewExpanded();
+
+            }
+        });
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnSearch.setVisibility(View.VISIBLE);
+                btnClose.setVisibility(View.GONE);
+                TranslateAnimation animate = new TranslateAnimation(0,layoutMenu.getWidth(),0,0);
+                animate.setDuration(300);
+                animate.setFillAfter(true);
+                svSearch.startAnimation(animate);
+                svSearch.setVisibility(View.GONE);
+            }
+        });
+        svSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                foodAdapter.getFilter().filter(newText);
+                return true;
             }
         });
 

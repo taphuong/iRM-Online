@@ -20,7 +20,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
         <Button
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginRight="8dp"
             android:layout_centerVertical="true"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -33,7 +33,36 @@
             android:id="@+id/tv_resname"
             android:textSize="20sp"
             android:layout_toEndOf="@id/btn_home"
-            android:textColor="@color/mau_trang"/>
+            android:textColor="@color/mau_trang" />
+        <SearchView
+            android:visibility="gone"
+            android:id="@+id/sv_search"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:background="@drawable/rounded_text"
+            android:layout_marginEnd="8dp"
+            android:layout_toEndOf="@id/btn_home"
+            android:layout_toStartOf="@id/btn_close"
+            android:layout_centerVertical="true">
+
+        </SearchView>
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@mipmap/ic_search"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@id/btn_addfood"/>
+        <Button
+            android:visibility="gone"
+            android:id="@+id/btn_close"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@mipmap/ic_close"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@id/btn_addfood"/>
         <Button
             android:id="@+id/btn_addfood"
             android:layout_width="25dp"
@@ -43,6 +72,7 @@
             android:layout_marginRight="16dp"
             android:layout_alignParentRight="true"/>
     </RelativeLayout>
+
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
