@@ -2,9 +2,13 @@ package org.irestaurant.irm;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -31,14 +35,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.yalantis.ucrop.UCrop;
 
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.SessionManager;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.yalantis.ucrop.UCropFragment.TAG;
 
 public class AccountActivity extends Activity {
 
@@ -52,11 +60,16 @@ public class AccountActivity extends Activity {
     CircleImageView ivPicture;
     ProgressDialog progressDialog;
     private Uri imageUri;
+    int changeImage =0;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     private StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("images");
 
+    private boolean lockAspectRatio = false, setBitmapMaxWidthHeight = false;
+    private int ASPECT_RATIO_X = 16, ASPECT_RATIO_Y = 9, bitmapMaxWidth = 1000, bitmapMaxHeight = 1000;
+    public static final int REQUEST_IMAGE_CAPTURE = 0;
+    public static final int REQUEST_GALLERY_IMAGE = 1;
 
     private void Anhxa(){
         edtName     = findViewById(R.id.edt_name);
@@ -265,9 +278,13 @@ public class AccountActivity extends Activity {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
                                                         sessionManager.createSession(getID,mName,getEmail,getResEmail,newPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
-                                                        Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
-                                                        startActivity(new Intent(AccountActivity.this, MainActivity.class));
-                                                        finish();
+                                                        if (changeImage == 1){
+                                                            uploadImage(mName,newPassword,mResName,mResPhone,mResAddress);
+                                                        }else {
+                                                            Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
+                                                            startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                                                            finish();
+                                                        }
                                                     }
                                                 });
 
@@ -307,10 +324,15 @@ public class AccountActivity extends Activity {
                             mFirestore.collection(Config.RESTAURANTS).document(getResEmail).update(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    sessionManager.createSession(getID,mName,getEmail,getResEmail,getPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
-                                    Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(AccountActivity.this, MainActivity.class));
-                                    finish();
+                                    if (changeImage == 1){
+                                        uploadImage(mName, getPassword, mResName, mResPhone, mResAddress);
+                                    }else {
+                                        sessionManager.createSession(getID,mName,getEmail,getResEmail,getPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
+                                        Toast.makeText(AccountActivity.this, "Đã cập nhật thông tin", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                                        finish();
+                                    }
+
                                 }
                             });
 
@@ -326,49 +348,132 @@ public class AccountActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK){
-            imageUri = data.getData();
-            if (imageUri != null) {
-                ivPicture.setImageURI(imageUri);
-                final StorageReference user_profile = mStorage.child(getEmail+".jpg");
-                progressDialog = ProgressDialog.show(AccountActivity.this,
-                        "Cập nhật ảnh", "Đang tải ảnh lên ...", true, false);
-                user_profile.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()){
-                            user_profile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    final String download_url = uri.toString();
-                                    final Map<String ,Object> userMap = new HashMap<>();
-                                    userMap.put("image", download_url);
-                                    mFirestore.collection("Users").document(getEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            if (!getPosition.equals("none")){
-                                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(getEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        progressDialog.dismiss();
-                                                        Toast.makeText(AccountActivity.this, "Cập nhật ảnh thành công", Toast.LENGTH_SHORT).show();
-                                                        sessionManager.createSession(getID, getName, getEmail, getResEmail, getPassword, getResName, getResPhone, getResAddress, getPosition, download_url);
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    });
+        switch (requestCode){
+            case REQUEST_GALLERY_IMAGE:
+                if (resultCode == RESULT_OK){
+                    imageUri = data.getData();
+                    if (imageUri != null) {
+                        cropImage(imageUri);
+//                        ivPicture.setImageURI(imageUri);
+                    }else {
+                        setResultCancelled();
+                    }
+                }
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    handleUCropResult(data);
+                } else {
+                    setResultCancelled();
+                }
+                break;
+            case UCrop.RESULT_ERROR:
+                final Throwable cropError = UCrop.getError(data);
+                Log.e(TAG, "Crop error: " + cropError);
+                setResultCancelled();
+                break;
+            default:
+                setResultCancelled();
+        }
+//        if (resultCode == RESULT_OK){
+//            imageUri = data.getData();
+//            if (imageUri != null) {
+//                ivPicture.setImageURI(imageUri);
+//
+//            }
+//        }
+    }
+    private void cropImage(Uri sourceUri) {
+        Uri destinationUri = Uri.fromFile(new File(getCacheDir(), queryName(getContentResolver(), sourceUri)));
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionQuality(80);
+        options.setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        options.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
+        if (lockAspectRatio)
+            options.withAspectRatio(ASPECT_RATIO_X, ASPECT_RATIO_Y);
+
+        if (setBitmapMaxWidthHeight)
+            options.withMaxResultSize(bitmapMaxWidth, bitmapMaxHeight);
+
+        UCrop.of(sourceUri, destinationUri)
+                .withOptions(options)
+                .start(this);
+    }
+    private static String queryName(ContentResolver resolver, Uri uri) {
+        Cursor returnCursor =
+                resolver.query(uri, null, null, null, null);
+        assert returnCursor != null;
+        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        returnCursor.moveToFirst();
+        String name = returnCursor.getString(nameIndex);
+        returnCursor.close();
+        return name;
+    }
+    private void handleUCropResult(Intent data) {
+        if (data == null) {
+            setResultCancelled();
+            return;
+        }
+        final Uri resultUri = UCrop.getOutput(data);
+        setResultOk(resultUri);
+    }
+    private void setResultOk(Uri imagePath) {
+        changeImage = 1;
+        ivPicture.setImageURI(imagePath);
+        imageUri = imagePath;
+
+//        Intent intent = new Intent();
+//        intent.putExtra("path", imagePath);
+//        setResult(Activity.RESULT_OK, intent);
+//        finish();
+    }
+
+    private void setResultCancelled() {
+        Intent intent = new Intent();
+        setResult(Activity.RESULT_CANCELED, intent);
+//        finish();
+    }
+    private void uploadImage(final String mName, final String newPassword, final String mResName, final String mResPhone, final String mResAddress ){
+        final StorageReference userImage = mStorage.child(getEmail+".jpg");
+        progressDialog = ProgressDialog.show(AccountActivity.this,
+                "Cập nhật ảnh", "Đang tải ảnh lên ...", true, false);
+        userImage.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()){
+                    userImage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            final String download_url = uri.toString();
+                            final Map<String ,Object> userMap = new HashMap<>();
+                            userMap.put("image", download_url);
+                            mFirestore.collection("Users").document(getEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    if (!getPosition.equals("none")){
+                                        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(getEmail).update(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                progressDialog.dismiss();
+                                                sessionManager.createSession(getID,mName,getEmail,getResEmail,newPassword,mResName,mResPhone,mResAddress,getPosition, download_url);
+                                                Toast.makeText(AccountActivity.this, "Đã cập nhật thành công", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(AccountActivity.this, MainActivity.class));
+                                                finish();
+                                            }
+                                        });
+                                    }
                                 }
                             });
 
-                        }else {
-                            Toast.makeText(AccountActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
                         }
-                    }
-                });
+                    });
+
+                }else {
+                    Toast.makeText(AccountActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                }
             }
-        }
+        });
     }
 
 }

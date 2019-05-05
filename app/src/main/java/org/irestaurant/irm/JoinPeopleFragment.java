@@ -70,7 +70,7 @@ public class JoinPeopleFragment extends Fragment {
                 if (e != null){
 //                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }else {
-                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
+                    for (final DocumentChange doc : documentSnapshots.getDocumentChanges()){
                         String numberId = doc.getDocument().getId();
                         People people = doc.getDocument().toObject(People.class).withId(numberId);
                         String status = doc.getDocument().getString("status");
@@ -81,13 +81,15 @@ public class JoinPeopleFragment extends Fragment {
                                     peopleAdapter.notifyDataSetChanged();
                                     break;
                                 case REMOVED:
+                                    joinList.clear();
                                     mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                             if (task.isSuccessful()){
                                                 joinList.clear();
                                                 for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    if (doctask.exists()){
+                                                    String status = doctask.getString("status");
+                                                    if (doctask.exists() && status.equals("join")){
                                                         People people1 = doctask.toObject(People.class);
                                                         joinList.add(people1);
                                                         peopleAdapter.notifyDataSetChanged();
@@ -98,13 +100,56 @@ public class JoinPeopleFragment extends Fragment {
                                     });
                                     break;
                                 case MODIFIED:
+                                    joinList.clear();
                                     mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                             if (task.isSuccessful()){
                                                 joinList.clear();
                                                 for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    if (doctask.exists()){
+                                                    String status = doctask.getString("status");
+                                                    if (doctask.exists() && status.equals("join")){
+                                                        People people1 = doctask.toObject(People.class);
+                                                        joinList.add(people1);
+                                                        peopleAdapter.notifyDataSetChanged();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    break;
+                            }
+                        }else {
+                            switch (doc.getType()){
+                                case MODIFIED:
+                                    joinList.clear();
+                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()){
+                                                joinList.clear();
+                                                for (QueryDocumentSnapshot doctask : task.getResult()){
+                                                    String status = doctask.getString("status");
+                                                    if (doctask.exists() && status.equals("join")){
+                                                        People people1 = doctask.toObject(People.class);
+                                                        joinList.add(people1);
+                                                        peopleAdapter.notifyDataSetChanged();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    break;
+                                case REMOVED:
+                                    joinList.clear();
+                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()){
+                                                joinList.clear();
+                                                for (QueryDocumentSnapshot doctask : task.getResult()){
+                                                    String status = doctask.getString("status");
+                                                    if (doctask.exists() && status.equals("join")){
                                                         People people1 = doctask.toObject(People.class);
                                                         joinList.add(people1);
                                                         peopleAdapter.notifyDataSetChanged();

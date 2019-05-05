@@ -55,4 +55,11 @@ dependencies {
     implementation 'info.androidhive:barcode-reader:1.1.2'
     // google vision library
     implementation 'com.google.android.gms:play-services-vision:17.0.2'
+    //Butterknife
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    //dexter permissions
+    implementation "com.karumi:dexter:5.0.0"
+    implementation 'com.github.yalantis:ucrop:2.2.2'
 }

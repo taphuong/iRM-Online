@@ -127,31 +127,6 @@ public class MainActivity extends AppCompatActivity
         FirebaseApp.initializeApp(this);
         AnhXa();
 
-        sessionManager = new SessionManager(this);
-
-        sessionManager.checkLoggin();
-        HashMap<String, String> user = sessionManager.getUserDetail();
-        getName = user.get(sessionManager.NAME);
-        getResName = user.get(sessionManager.RESNAME);
-        getEmail = user.get(sessionManager.EMAIL);
-        getImage = user.get(sessionManager.IMAGE);
-        getPosition = user.get(sessionManager.POSITION);
-        getResEmail = user.get(sessionManager.RESEMAIL);
-        getToken = FirebaseInstanceId.getInstance().getToken();
-        getId = mAuth.getCurrentUser().getUid();
-        getPassword = user.get(sessionManager.PASSWORD);
-        getResAddress = user.get(sessionManager.RESADDRESS);
-        getResPhone = user.get(sessionManager.RESPHONE);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         Menu menuNav = navigationView.getMenu();
@@ -162,12 +137,27 @@ public class MainActivity extends AppCompatActivity
         MenuItem navRevenue = menuNav.findItem(R.id.nav_revenue);
         MenuItem navRecent = menuNav.findItem(R.id.nav_recent);
 
+        sessionManager = new SessionManager(this);
+        sessionManager.checkLoggin();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser==null || getName == null || getName.isEmpty()){
+        if (currentUser==null || !sessionManager.isLoggin()){
+            sessionManager.logout();
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             finish();
-            sessionManager.logout();
         }else {
+            HashMap<String, String> user = sessionManager.getUserDetail();
+            getName = user.get(sessionManager.NAME);
+            getResName = user.get(sessionManager.RESNAME);
+            getEmail = user.get(sessionManager.EMAIL);
+            getImage = user.get(sessionManager.IMAGE);
+            getPosition = user.get(sessionManager.POSITION);
+            getResEmail = user.get(sessionManager.RESEMAIL);
+            getToken = FirebaseInstanceId.getInstance().getToken();
+            getId = mAuth.getCurrentUser().getUid();
+            getPassword = user.get(sessionManager.PASSWORD);
+            getResAddress = user.get(sessionManager.RESADDRESS);
+            getResPhone = user.get(sessionManager.RESPHONE);
+
             tvName.setText(getName);
             if (getPosition.equals("none")){
                 btnRemoveTable.setVisibility(View.GONE);
@@ -201,6 +191,27 @@ public class MainActivity extends AppCompatActivity
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.placeholder(R.drawable.profile);
             Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(getImage).into(imgprofile);
+        }
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+
+
+        FirebaseUser fUser = mAuth.getCurrentUser();
+        if (fUser==null || getName == null || getName.isEmpty()){
+            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+            finish();
+            sessionManager.logout();
+        }else {
+
 
 //            Toast.makeText(this, getPosition, Toast.LENGTH_SHORT).show();
 

@@ -83,6 +83,7 @@ public class CurrentPeopleFragment extends Fragment {
                                     }
                                     break;
                                 case REMOVED:
+                                    currentList.clear();
                                     mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -102,6 +103,7 @@ public class CurrentPeopleFragment extends Fragment {
 //                                    peopleAdapter.notifyDataSetChanged();
                                     break;
                                 case MODIFIED:
+                                    currentList.clear();
                                     mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -109,7 +111,9 @@ public class CurrentPeopleFragment extends Fragment {
                                                 currentList.clear();
                                                 for (QueryDocumentSnapshot doctask : task.getResult()){
                                                     if (doctask.exists()){
+                                                        String email = doctask.getString("email");
                                                         People people1 = doctask.toObject(People.class);
+                                                        people1.setEmail(email);
                                                         currentList.add(people1);
                                                         peopleAdapter.notifyDataSetChanged();
                                                     }

@@ -2,12 +2,17 @@ package org.irestaurant.irm;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -29,14 +34,19 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.yalantis.ucrop.UCrop;
 
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.SessionManager;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static android.support.v4.content.FileProvider.getUriForFile;
+import static com.yalantis.ucrop.UCropFragment.TAG;
 
 public class RegisterActivity extends Activity {
 
@@ -54,6 +64,12 @@ public class RegisterActivity extends Activity {
     private CollectionReference mCollectUser = mFirestore.collection("Users");
     private String mVerificationId, firebaseID;
     private Uri imageUri;
+
+    private boolean lockAspectRatio = false, setBitmapMaxWidthHeight = false;
+    private int ASPECT_RATIO_X = 16, ASPECT_RATIO_Y = 9, bitmapMaxWidth = 1000, bitmapMaxHeight = 1000;
+    public static final int REQUEST_IMAGE_CAPTURE = 0;
+    public static final int REQUEST_GALLERY_IMAGE = 1;
+
 
     private void AnhXa (){
         edtName     = findViewById(R.id.edt_name);
@@ -324,11 +340,89 @@ public class RegisterActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK){
-            imageUri = data.getData();
-            if (imageUri != null) {
-                ivPicture.setImageURI(imageUri);
-            }
+        switch (requestCode){
+            case REQUEST_GALLERY_IMAGE:
+                if (resultCode == RESULT_OK){
+                    imageUri = data.getData();
+                    if (imageUri != null) {
+                        cropImage(imageUri);
+//                        ivPicture.setImageURI(imageUri);
+                    }else {
+                        setResultCancelled();
+                    }
+                }
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    handleUCropResult(data);
+                } else {
+                    setResultCancelled();
+                }
+                break;
+            case UCrop.RESULT_ERROR:
+                final Throwable cropError = UCrop.getError(data);
+                Log.e(TAG, "Crop error: " + cropError);
+                setResultCancelled();
+                break;
+            default:
+                setResultCancelled();
         }
+
+    }
+    private void cropImage(Uri sourceUri) {
+        Uri destinationUri = Uri.fromFile(new File(getCacheDir(), queryName(getContentResolver(), sourceUri)));
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionQuality(80);
+        options.setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        options.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.colorPrimary));
+
+        if (lockAspectRatio)
+            options.withAspectRatio(ASPECT_RATIO_X, ASPECT_RATIO_Y);
+
+        if (setBitmapMaxWidthHeight)
+            options.withMaxResultSize(bitmapMaxWidth, bitmapMaxHeight);
+
+        UCrop.of(sourceUri, destinationUri)
+                .withOptions(options)
+                .start(this);
+    }
+    private static String queryName(ContentResolver resolver, Uri uri) {
+        Cursor returnCursor =
+                resolver.query(uri, null, null, null, null);
+        assert returnCursor != null;
+        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        returnCursor.moveToFirst();
+        String name = returnCursor.getString(nameIndex);
+        returnCursor.close();
+        return name;
+    }
+    private void handleUCropResult(Intent data) {
+        if (data == null) {
+            setResultCancelled();
+            return;
+        }
+        final Uri resultUri = UCrop.getOutput(data);
+        setResultOk(resultUri);
+    }
+    private void setResultOk(Uri imagePath) {
+        ivPicture.setImageURI(imagePath);
+        imageUri = imagePath;
+//        Intent intent = new Intent();
+//        intent.putExtra("path", imagePath);
+//        setResult(Activity.RESULT_OK, intent);
+//        finish();
+    }
+
+    private void setResultCancelled() {
+        Intent intent = new Intent();
+        setResult(Activity.RESULT_CANCELED, intent);
+//        finish();
+    }
+
+    private Uri getCacheImagePath(String fileName) {
+        File path = new File(getExternalCacheDir(), "camera");
+        if (!path.exists()) path.mkdirs();
+        File image = new File(path, fileName);
+        return getUriForFile(RegisterActivity.this, getPackageName() + ".provider", image);
     }
 }
