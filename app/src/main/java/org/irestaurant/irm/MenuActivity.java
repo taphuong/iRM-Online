@@ -2,6 +2,7 @@ package org.irestaurant.irm;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -31,6 +32,8 @@ import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.FoodAdapter;
 import org.irestaurant.irm.Database.SessionManager;
+import org.irestaurant.irm.Interface.LinearLayoutManagerWithSmoothScrooler;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -49,9 +52,10 @@ public class MenuActivity extends Activity {
     SearchView svSearch;
     EditText edtPrice;
     RecyclerView lvFood;
-    public List<Food> foodList;
+    public ArrayList<Food> foodList;
     public FoodAdapter foodAdapter;
     RelativeLayout layoutMenu;
+    LinearLayoutManager layoutManager;
 
     public FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
@@ -88,7 +92,8 @@ public class MenuActivity extends Activity {
         foodList = new ArrayList<>();
         foodAdapter = new FoodAdapter(this, foodList, MenuActivity.this);
         lvFood.setHasFixedSize(true);
-        lvFood.setLayoutManager(new LinearLayoutManager(this));
+        layoutManager = new LinearLayoutManagerWithSmoothScrooler(this);
+        lvFood.setLayoutManager(layoutManager);
         lvFood.setAdapter(foodAdapter);
 
         btnHome.setOnClickListener(new View.OnClickListener() {
@@ -260,6 +265,8 @@ public class MenuActivity extends Activity {
                             case ADDED:
                                 Food food = doc.getDocument().toObject(Food.class).withId(foodId);
                                 foodList.add(food);
+                                foodList = Config.sortList(foodList);
+                                foodList = Config.foodGroupArrayList(foodList);
                                 foodAdapter.notifyDataSetChanged();
                                 break;
                             case REMOVED:
@@ -272,5 +279,16 @@ public class MenuActivity extends Activity {
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Config.RESULT_CODE){
+            if (resultCode == Activity.RESULT_OK){
+                String groupClick = data.getStringExtra("result");
+                int position = Config.findPositionWithGroup(groupClick, foodList);
+                lvFood.smoothScrollToPosition(position);
+            }
+        }
     }
 }

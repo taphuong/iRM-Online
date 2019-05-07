@@ -62,4 +62,5 @@ dependencies {
     //dexter permissions
     implementation "com.karumi:dexter:5.0.0"
     implementation 'com.github.yalantis:ucrop:2.2.2'
+    implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 }

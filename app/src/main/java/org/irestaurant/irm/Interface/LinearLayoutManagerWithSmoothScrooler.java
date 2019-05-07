@@ -1,0 +1,43 @@
+package org.irestaurant.irm.Interface;
+
+import android.content.Context;
+import android.graphics.PointF;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
+import android.support.v7.widget.RecyclerView;
+
+public class LinearLayoutManagerWithSmoothScrooler extends LinearLayoutManager {
+    public LinearLayoutManagerWithSmoothScrooler(Context context) {
+        super(context);
+    }
+
+    public LinearLayoutManagerWithSmoothScrooler(Context context, int orientation, boolean reverseLayout) {
+        super(context, orientation, reverseLayout);
+    }
+
+    @Override
+    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
+        RecyclerView.SmoothScroller smoothScroller = new TopSnappedSmoothScrooler(recyclerView.getContext());
+        smoothScroller.setTargetPosition(position);
+        startSmoothScroll(smoothScroller);
+    }
+
+    private class TopSnappedSmoothScrooler extends LinearSmoothScroller {
+
+        public TopSnappedSmoothScrooler(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected int getVerticalSnapPreference() {
+            return SNAP_TO_START;
+        }
+
+        @Nullable
+        @Override
+        public PointF computeScrollVectorForPosition(int targetPosition) {
+            return LinearLayoutManagerWithSmoothScrooler.this.computeScrollVectorForPosition(targetPosition);
+        }
+    }
+}

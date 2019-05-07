@@ -1,6 +1,10 @@
 package org.irestaurant.irm.Database;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class Config {
     public static final String NAME = "name";
@@ -22,6 +26,10 @@ public class Config {
 
     public static final String FOODNAME = "foodname";
     public static final String FOODPRICE = "foodprice";
+    public static final int VIEWTYPEGROUP = 0;
+    public static final int VIEWTYPEITEM = 1;
+    public static final int RESULT_CODE = 1000;
+    public static List<String> foodGroupsList = new ArrayList<>();
 
     public static int Printer = 0;
     public static class VNCharacterUtils {
@@ -78,5 +86,50 @@ public class Config {
             }
             return sb.toString();
         }
+    }
+
+    // sort FoodMenu
+    public static ArrayList<Food> sortList(ArrayList<Food> foods){
+        Collections.sort(foods, new Comparator<Food>() {
+            @Override
+            public int compare(Food o1, Food o2) {
+                return o1.getGroup().compareTo(o2.getGroup());
+            }
+        });
+        return foods;
+    }
+    public static ArrayList<Food> foodGroupArrayList (ArrayList<Food> list){
+        int i = 0;
+        ArrayList<Food> customList = new ArrayList<>();
+        Food firstGroup = new Food();
+        firstGroup.setGroup(String.valueOf(list.get(0).getGroup()));
+        firstGroup.setViewType(VIEWTYPEGROUP);
+        foodGroupsList.add(list.get(0).getGroup());
+        customList.add(firstGroup);
+        for (i = 0; i<list.size()-1; i++){
+            Food foodGroup = new Food();
+            String group1 = list.get(i).getGroup();
+            String group2 = list.get(i+1).getGroup();
+            if (group1.equals(group2)){
+                list.get(i).setViewType(VIEWTYPEITEM);
+                customList.add(list.get(i));
+            }else {
+                customList.add(list.get(i));
+                foodGroup.setGroup(group2);
+                foodGroup.setViewType(VIEWTYPEGROUP);
+                foodGroupsList.add(group2);
+                customList.add(foodGroup);
+            }
+        }
+        list.get(i).setViewType(VIEWTYPEITEM);
+        customList.add(list.get(i));
+        return customList;
+    }
+    public static int findPositionWithGroup (String group, ArrayList<Food> list){
+        for (int i = 0; i<list.size(); i++){
+            if (list.get(i).getGroup().equals(group))
+                return i;
+        }
+        return -1;
     }
 }
