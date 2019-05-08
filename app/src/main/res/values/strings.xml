@@ -61,4 +61,9 @@
     <string name="joinres">Xin vào cửa hàng</string>
     <string name="dacoloi">Đã xảy ra lỗi, Vui lòng thử lại</string>
     <string name="deleted">Đã xóa thành công</string>
+    <string name="addcategory">Thêm danh mục</string>
+    <string name="addfood">Thêm món ăn (uống)</string>
+    <string name="foodname">Tên món ăn (uống)</string>
+    <string name="foodprice">Đơn giá</string>
+    <string name="category">Danh mục</string>
 </resources>

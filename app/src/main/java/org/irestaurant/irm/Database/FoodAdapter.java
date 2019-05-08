@@ -101,6 +101,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         if (viewHolder instanceof GroupViewHolder){
             GroupViewHolder groupViewHolder = (GroupViewHolder)viewHolder;
             groupViewHolder.tvGroupMenu.setText(foodList.get(i).getGroup());
+
             ColorGenerator generator = ColorGenerator.MATERIAL;
             groupViewHolder.layoutGroup.setBackgroundColor(generator.getRandomColor());
             groupViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -278,6 +279,9 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
         return cs;
     }
+
+
+
     class CustomFilter extends Filter{
 
         @Override

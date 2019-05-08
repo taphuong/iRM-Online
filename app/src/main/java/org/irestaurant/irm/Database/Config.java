@@ -29,6 +29,8 @@ public class Config {
     public static final int VIEWTYPEGROUP = 0;
     public static final int VIEWTYPEITEM = 1;
     public static final int RESULT_CODE = 1000;
+    public static final String GROUP = "group";
+    public static final String VIEWTYPE = "viewType";
     public static List<String> foodGroupsList = new ArrayList<>();
 
     public static int Printer = 0;
@@ -150,10 +152,12 @@ public class Config {
         return customList;
     }
     public static int findPositionWithGroup (String group, ArrayList<Food> list){
-        for (int i = 0; i<list.size(); i++){
-            if (list.get(i).getGroup().equals(group))
+        int i = 0;
+        for (i = 0; i<list.size(); i++){
+            if (list.get(i).getGroup().equals(group) && i !=0) {
                 return i;
+            }
         }
-        return -1;
+        return 0;
     }
 }

@@ -1,22 +1,29 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.TranslateAnimation;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -92,9 +99,11 @@ public class MenuActivity extends Activity {
         foodList = new ArrayList<>();
         foodAdapter = new FoodAdapter(this, foodList, MenuActivity.this);
         lvFood.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManagerWithSmoothScrooler(this);
+        layoutManager = new LinearLayoutManager(this);
         lvFood.setLayoutManager(layoutManager);
         lvFood.setAdapter(foodAdapter);
+
+
 
         btnHome.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,7 +114,25 @@ public class MenuActivity extends Activity {
         btnAddFood.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addFood();
+                final android.support.v7.widget.PopupMenu popupMenu = new android.support.v7.widget.PopupMenu(MenuActivity.this,v);
+                popupMenu.getMenuInflater().inflate(R.menu.addfood_popup,popupMenu.getMenu());
+                popupMenu.setGravity(Gravity.RIGHT);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()){
+                            case R.id.popup_category:
+                                addCategory();
+                                break;
+                            case R.id.popup_food:
+                                addFood();
+
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
             }
         });
         btnSearch.setOnClickListener(new View.OnClickListener() {
@@ -150,6 +177,40 @@ public class MenuActivity extends Activity {
 
     }
 
+    private void addCategory(){
+        final Dialog dialog = new Dialog(MenuActivity.this);
+        dialog.setContentView(R.layout.dialog_addcategory);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        final RelativeLayout layoutAdd = dialog.findViewById(R.id.layout_add);
+        final TextView tvAdd = dialog.findViewById(R.id.tv_category);
+        final EditText edtCategory = dialog.findViewById(R.id.edt_category);
+        final Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
+        Button btnClose = dialog.findViewById(R.id.btn_close);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (edtCategory.getText().toString().isEmpty()){
+                    edtCategory.setError("Thiếu thông tin");
+                    edtCategory.requestFocus();
+                }else {
+                    String name = edtCategory.getText().toString();
+                    tvAdd.setText("Đang thêm danh mục ...");
+                    layoutAdd.setVisibility(View.GONE);
+                    registCategory(name, dialog, layoutAdd);
+
+                }
+            }
+        });
+        dialog.show();
+    }
+
     private void addFood(){
         final Dialog dialog = new Dialog(MenuActivity.this);
         dialog.setContentView(R.layout.dialog_addfood);
@@ -161,13 +222,64 @@ public class MenuActivity extends Activity {
         final EditText edtFoodname = (EditText) dialog.findViewById(R.id.edt_foodname);
         final RelativeLayout layoutAdd = dialog.findViewById(R.id.layout_add);
         edtPrice = (EditText) dialog.findViewById(R.id.edt_foodprice);
-        dialog.show();
+        final Spinner spnCategory = dialog.findViewById(R.id.spn_category);
+        final List<String> listCategory = new ArrayList<>();
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.spinner_item,listCategory);
+        spnCategory.setAdapter(adapter);
+
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e == null){
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                        String categoryID = doc.getDocument().getId();
+                        switch (doc.getType()){
+                            case ADDED:
+                                String first = categoryID.substring(0,1);
+                                if (first.equals("0")){
+                                    String categoryName = doc.getDocument().getString(Config.GROUP);
+                                    listCategory.add(categoryName);
+                                    adapter.notifyDataSetChanged();
+
+                                    if (listCategory.isEmpty()){
+                                        dialog.dismiss();
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
+                                        builder.setMessage("Chưa có danh mục thực phẩm. Bạn có muốn thêm danh mục không");
+                                        builder.setCancelable(false);
+                                        builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                dialogInterface.dismiss();
+                                            }
+                                        });
+                                        builder.setNegativeButton("Thêm", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                dialogInterface.dismiss();
+                                                addCategory();
+                                            }
+                                        });
+                                        AlertDialog alertDialog = builder.create();
+                                        alertDialog.show();
+                                    }
+                                }
+
+                                break;
+                        }
+                    }
+                }
+            }
+        });
+
+
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
             }
         });
+
+        dialog.show();
 
         edtPrice.addTextChangedListener(onTextChangedListener());
         btnConfirm.setOnClickListener(new View.OnClickListener() {
@@ -184,7 +296,8 @@ public class MenuActivity extends Activity {
                 }else {
                     tvThem.setText("Đang thêm ...");
                     layoutAdd.setVisibility(View.GONE);
-                    registFood(name, price,dialog);
+                    String group = spnCategory.getSelectedItem().toString();
+                    registFood(name, price,dialog, group);
                 }
             }
         });
@@ -223,15 +336,41 @@ public class MenuActivity extends Activity {
             }
         };
     }
-    private void registFood (String foodname, String foodprice, final Dialog dialog){
+
+    private void registCategory (String name, final Dialog dialog, final RelativeLayout layoutAdd){
+        String categoryID = "0"+Config.VNCharacterUtils.removeAccent(name).trim();
+        Map<String, Object> categoryMap = new HashMap<>();
+        categoryMap.put(Config.FOODNAME, name);
+        categoryMap.put(Config.FOODPRICE, "0");
+        categoryMap.put(Config.GROUP, name);
+        categoryMap.put(Config.VIEWTYPE, Config.VIEWTYPEGROUP);
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(categoryID).set(categoryMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(MenuActivity.this, "Thêm thành công", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MenuActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                layoutAdd.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void registFood (String foodname, String foodprice, final Dialog dialog, String group){
         String foodID = Config.VNCharacterUtils.removeAccent(foodname).trim();
 
         Map<String, Object> nameMap = new HashMap<>();
         nameMap.put(Config.FOODNAME, foodname);
         nameMap.put(Config.FOODPRICE, foodprice);
+        nameMap.put(Config.GROUP, group);
+        nameMap.put(Config.VIEWTYPE, Config.VIEWTYPEITEM);
         mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(foodID).set(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                foodAdapter.notifyDataSetChanged();
                 dialog.dismiss();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -248,6 +387,35 @@ public class MenuActivity extends Activity {
         startActivity(getIntent());
     }
 
+//Sticky
+
+
+    public ArrayList<String> getData() {
+        final ArrayList<String> list = new ArrayList<String>();
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e == null){
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                        String categoryID = doc.getDocument().getId();
+                        switch (doc.getType()){
+                            case ADDED:
+                                String first = categoryID.substring(0,1);
+                                if (first.equals("0")){
+                                    String categoryName = doc.getDocument().getString(Config.GROUP);
+                                    list.add(categoryName);
+
+                                }
+
+                                break;
+                        }
+                    }
+                }
+            }
+        });
+
+        return list;
+    }
 
     @Override
     protected void onStart() {
@@ -282,13 +450,48 @@ public class MenuActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Config.RESULT_CODE){
-            if (resultCode == Activity.RESULT_OK){
-                String groupClick = data.getStringExtra("result");
-                int position = Config.findPositionWithGroup(groupClick, foodList);
-                lvFood.smoothScrollToPosition(position);
+    protected void onActivityResult(int requestCode, int resultCode,@Nullable Intent data) {
+//        if (resultCode == Config.RESULT_CODE){
+//
+//        }
+        if (resultCode == Activity.RESULT_OK){
+            String groupClick = data.getStringExtra("result");
+//            foodAdapter.notifyDataSetChanged();
+            int i =0;
+            for (i =0; i<foodList.size(); i++){
+                if (foodList.get(i).getGroup().equals(groupClick) && i > 1) {
+                    try {
+                        if (i != 0) {
+                            Toast.makeText(this, String.valueOf(i), Toast.LENGTH_SHORT).show();
+                            lvFood.smoothScrollToPosition(i);
+                            break;
+                        } else {
+                            lvFood.smoothScrollToPosition(0);
+                            break;
+                        }
+                    }catch (Exception e){
+
+                    }
+//                    lvFood.scrollToPosition(i);
+                }
             }
+//            int position = Config.findPositionWithGroup(groupClick, foodList);
+//            try{
+//                lvFood.smoothScrollToPosition(position);
+//            }catch (Exception e){
+//                lvFood.smoothScrollToPosition(-1);
+//            }
+
+//            lvFood.scrollToPosition(position);
         }
     }
+//    public int findPositionWithGroup (String group, ArrayList<Food> list){
+//
+//        for (int i = 0; i<list.size(); i++){
+//            if (list.get(i).getGroup().equals(group) && i!=0) {
+//                return i;
+//            }
+//        }
+////        return 0;
+//    }
 }

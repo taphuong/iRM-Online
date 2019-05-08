@@ -33,37 +33,62 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/layout_menu"
         android:id="@+id/layout_add">
-        <EditText
-            android:singleLine="true"
-            android:id="@+id/edt_foodname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tên món ăn (uống)"
-            android:background="@drawable/rounded_text"
-            android:textSize="20sp"
+            <EditText
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/rounded_text"
+                android:singleLine="true"
+                android:id="@+id/edt_foodname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/foodname"
+                android:layout_marginBottom="8dp"/>
+            <EditText
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/rounded_text"
+                android:layout_below="@id/edt_foodname"
+                android:singleLine="true"
+                android:id="@+id/edt_foodprice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/foodprice"
+                android:layout_marginBottom="8dp"
+                android:inputType="number"/>
+        <TextView
+            android:layout_marginTop="4dp"
             android:padding="8dp"
-            android:gravity="center"/>
-        <EditText
-            android:layout_marginTop="8dp"
-            android:layout_below="@id/edt_foodname"
-            android:singleLine="true"
-            android:id="@+id/edt_foodprice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Đơn giá"
-            android:inputType="number"
-            android:background="@drawable/rounded_text"
-            android:textSize="20sp"
-            android:padding="8dp"
-            android:gravity="center"/>
-        <Button
-            android:id="@+id/btn_confirm"
-            android:layout_below="@id/edt_foodprice"
-            android:layout_marginTop="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/category"
+            android:textColor="@color/mau_den"
+            android:textSize="18sp"
+            android:id="@+id/tv_category"
+            android:layout_below="@id/edt_foodprice"/>
+        <Spinner
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spn_category"
+            android:layout_toEndOf="@id/tv_category"
+            android:layout_below="@id/edt_foodprice"
+            android:layout_above="@id/btn_confirm"
+            android:background="@drawable/rounded_text">
+        </Spinner>
+        <Button
+
+            android:layout_marginBottom="4dp"
+            android:id="@+id/btn_confirm"
+            android:layout_below="@id/tv_category"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/rounded_button_list"
+            android:background="@drawable/rounded_primary"
             android:text="Thêm"
             android:textAllCaps="false"
             android:textSize="22sp"/>

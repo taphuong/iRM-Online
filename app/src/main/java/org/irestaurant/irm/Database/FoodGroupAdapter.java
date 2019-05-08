@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.util.ColorGenerator;
+
 import org.irestaurant.irm.Interface.IOnFoodGroupClickListener;
 import org.irestaurant.irm.R;
 
@@ -16,14 +18,14 @@ import java.util.List;
 
 public class FoodGroupAdapter extends RecyclerView.Adapter<FoodGroupAdapter.MyViewHolder> {
 
-    List<Food> foodGroupList;
+    List<String> foodGroupList;
     IOnFoodGroupClickListener iOnFoodGroupClickListener;
 
     public void setIOnFoodGroupClickListener(IOnFoodGroupClickListener iOnFoodGroupClickListener) {
         this.iOnFoodGroupClickListener = iOnFoodGroupClickListener;
     }
 
-    public FoodGroupAdapter(List<Food> foodGroupList) {
+    public FoodGroupAdapter(List<String> foodGroupList) {
         this.foodGroupList = foodGroupList;
     }
 
@@ -37,16 +39,16 @@ public class FoodGroupAdapter extends RecyclerView.Adapter<FoodGroupAdapter.MyVi
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, final int i) {
 
-        final int available_position = Config.foodGroupsList.indexOf(foodGroupList.get(i));
-        if (available_position != -1){
-            myViewHolder.layoutGroup.setBackgroundColor(Color.GREEN);
-        }else {
-            myViewHolder.layoutGroup.setBackgroundColor(Color.GRAY);
-        }
+        final int available_position = foodGroupList.indexOf(foodGroupList.get(i));
+
+            myViewHolder.tvGroupMenu.setText(foodGroupList.get(i).toString());
+            ColorGenerator generator = ColorGenerator.MATERIAL;
+            myViewHolder.layoutGroup.setBackgroundColor(generator.getRandomColor());
+
         myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                iOnFoodGroupClickListener.onFoodGroupClickListener(foodGroupList.get(i).getGroup(),i);
+                iOnFoodGroupClickListener.onFoodGroupClickListener(foodGroupList.get(i),i);
 
             }
         });
