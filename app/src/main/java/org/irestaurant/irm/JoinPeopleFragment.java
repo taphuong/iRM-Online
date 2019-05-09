@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class JoinPeopleFragment extends Fragment {
+    public  static String p = "1";
     RecyclerView lvJoinPeople;
     public List<People> joinList;
     public PeopleAdapter peopleAdapter;
@@ -72,9 +73,9 @@ public class JoinPeopleFragment extends Fragment {
                 }else {
                     for (final DocumentChange doc : documentSnapshots.getDocumentChanges()){
                         String numberId = doc.getDocument().getId();
-                        People people = doc.getDocument().toObject(People.class).withId(numberId);
-                        String status = doc.getDocument().getString("status");
-                        if (status.equals("join")) {
+                        final People people = doc.getDocument().toObject(People.class).withId(numberId);
+                        String position = doc.getDocument().getString(Config.POSITION);
+                        if (position != null && position.equals("join")) {
                             switch (doc.getType()) {
                                 case ADDED:
                                     joinList.add(people);
@@ -88,8 +89,8 @@ public class JoinPeopleFragment extends Fragment {
                                             if (task.isSuccessful()){
                                                 joinList.clear();
                                                 for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String status = doctask.getString("status");
-                                                    if (doctask.exists() && status.equals("join")){
+                                                    String position = doctask.getString(Config.POSITION);
+                                                    if (doctask.exists() && position.equals("join")){
                                                         People people1 = doctask.toObject(People.class);
                                                         joinList.add(people1);
                                                         peopleAdapter.notifyDataSetChanged();
@@ -107,8 +108,8 @@ public class JoinPeopleFragment extends Fragment {
                                             if (task.isSuccessful()){
                                                 joinList.clear();
                                                 for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String status = doctask.getString("status");
-                                                    if (doctask.exists() && status.equals("join")){
+                                                    String position = doctask.getString(Config.POSITION);
+                                                    if (doctask.exists() && position.equals("join")){
                                                         People people1 = doctask.toObject(People.class);
                                                         joinList.add(people1);
                                                         peopleAdapter.notifyDataSetChanged();
@@ -129,10 +130,13 @@ public class JoinPeopleFragment extends Fragment {
                                             if (task.isSuccessful()){
                                                 joinList.clear();
                                                 for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String status = doctask.getString("status");
-                                                    if (doctask.exists() && status.equals("join")){
+                                                    String position = doctask.getString(Config.POSITION);
+                                                    if (doctask.exists() && position.equals("join")){
                                                         People people1 = doctask.toObject(People.class);
                                                         joinList.add(people1);
+                                                        peopleAdapter.notifyDataSetChanged();
+                                                    } else {
+                                                        joinList.remove(Integer.valueOf(p));
                                                         peopleAdapter.notifyDataSetChanged();
                                                     }
                                                 }
@@ -148,8 +152,8 @@ public class JoinPeopleFragment extends Fragment {
                                             if (task.isSuccessful()){
                                                 joinList.clear();
                                                 for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String status = doctask.getString("status");
-                                                    if (doctask.exists() && status.equals("join")){
+                                                    String position = doctask.getString(Config.POSITION);
+                                                    if (doctask.exists() && position.equals("join")){
                                                         People people1 = doctask.toObject(People.class);
                                                         joinList.add(people1);
                                                         peopleAdapter.notifyDataSetChanged();

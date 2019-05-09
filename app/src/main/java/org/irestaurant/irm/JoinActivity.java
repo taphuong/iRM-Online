@@ -183,7 +183,7 @@ public class JoinActivity extends Activity {
                         joinMap.put(Config.NAME, getName);
                         joinMap.put(Config.EMAIL, getEmail);
                         joinMap.put(Config.IMAGE, getImage);
-                        joinMap.put(Config.STATUS, "join");
+                        joinMap.put(Config.POSITION, "join");
                         joinMap.put(Config.TOKENID, getToken);
                         mFirestore.collection(Config.RESTAURANTS).document(resEmail).collection(Config.PEOPLE).document(getEmail).set(joinMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -218,7 +218,7 @@ public class JoinActivity extends Activity {
                                 joinMap.put(Config.NAME, getName);
                                 joinMap.put(Config.EMAIL, getEmail);
                                 joinMap.put(Config.IMAGE, getImage);
-                                joinMap.put(Config.STATUS, "join");
+                                joinMap.put(Config.POSITION, "join");
                                 joinMap.put(Config.TOKENID, getToken);
                                 mFirestore.collection(Config.RESTAURANTS).document(resemail).collection(Config.PEOPLE).document(getEmail).set(joinMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override

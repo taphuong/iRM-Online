@@ -19,6 +19,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.Food;
+import org.irestaurant.irm.Database.FoodAdapter;
 import org.irestaurant.irm.Database.FoodOrderedAdapter;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.OredredAdapter;
@@ -32,8 +33,8 @@ public class FragmentChoose extends Fragment {
     RecyclerView lvFood;
     String getResEmail, getIdNunber,getNumber;
     SessionManager sessionManager;
-    List<Food> foodList;
-    FoodOrderedAdapter foodOrderedAdapter;
+    ArrayList<Food> foodList;
+    FoodAdapter foodAdapter;
     private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     CollectionReference numberRef;
 
@@ -55,10 +56,10 @@ public class FragmentChoose extends Fragment {
 
 
         foodList = new ArrayList<>();
-        foodOrderedAdapter = new FoodOrderedAdapter(getActivity(), foodList);
+        foodAdapter = new FoodAdapter(getActivity(), foodList);
         lvFood.setHasFixedSize(true);
         lvFood.setLayoutManager(new LinearLayoutManager(getActivity()));
-        lvFood.setAdapter(foodOrderedAdapter);
+        lvFood.setAdapter(foodAdapter);
         // Inflate the layout for this fragment
         return view;
     }
@@ -78,8 +79,10 @@ public class FragmentChoose extends Fragment {
                         switch (doc.getType()){
                             case ADDED:
                                 Food food = doc.getDocument().toObject(Food.class).withId(foodId);
+                                foodList = Config.sortList(foodList);
                                 foodList.add(food);
-                                foodOrderedAdapter.notifyDataSetChanged();
+//                                foodList = Config.foodGroupArrayList(foodList);
+                                foodAdapter.notifyDataSetChanged();
                                 break;
                         }
                     }

@@ -885,6 +885,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 String position = documentSnapshot.getString(Config.POSITION);
                 if (documentSnapshot!=null && documentSnapshot.exists() && !position.equals(getPosition)){
+
                     sessionManager.createSession(getId, getName, getEmail, getResEmail, getPassword, getResName, getResPhone, getResAddress, position, getImage);
                     finish();
                     startActivity(getIntent());

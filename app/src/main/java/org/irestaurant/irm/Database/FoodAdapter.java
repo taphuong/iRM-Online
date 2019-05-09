@@ -33,14 +33,13 @@ import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.irestaurant.irm.CategoryActivity;
 import org.irestaurant.irm.MenuActivity;
 import org.irestaurant.irm.R;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -51,44 +50,30 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     SessionManager sessionManager;
     String getResEmail;
-    MenuActivity menuActivity;
     CustomFilter cs;
 
 
-    public FoodAdapter(Context context, List<Food> foodList, MenuActivity menuActivity){
+    public FoodAdapter(Context context, List<Food> foodList){
         this.context = context;
         this.foodList = foodList;
         this.filterList = foodList;
-        this.menuActivity = menuActivity;
     }
 
-//    @Override
-//    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-////
-//
-//        return new ViewHolder(view);
-//    }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_list_food, viewGroup, false);
         LayoutInflater inflater = LayoutInflater.from(context);
         if (viewType == Config.VIEWTYPEGROUP){
             ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_groupmenu, viewGroup, false);
             GroupViewHolder groupViewHolder = new GroupViewHolder (group);
             return groupViewHolder;
-//            if (viewType == Config.VIEWTYPEITEM)
         }else {
             ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_list_food, viewGroup, false);
             ItemViewHolder itemViewHolder = new ItemViewHolder (group);
             return itemViewHolder;
         }
-//        else {
-//            ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_groupmenu, viewGroup, false);
-//            GroupViewHolder groupViewHolder = new GroupViewHolder (group);
-//            return groupViewHolder;
-//        }
+
     }
 
     @Override
@@ -102,8 +87,6 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             GroupViewHolder groupViewHolder = (GroupViewHolder)viewHolder;
             groupViewHolder.tvGroupMenu.setText(foodList.get(i).getGroup());
 
-            ColorGenerator generator = ColorGenerator.MATERIAL;
-            groupViewHolder.layoutGroup.setBackgroundColor(generator.getRandomColor());
             groupViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -113,7 +96,9 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }else if (viewHolder instanceof ItemViewHolder){
             ItemViewHolder itemViewHolder = (ItemViewHolder)viewHolder;
             itemViewHolder.tvFoodName.setText(foodList.get(i).getFoodname());
-            itemViewHolder.tvFoodPrice.setText(foodList.get(i).getFoodprice());
+            DecimalFormat formatPrice = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+            formatPrice.applyPattern("###,###,###");
+            itemViewHolder.tvFoodPrice.setText(formatPrice.format(Integer.valueOf(foodList.get(i).getFoodprice())));
 
         }
 
@@ -313,28 +298,10 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        private View mView;
-        private TextView tvFoodName, tvFoodPrice;
-        private Button btnEdit, btnDelete;
-        private RelativeLayout layoutItem, layoutButton;
-
-        public ViewHolder( View itemView) {
-            super(itemView);
-            mView = itemView;
-            tvFoodName = mView.findViewById(R.id.tv_foodname);
-            tvFoodPrice = mView.findViewById(R.id.tv_foodprice);
-//            btnDelete = mView.findViewById(R.id.btn_delete);
-//            btnEdit = mView.findViewById(R.id.btn_edit);
-            layoutButton = mView.findViewById(R.id.layout_button);
-            layoutItem = mView.findViewById(R.id.layout_item);
-        }
-    }
     private void deleteFood (final String foodname, final String id){
         mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(id).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                menuActivity.reloadMenu();
                 Toast.makeText(context, "Đã xóa món "+foodname , Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {

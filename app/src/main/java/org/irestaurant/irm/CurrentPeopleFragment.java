@@ -70,8 +70,8 @@ public class CurrentPeopleFragment extends Fragment {
                     for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
                         String numberId = doc.getDocument().getId();
                         final People people = doc.getDocument().toObject(People.class).withId(numberId);
-                        String status = doc.getDocument().getString("status");
-                        if (!status.equals("join")) {
+                        String status = doc.getDocument().getString(Config.POSITION);
+                        if (status != null && !status.equals("join")) {
                             switch (doc.getType()) {
                                 case ADDED:
                                     if (status.equals("admin")){

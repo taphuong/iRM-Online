@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.irestaurant.irm.CurrentPeopleFragment;
+import org.irestaurant.irm.JoinPeopleFragment;
 import org.irestaurant.irm.PeopleActivity;
 import org.irestaurant.irm.R;
 
@@ -60,7 +61,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PeopleAdapter.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull PeopleAdapter.ViewHolder viewHolder, final int i) {
         sessionManager = new SessionManager(context);
         HashMap<String, String> user = sessionManager.getUserDetail();
         getPosition = user.get(sessionManager.POSITION);
@@ -73,33 +74,45 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
         final String email = peopleList.get(i).peopleId;
         final String name = peopleList.get(i).getName();
         final String image = peopleList.get(i).getImage();
-        final String status = peopleList.get(i).getStatus();
+        final String position = peopleList.get(i).getPosition();
         viewHolder.tvName.setText(name);
         viewHolder.tvEmail.setText(email);
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.profile);
         Glide.with(context).setDefaultRequestOptions(requestOptions).load(image).into(viewHolder.ivPeople);
-        if (!status.equals("admin")){
-            viewHolder.ivAdmin.setVisibility(View.GONE);
+        if (position.equals("admin")){
+            viewHolder.ivAdmin.setVisibility(View.VISIBLE);
+        } else if (position.equals("cashier")){
+            viewHolder.ivCashier.setVisibility(View.VISIBLE);
         }
         viewHolder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (email.equals(getEmail)){
 
-                }else if (status.equals("join")){
+                }else if (position.equals("join")){
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setMessage("Duyệt đơn của "+name);
-//                    builder.setCancelable(false);
                     builder.setPositiveButton("Từ chối", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialogInterface, int i) {
                             mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Toast.makeText(context, "Đã từ chối đơn của "+name, Toast.LENGTH_SHORT).show();
+                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
 
-                                    dialogInterface.dismiss();
+                                            Toast.makeText(context, "Đã từ chối đơn của "+name, Toast.LENGTH_SHORT).show();
+                                            dialogInterface.dismiss();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(context, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+
                                 }
                             });
 
@@ -107,9 +120,9 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                     });
                     builder.setNegativeButton("Đồng ý", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(final DialogInterface dialogInterface, int i) {
+                        public void onClick(final DialogInterface dialogInterface, final int p) {
                             Map<String, Object> acceptMap = new HashMap<>();
-                            acceptMap.put(Config.STATUS, "employe");
+                            acceptMap.put(Config.POSITION, "employe");
                             mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).update(acceptMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -122,7 +135,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                                     mFirestore.collection(Config.USERS).document(email).update(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-
+                                            JoinPeopleFragment.p = String.valueOf(i) ;
                                             Toast.makeText(context, "Đã duyệt đơn của "+name, Toast.LENGTH_SHORT).show();
                                             dialogInterface.dismiss();
                                         }
@@ -192,7 +205,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                                         break;
                                 }
                                 final String finalPos = pos;
-                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).update(Config.STATUS, finalPos).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).update(Config.POSITION, finalPos).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         mFirestore.collection(Config.USERS).document(email).update(Config.POSITION, finalPos).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -299,7 +312,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
         private View mView;
         private TextView tvName, tvEmail;
         private CircleImageView ivPeople;
-        private ImageView ivAdmin;
+        private ImageView ivAdmin, ivCashier;
 
         public ViewHolder( View itemView) {
             super(itemView);
@@ -308,6 +321,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
             tvEmail = mView.findViewById(R.id.tv_email);
             ivPeople = mView.findViewById(R.id.iv_people);
             ivAdmin = mView.findViewById(R.id.iv_admin);
+            ivCashier = mView.findViewById(R.id.iv_cashier);
         }
     }
 }

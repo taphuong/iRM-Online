@@ -1,9 +1,11 @@
 package org.irestaurant.irm.Database;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
@@ -17,10 +19,12 @@ import android.view.ViewGroup;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +35,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.irestaurant.irm.CategoryActivity;
 import org.irestaurant.irm.MenuActivity;
 import org.irestaurant.irm.OrderedActivity;
 import org.irestaurant.irm.R;
@@ -44,7 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class FoodOrderedAdapter extends RecyclerView.Adapter<FoodOrderedAdapter.ViewHolder> {
+public class FoodOrderedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private List<Food> foodList;
     private OrderedActivity orderedActivity;
@@ -62,15 +67,22 @@ public class FoodOrderedAdapter extends RecyclerView.Adapter<FoodOrderedAdapter.
         this.foodList = foodList;
     }
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_list_foodordered, parent, false);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        if (viewType == Config.VIEWTYPEGROUP){
+            ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_groupmenu, viewGroup, false);
+            GroupViewHolder groupViewHolder = new GroupViewHolder (group);
+            return groupViewHolder;
+        }else {
+            ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_list_food, viewGroup, false);
+            ItemViewHolder itemViewHolder = new ItemViewHolder (group);
+            return itemViewHolder;
+        }
 
-        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder,final int i) {
         sessionManager = new SessionManager(context);
         HashMap<String, String> user = sessionManager.getUserDetail();
         getResEmail = user.get(sessionManager.RESEMAIL);
@@ -80,154 +92,151 @@ public class FoodOrderedAdapter extends RecyclerView.Adapter<FoodOrderedAdapter.
         final String foodName = foodList.get(i).getFoodname();
         final String foodPrice = foodList.get(i).getFoodprice();
 
-        viewHolder.tvFoodName.setText(foodName);
-        DecimalFormat formatPrice = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-        formatPrice.applyPattern("###,###,###");
-        viewHolder.tvFoodPrice.setText(formatPrice.format(Integer.valueOf(foodPrice)));
+        if (viewHolder instanceof GroupViewHolder){
+            GroupViewHolder groupViewHolder = (GroupViewHolder)viewHolder;
+            groupViewHolder.tvGroupMenu.setText(foodList.get(i).getGroup());
+            ColorGenerator generator = ColorGenerator.MATERIAL;
+            groupViewHolder.layoutGroup.setBackgroundColor(generator.getRandomColor());
+            groupViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((Activity)context).startActivityForResult(new Intent(context, CategoryActivity.class), Config.RESULT_CODE);
+                }
+            });
+        }else if (viewHolder instanceof ItemViewHolder){
+            ItemViewHolder itemViewHolder = (ItemViewHolder)viewHolder;
+            itemViewHolder.tvFoodName.setText(foodList.get(i).getFoodname());
+            DecimalFormat formatPrice = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+            formatPrice.applyPattern("###,###,###");
+            itemViewHolder.tvFoodPrice.setText(formatPrice.format(Integer.valueOf(foodPrice)));
 
-        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Dialog dialog = new Dialog(context);
-                dialog.setContentView(R.layout.dialog_addnumber);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.setCanceledOnTouchOutside(false);
-                final Button btnMinus = (Button) dialog.findViewById(R.id.btn_minus);
-                final Button btnAdd = (Button) dialog.findViewById(R.id.btn_add);
-                Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
-                Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
-                final RelativeLayout layoutAdd = dialog.findViewById(R.id.layout_add);
-                btnConfirm.setText("Chọn");
-                final TextView tvFood = dialog.findViewById(R.id.themban);
-                tvFood.setText(foodList.get(i).getFoodname());
-                final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
-                price = Integer.valueOf(foodList.get(i).getFoodprice());
-                dialog.show();
-                btnClose.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-                btnAdd.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        btnMinus.setVisibility(View.VISIBLE);
-                        if (edtAmount.getText().toString().equals("")){
-                            edtAmount.setText("1");
-                        } else if (Integer.valueOf(edtAmount.getText().toString())==999){
-                            edtAmount.setText("1000");
-                            btnAdd.setVisibility(View.INVISIBLE);
-                        } else {
-                            edtAmount.setText(String.valueOf(Integer.valueOf(edtAmount.getText().toString())+1));
+            itemViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Dialog dialog = new Dialog(context);
+                    dialog.setContentView(R.layout.dialog_addnumber);
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    dialog.setCanceledOnTouchOutside(false);
+                    final Button btnMinus = (Button) dialog.findViewById(R.id.btn_minus);
+                    final Button btnAdd = (Button) dialog.findViewById(R.id.btn_add);
+                    Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
+                    Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
+                    final RelativeLayout layoutAdd = dialog.findViewById(R.id.layout_add);
+                    btnConfirm.setText("Chọn");
+                    final TextView tvFood = dialog.findViewById(R.id.themban);
+                    tvFood.setText(foodList.get(i).getFoodname());
+                    final EditText edtAmount = (EditText) dialog.findViewById(R.id.edt_amount);
+                    price = Integer.valueOf(foodList.get(i).getFoodprice());
+                    dialog.show();
+                    btnClose.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
                         }
-                    }
-                });
-                btnMinus.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        btnAdd.setVisibility(View.VISIBLE);
-                        String stramount = edtAmount.getText().toString();
-                        if (stramount.isEmpty() || stramount.equals("2")){
-                            edtAmount.setText("1");
-                            btnMinus.setVisibility(View.INVISIBLE);
-                        }  else {
-                            long amount = Integer.valueOf(edtAmount.getText().toString());
-                            edtAmount.setText(String.valueOf(amount-1));
-                        }
-
-                    }
-                });
-                edtAmount.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        String amout = edtAmount.getText().toString();
-                        if (amout.isEmpty() || amout.equals("1") || amout.equals("0")) {
-                            btnMinus.setVisibility(View.INVISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                        } else if (Integer.valueOf(amout) > 1000) {
-                            edtAmount.setText("1000");
-                            edtAmount.setSelection(edtAmount.getText().length());
-                            btnAdd.setVisibility(View.INVISIBLE);
+                    });
+                    btnAdd.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
                             btnMinus.setVisibility(View.VISIBLE);
-                        } else {
-                            btnMinus.setVisibility(View.VISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-                    }
-                });
-                btnConfirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String number = orderedActivity.getNumber;
-                        String foodname = foodList.get(i).getFoodname();
-                        final String amount = edtAmount.getText().toString();
-                        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
-                        String total = String.valueOf(price*Integer.valueOf(amount));
-                        if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
-                            edtAmount.setError("Nhập số phần");
-                            edtAmount.requestFocus();
-                        }else {
-                            tvFood.setText("Đang chọn món ...");
-                            layoutAdd.setVisibility(View.GONE);
-
-                            String numberId;
-                            if (Integer.valueOf(number)<10){
-                                numberId = "00"+number;
-                            }else if (Integer.valueOf(number)<100){
-                                numberId = "0"+number;
-                            }else {
-                                numberId = number;
+                            if (edtAmount.getText().toString().equals("")){
+                                edtAmount.setText("1");
+                            } else if (Integer.valueOf(edtAmount.getText().toString())==999){
+                                edtAmount.setText("1000");
+                                btnAdd.setVisibility(View.INVISIBLE);
+                            } else {
+                                edtAmount.setText(String.valueOf(Integer.valueOf(edtAmount.getText().toString())+1));
                             }
-                            numberRef.document(numberId).collection("unpaid").get()
-                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                for (DocumentSnapshot doc : task.getResult()){
-                                                    if (doc.getId().equals((foodList.get(i).foodId))){
-                                                        updateOrdered(dialog);
-                                                        return;
-                                                    }
-                                                }
-                                                addOrdered(i, amount, dialog);
-                                            }
-                                        }
-                                    });
-
-//                            if (orderedList.size()>0){
-//                                int kiemtra = 0;
-//                                for (int b = 0; b < orderedList.size(); b++) {
-//                                    if (orderedList.get(b).getNumber().equals(number) && orderedList.get(b).getFoodname().equals(foodname) && orderedList.get(b).getStatus().equals("notyet")){
-//                                        kiemtra = 1;
-//                                        long newam = Integer.valueOf(amount) + Integer.valueOf(orderedList.get(b).getAmount());
-//                                        String newamount = String.valueOf(newam);
-//                                        String newtotal = String.valueOf(price*Integer.valueOf(newamount));
-//                                        int id = orderedList.get(b).getId();
-//                                        updateOrdered(String.valueOf(id),number,foodname,newamount, amount, String.valueOf(price), date, newtotal, dialog);
-//                                    }
-//                                }
-//                                if (kiemtra == 0){
-//                                    addOrdered(i, amount, dialog);
-//                                }
-//                            }else {
-//                                addOrdered(i, amount, dialog);
-//                            }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                    btnMinus.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            btnAdd.setVisibility(View.VISIBLE);
+                            String stramount = edtAmount.getText().toString();
+                            if (stramount.isEmpty() || stramount.equals("2")){
+                                edtAmount.setText("1");
+                                btnMinus.setVisibility(View.INVISIBLE);
+                            }  else {
+                                long amount = Integer.valueOf(edtAmount.getText().toString());
+                                edtAmount.setText(String.valueOf(amount-1));
+                            }
+
+                        }
+                    });
+                    edtAmount.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            String amout = edtAmount.getText().toString();
+                            if (amout.isEmpty() || amout.equals("1") || amout.equals("0")) {
+                                btnMinus.setVisibility(View.INVISIBLE);
+                                btnAdd.setVisibility(View.VISIBLE);
+                            } else if (Integer.valueOf(amout) > 1000) {
+                                edtAmount.setText("1000");
+                                edtAmount.setSelection(edtAmount.getText().length());
+                                btnAdd.setVisibility(View.INVISIBLE);
+                                btnMinus.setVisibility(View.VISIBLE);
+                            } else {
+                                btnMinus.setVisibility(View.VISIBLE);
+                                btnAdd.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        @Override
+                        public void afterTextChanged(Editable s) {
+
+                        }
+                    });
+                    btnConfirm.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String number = orderedActivity.getNumber;
+                            String foodname = foodList.get(i).getFoodname();
+                            final String amount = edtAmount.getText().toString();
+                            String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+                            String total = String.valueOf(price*Integer.valueOf(amount));
+                            if (edtAmount.getText().toString().equals("") || edtAmount.getText().toString().equals("0")){
+                                edtAmount.setError("Nhập số phần");
+                                edtAmount.requestFocus();
+                            }else {
+                                tvFood.setText("Đang chọn món ...");
+                                layoutAdd.setVisibility(View.GONE);
+
+                                String numberId;
+                                if (Integer.valueOf(number)<10){
+                                    numberId = "00"+number;
+                                }else if (Integer.valueOf(number)<100){
+                                    numberId = "0"+number;
+                                }else {
+                                    numberId = number;
+                                }
+                                numberRef.document(numberId).collection("unpaid").get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()){
+                                                    for (DocumentSnapshot doc : task.getResult()){
+                                                        if (doc.getId().equals((foodList.get(i).foodId))){
+                                                            updateOrdered(dialog);
+                                                            return;
+                                                        }
+                                                    }
+                                                    addOrdered(i, amount, dialog);
+                                                }
+                                            }
+                                        });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
     }
+
 
     @Override
     public int getItemCount() {
@@ -246,6 +255,26 @@ public class FoodOrderedAdapter extends RecyclerView.Adapter<FoodOrderedAdapter.
             tvFoodPrice = mView.findViewById(R.id.tv_foodprice);
         }
     }
+
+    private class GroupViewHolder extends RecyclerView.ViewHolder {
+        TextView tvGroupMenu;
+        LinearLayout layoutGroup;
+        public GroupViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvGroupMenu = itemView.findViewById(R.id.tv_groupmenu);
+            layoutGroup = itemView.findViewById(R.id.layout_group);
+        }
+    }
+
+    private class ItemViewHolder extends RecyclerView.ViewHolder {
+        TextView tvFoodName, tvFoodPrice;
+        public ItemViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvFoodName = itemView.findViewById(R.id.tv_foodname);
+            tvFoodPrice = itemView.findViewById(R.id.tv_foodprice);
+        }
+    }
+
     private void addOrdered (int i, final String amount, final Dialog dialog){
         String numberId;
         String number = orderedActivity.getNumber;

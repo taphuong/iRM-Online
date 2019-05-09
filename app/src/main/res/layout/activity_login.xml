@@ -39,6 +39,7 @@
         android:orientation="vertical">
 
         <EditText
+            android:singleLine="true"
             android:background="@drawable/rounded"
             android:id="@+id/edt_phone"
             android:layout_width="match_parent"
@@ -47,6 +48,7 @@
             android:gravity="center"
             android:textSize="20sp"/>
         <EditText
+            android:singleLine="true"
             android:layout_below="@+id/edt_phone"
             android:layout_marginTop="10dp"
             android:id="@+id/edt_password"

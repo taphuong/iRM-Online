@@ -47,17 +47,15 @@ public class CategoryActivity extends Activity {
         foodGroupAdapter.setIOnFoodGroupClickListener(new IOnFoodGroupClickListener() {
             @Override
             public void onFoodGroupClickListener(String foodGroup, int postion) {
-                if (postion != 0){
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra("result", foodGroup);
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
-                }else if (postion == foodGroupList.size()-1){
+                if (postion == foodGroupList.size()-1){
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("result", "lastposition");
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }else {
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("result", foodGroup);
+                    setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }
             }

@@ -98,7 +98,7 @@ public class MenuActivity extends Activity {
         tvResname.setText(getResName);
 
         foodList = new ArrayList<>();
-        foodAdapter = new FoodAdapter(this, foodList, MenuActivity.this);
+        foodAdapter = new FoodAdapter(this, foodList);
         layoutManager = new LinearLayoutManagerWithSmoothScrooler(this);
 //        layoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         lvFood.setLayoutManager(layoutManager);
@@ -453,11 +453,7 @@ public class MenuActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,@Nullable Intent data) {
-//        if (resultCode == Config.RESULT_CODE){
-//
-//        }
         if (resultCode == Activity.RESULT_OK){
-//            foodAdapter.notifyDataSetChanged();
 
             String groupClick = data.getStringExtra("result");
             if (groupClick.equals("lastposition")){
@@ -465,30 +461,11 @@ public class MenuActivity extends Activity {
             }else {
                 for (int i =0; i<foodList.size(); i++){
                     if (foodList.get(i).getGroup().equals(groupClick)) {
-                        lvFood.smoothScrollToPosition(i);
                         break;
                     }
+                    lvFood.smoothScrollToPosition(i);
                 }
             }
-//            foodAdapter.notifyDataSetChanged();
-
-//            int position = Config.findPositionWithGroup(groupClick, foodList);
-//            try{
-//                lvFood.smoothScrollToPosition(position);
-//            }catch (Exception e){
-//                lvFood.smoothScrollToPosition(-1);
-//            }
-
-//            lvFood.scrollToPosition(position);
         }
     }
-//    public int findPositionWithGroup (String group, ArrayList<Food> list){
-//
-//        for (int i = 0; i<list.size(); i++){
-//            if (list.get(i).getGroup().equals(group) && i!=0) {
-//                return i;
-//            }
-//        }
-////        return 0;
-//    }
 }

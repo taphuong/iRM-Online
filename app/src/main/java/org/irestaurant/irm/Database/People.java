@@ -1,7 +1,7 @@
 package org.irestaurant.irm.Database;
 
 public class People extends PeopleId {
-    String name, email, status, token_id, image;
+    String name, email, position, token_id, image;
 
     public People() {
     }
@@ -16,9 +16,13 @@ public class People extends PeopleId {
 
     public void setEmail(String email) { this.email = email; }
 
-    public String getStatus() { return status; }
+    public String getPosition() {
+        return position;
+    }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setPosition(String position) {
+        this.position = position;
+    }
 
     public String getToken_id() { return token_id; }
 

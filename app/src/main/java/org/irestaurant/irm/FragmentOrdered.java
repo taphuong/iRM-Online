@@ -72,14 +72,6 @@ public class FragmentOrdered extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-//        String numberId;
-//        if (Integer.valueOf(getNumber)<10){
-//            numberId = "00"+getNumber;
-//        }else if (Integer.valueOf(getNumber)<100){
-//            numberId = "0"+getNumber;
-//        }else {
-//            numberId = getNumber;
-//        }
         orderedList.clear();
         mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.NUMBER+"/"+getIdNunber+"/unpaid").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
