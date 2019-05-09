@@ -101,28 +101,52 @@ public class Config {
     public static ArrayList<Food> foodGroupArrayList (ArrayList<Food> list){
         int i = 0;
         ArrayList<Food> customList = new ArrayList<>();
-        Food firstGroup = new Food();
-        firstGroup.setGroup(String.valueOf(list.get(0).getGroup()));
-        firstGroup.setViewType(VIEWTYPEGROUP);
-        foodGroupsList.add(list.get(0).getGroup());
-        customList.add(firstGroup);
-        for (i = 0; i<list.size()-1; i++){
-            Food foodGroup = new Food();
+//        Food firstGroup = new Food();
+//        firstGroup.setGroup(String.valueOf(list.get(0).getGroup()));
+//        firstGroup.setViewType(VIEWTYPEGROUP);
+//        foodGroupsList.add(list.get(0).getGroup());
+//        customList.add(firstGroup);
+//        for (i = 0; i<list.size()-1; i++){
+//            Food foodGroup = new Food();
+//            String group1 = list.get(i).getGroup();
+//            String group2 = list.get(i+1).getGroup();
+//            if (group1.equals(group2)){
+//                list.get(i).setViewType(VIEWTYPEITEM);
+//                customList.add(list.get(i));
+//            }else {
+//                customList.add(list.get(i));
+//                foodGroup.setGroup(group2);
+//                foodGroup.setViewType(VIEWTYPEGROUP);
+//                foodGroupsList.add(group2);
+//                customList.add(foodGroup);
+//            }
+//        }
+//        list.get(i).setViewType(VIEWTYPEITEM);
+//        customList.add(list.get(i));
+//        return customList;
+
+        for (i=0; i<list.size()-1; i++){
             String group1 = list.get(i).getGroup();
             String group2 = list.get(i+1).getGroup();
+//            list.get(i).setViewType(VIEWTYPEGROUP);
+//            customList.add(list.get(i));
+
             if (group1.equals(group2)){
+                list.get(i).setViewType(VIEWTYPEGROUP);
+                customList.add(list.get(i));
                 list.get(i).setViewType(VIEWTYPEITEM);
                 customList.add(list.get(i));
+                list.get(i+1).setViewType(VIEWTYPEITEM);
+                customList.add(list.get(i+1));
+                return customList;
             }else {
+                list.get(i).setViewType(VIEWTYPEGROUP);
                 customList.add(list.get(i));
-                foodGroup.setGroup(group2);
-                foodGroup.setViewType(VIEWTYPEGROUP);
-                foodGroupsList.add(group2);
-                customList.add(foodGroup);
+                list.get(i).setViewType(VIEWTYPEITEM);
+                customList.add(list.get(i));
+                return customList;
             }
         }
-        list.get(i).setViewType(VIEWTYPEITEM);
-        customList.add(list.get(i));
         return customList;
     }
     public static int findPositionWithGroup (String group, ArrayList<Food> list){

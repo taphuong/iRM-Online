@@ -7,8 +7,7 @@
         android:width="44dp"
         android:height="44dp" />
     <corners
-        android:bottomLeftRadius="22dp"
-        android:topLeftRadius="22dp"
+
         android:bottomRightRadius="22dp"
         android:topRightRadius="22dp"/>
     <stroke

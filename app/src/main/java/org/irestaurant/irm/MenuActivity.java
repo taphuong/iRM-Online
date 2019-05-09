@@ -264,9 +264,9 @@ public class MenuActivity extends Activity {
                         switch (doc.getType()){
                             case ADDED:
                                 Food food = doc.getDocument().toObject(Food.class).withId(foodId);
-                                foodList.add(food);
                                 foodList = Config.sortList(foodList);
-                                foodList = Config.foodGroupArrayList(foodList);
+                                foodList.add(food);
+//                                foodList = Config.foodGroupArrayList(foodList);
                                 foodAdapter.notifyDataSetChanged();
                                 break;
                             case REMOVED:

@@ -78,15 +78,17 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_groupmenu, viewGroup, false);
             GroupViewHolder groupViewHolder = new GroupViewHolder (group);
             return groupViewHolder;
-        }else if (viewType == Config.VIEWTYPEITEM){
+//            if (viewType == Config.VIEWTYPEITEM)
+        }else {
             ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_list_food, viewGroup, false);
             ItemViewHolder itemViewHolder = new ItemViewHolder (group);
             return itemViewHolder;
-        }else {
-            ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_groupmenu, viewGroup, false);
-            GroupViewHolder groupViewHolder = new GroupViewHolder (group);
-            return groupViewHolder;
         }
+//        else {
+//            ViewGroup group = (ViewGroup)inflater.inflate(R.layout.item_groupmenu, viewGroup, false);
+//            GroupViewHolder groupViewHolder = new GroupViewHolder (group);
+//            return groupViewHolder;
+//        }
     }
 
     @Override
@@ -318,8 +320,8 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             mView = itemView;
             tvFoodName = mView.findViewById(R.id.tv_foodname);
             tvFoodPrice = mView.findViewById(R.id.tv_foodprice);
-            btnDelete = mView.findViewById(R.id.btn_delete);
-            btnEdit = mView.findViewById(R.id.btn_edit);
+//            btnDelete = mView.findViewById(R.id.btn_delete);
+//            btnEdit = mView.findViewById(R.id.btn_edit);
             layoutButton = mView.findViewById(R.id.layout_button);
             layoutItem = mView.findViewById(R.id.layout_item);
         }

@@ -18,12 +18,12 @@ public class FoodViewHolder implements View.OnLongClickListener, View.OnClickLis
     public FoodViewHolder(View v) {
         layoutItem = (RelativeLayout) v.findViewById(R.id.layout_item);
         layoutMain = v.findViewById(R.id.layout_main);
-        layoutButton = v.findViewById(R.id.layout_button);
+//        layoutButton = v.findViewById(R.id.layout_button);
         tvFood = (TextView) v.findViewById(R.id.tv_foodname);
 //        tvFood.setSelected(true);
         tvPrice = (TextView) v.findViewById(R.id.tv_foodprice);
-        btnEdit = v.findViewById(R.id.btn_edit);
-        btnDelete = v.findViewById(R.id.btn_delete);
+//        btnEdit = v.findViewById(R.id.btn_edit);
+//        btnDelete = v.findViewById(R.id.btn_delete);
         v.setOnClickListener(this);
         v.setOnLongClickListener(this);
         v.setOnFocusChangeListener(this);
