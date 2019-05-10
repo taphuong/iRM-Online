@@ -67,6 +67,7 @@ public class FragmentChoose extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        Config.CHECKACTIVITY = "FragmentChoose";
         foodList.clear();
         mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.MENU).addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
             @Override

@@ -270,6 +270,7 @@ public class AccountActivity extends Activity {
                                         mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
+                                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(getEmail).update(Config.NAME, mName);
                                                 Map<String, Object> resMap = new HashMap<>();
                                                 resMap.put(Config.RESNAME, mResName);
                                                 resMap.put(Config.RESPHONE, mResPhone);
@@ -277,6 +278,7 @@ public class AccountActivity extends Activity {
                                                 mFirestore.collection(Config.RESTAURANTS).document(getResEmail).update(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
+
                                                         sessionManager.createSession(getID,mName,getEmail,getResEmail,newPassword,mResName,mResPhone,mResAddress,getPosition,getImage);
                                                         if (changeImage == 1){
                                                             uploadImage(mName,newPassword,mResName,mResPhone,mResAddress);
@@ -317,6 +319,7 @@ public class AccountActivity extends Activity {
                     mFirestore.collection("Users").document(getEmail).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(getEmail).update(Config.NAME, mName);
                             Map<String, Object> resMap = new HashMap<>();
                             resMap.put(Config.RESNAME, mResName);
                             resMap.put(Config.RESPHONE, mResPhone);

@@ -52,6 +52,7 @@ public class SessionManager {
         editor.apply();
     }
 
+
     public boolean isLoggin(){
         return sharedPreferences.getBoolean(LOGIN, false);
     }
@@ -89,5 +90,7 @@ public class SessionManager {
         ((MainActivity) context).finish();
         mAuth.signOut();
     }
+
+
 
 }

@@ -422,6 +422,7 @@ public class MenuActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+        Config.CHECKACTIVITY = "MenuActivity";
         foodList.clear();
         mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.MENU).addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override

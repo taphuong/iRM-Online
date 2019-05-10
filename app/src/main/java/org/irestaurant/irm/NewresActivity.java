@@ -129,7 +129,9 @@ public class NewresActivity extends Activity {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Map<String, Object> resMap = new HashMap<>();
-                    resMap.put(getEmail, "admin");
+                    resMap.put(Config.RESNAME, resName);
+                    resMap.put(Config.RESPHONE, resPhone);
+                    resMap.put(Config.RESADDRESS, resAddress);
                     mFirestore.collection(Config.RESTAURANTS).document(getEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {

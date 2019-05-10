@@ -86,6 +86,8 @@ public class OrderedActivity extends AppCompatActivity {
         Intent intent = getIntent();
         getIdNumber = intent.getExtras().getString("idnumber");
         getNumber = intent.getExtras().getString("number");
+        Config.TABLE = getNumber;
+        Config.TABLEID = getIdNumber;
         tvIdNumber.setText(getIdNumber);
         tvNumber.setText("Bàn số: "+getNumber);
 //        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());

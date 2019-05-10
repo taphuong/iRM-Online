@@ -31,7 +31,13 @@ public class Config {
     public static final int RESULT_CODE = 1000;
     public static final String GROUP = "group";
     public static final String VIEWTYPE = "viewType";
+    public static final String AMOUNT = "amount";
+    public static final String TOTAL = "total";
     public static List<String> foodGroupsList = new ArrayList<>();
+
+    public static String CHECKACTIVITY = "";
+    public static String TABLEID = "";
+    public static String TABLE = "";
 
     public static int Printer = 0;
     public static class VNCharacterUtils {
