@@ -63,6 +63,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.Food;
+import org.irestaurant.irm.Database.Invite;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.NumberAdapter;
 import org.irestaurant.irm.Database.SessionManager;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity
 
     SessionManager sessionManager;
     String getName, getResName, getEmail, getImage, getPosition, getResEmail, getToken, getId, getPassword, getResPhone, getResAddress;
-    TextView tvResName, tvName, btvNotifi;
+    TextView tvResName, tvName, btvNotifi, tvInvite;
     GridView gvNumber;
     Button btnAddTable, btnRemoveTable, btnNewRes, btnJoinRes;
     RelativeLayout layoutNores;
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity
         imgprofile  = hView.findViewById(R.id.im_profile);
         layoutNores = findViewById(R.id.layout_nores);
         btvNotifi   = findViewById(R.id.tv_noti);
+        tvInvite    = findViewById(R.id.tv_invite);
         btnNoti     = findViewById(R.id.btn_noti);
         fab1        = findViewById(R.id.fab1);
         fab2        = findViewById(R.id.fab2);
@@ -822,6 +824,10 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    public void tv_invite_click (View v){
+        startActivity(new Intent(MainActivity.this, InviteListActivity.class));
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -841,7 +847,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
                 if (e != null){
-                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     return;
                 }
 //                else {
@@ -853,17 +858,17 @@ public class MainActivity extends AppCompatActivity
                                 Number number = doc.getDocument().toObject(Number.class).withId(numberId);
                                 numberList.add(number);
                                 numberAdapter.notifyDataSetChanged();
-                                pushNoti(table);
+//                                pushNoti(table);
                                 break;
                             case REMOVED:
-                                pushNoti(table);
+//                                pushNoti(table);
                                 numberList.remove(Integer.valueOf(numberId)-1);
                                 numberAdapter.notifyDataSetChanged();
                                 break;
                             case MODIFIED:
 //                                String status = doc.getDocument().getString("status");
 //                                String nb = doc.getDocument().getString("number");
-                                pushNoti(table);
+//                                pushNoti(table);
                                 Number number1 = doc.getDocument().toObject(Number.class).withId(numberId);
                                 numberList.set(Integer.valueOf(numberId)-1, number1);
                                 numberAdapter.notifyDataSetChanged();
@@ -896,17 +901,18 @@ public class MainActivity extends AppCompatActivity
         });
 
 //        check res
-        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        mFirestore.collection(Config.RESTAURANTS).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e!=null){
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
                     return;
                 }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    final String resname = documentSnapshot.getString(Config.RESNAME);
-                    final String resphone = documentSnapshot.getString(Config.RESPHONE);
-                    final String resaddress = documentSnapshot.getString(Config.RESADDRESS);
-                    if (!resname.equals(getResName) || !resphone.equals(getResPhone) || !resaddress.equals(getResAddress)) {
+                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                    String resEmail = doc.getDocument().getId();
+                    final String resname = doc.getDocument().getString(Config.RESNAME);
+                    final String resphone = doc.getDocument().getString(Config.RESPHONE);
+                    final String resaddress = doc.getDocument().getString(Config.RESADDRESS);
+                    if (resEmail.equals(getResEmail) && doc.getType().equals(DocumentChange.Type.MODIFIED)){
                         Map<String, Object> updateMap = new HashMap<>();
                         updateMap.put(Config.RESNAME, resname);
                         updateMap.put(Config.RESPHONE, resphone);
@@ -921,7 +927,36 @@ public class MainActivity extends AppCompatActivity
 
                         });
                     }
+                    return;
                 }
+            }
+        });
+
+//        inviteList
+        mFirestore.collection(Config.USERS).document(getEmail).collection(Config.INVITE).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    return;
+                }
+                List inviteList = new ArrayList();
+                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                    String inviteId = doc.getDocument().getId();
+                    switch (doc.getType()){
+                        case ADDED:
+                            Invite invite = doc.getDocument().toObject(Invite.class).withId(inviteId);
+                            inviteList.add(invite);
+                            break;
+                    }
+                }
+                if (inviteList.size()>0){
+                    tvInvite.setText("Bạn có "+inviteList.size()+" lời mời làm việc tại cửa hàng");
+                    tvInvite.setVisibility(View.VISIBLE);
+                }else {
+                    tvInvite.setText("");
+                    tvInvite.setVisibility(View.GONE);
+                }
+
             }
         });
     }

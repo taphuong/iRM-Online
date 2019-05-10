@@ -5,10 +5,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.os.CountDownTimer;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Patterns;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
@@ -17,25 +22,43 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.WriterException;
 
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.SessionManager;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import androidmads.library.qrgenearator.QRGContents;
 import androidmads.library.qrgenearator.QRGEncoder;
 import androidmads.library.qrgenearator.QRGSaver;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class InviteActivity extends Activity {
     EditText edtEmail;
     Button btnConfirm,btnInput, btnQr, btnClose;
     RelativeLayout layoutInput, layoutQr;
+    TextView tvName;
+    CircleImageView ivPeople;
     ImageView ivQr;
-    String getResEmail;
+    String getResEmail, getResName, peopleName, peopleEmail, peopleImage, peopleToken = "", peoplePosition;
     SessionManager sessionManager;
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
     String savePath = Environment.getExternalStorageDirectory().getPath() + "/Pictures/QrCode/";
     Bitmap bitmap;
@@ -50,6 +73,8 @@ public class InviteActivity extends Activity {
         layoutInput = findViewById(R.id.layout_input);
         layoutQr    = findViewById(R.id.layout_qr);
         ivQr        = findViewById(R.id.iv_qr);
+        tvName      = findViewById(R.id.tv_name);
+        ivPeople    = findViewById(R.id.iv_people);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +84,7 @@ public class InviteActivity extends Activity {
         sessionManager =  new SessionManager(this);
         HashMap<String, String> user = sessionManager.getUserDetail();
         getResEmail = user.get(sessionManager.RESEMAIL);
+        getResName = user.get(sessionManager.RESNAME);
         loadQr();
 
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +114,96 @@ public class InviteActivity extends Activity {
                 btnInput.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
                 btnQr.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
 
+            }
+        });
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = edtEmail.getText().toString();
+                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches() || email.isEmpty()) {
+                    edtEmail.setError("Không phải địa chỉ Email");
+                    edtEmail.requestFocus();
+                } else if (tvName.getText().toString().isEmpty()){
+                    edtEmail.setError("Sai địa chỉ Email");
+                    edtEmail.requestFocus();
+                }else {
+                    Map<String, Object>inviteMap = new HashMap<>();
+                    inviteMap.put(Config.POSITION, "invite");
+                    inviteMap.put(Config.NAME, peopleName);
+                    inviteMap.put(Config.EMAIL, peopleEmail);
+                    inviteMap.put(Config.IMAGE, peopleImage);
+                    inviteMap.put(Config.TOKENID, "");
+                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(peopleEmail).set(inviteMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            String date = new SimpleDateFormat("dd/MM/yyyyy", Locale.getDefault()).format(new Date());
+                            Map<String, Object> inviteMap = new HashMap<>();
+                            inviteMap.put(Config.RESEMAIL, getResEmail);
+                            inviteMap.put(Config.RESNAME, getResName);
+                            inviteMap.put(Config.DATE, date);
+                            mFirestore.collection(Config.USERS).document(peopleEmail).collection(Config.INVITE).document(getResEmail).set(inviteMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(InviteActivity.this, "Đã gửi lời mời đến "+peopleName, Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                            });
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(InviteActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+        edtEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                final String email = edtEmail.getText().toString();
+                mFirestore.collection(Config.USERS).document(email).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()){
+                            peoplePosition = task.getResult().getString(Config.POSITION);
+                            if (peoplePosition!=null && (peoplePosition.equals("none") || peoplePosition.equals("invite"))){
+                                peopleName = task.getResult().getString(Config.NAME);
+                                peopleImage = task.getResult().getString(Config.IMAGE);
+                                peopleEmail = task.getResult().getId();
+                                tvName.setText(peopleName);
+                                RequestOptions requestOptions = new RequestOptions();
+                                requestOptions.placeholder(R.drawable.profile);
+                                Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(peopleImage).into(ivPeople);
+                            }else if (peoplePosition!=null){
+                                edtEmail.setError("Người này đang làm việc tại một cửa hàng");
+                            }else {
+                                peopleName = "";
+                                peopleImage = "";
+                                peopleEmail = "";
+                                tvName.setText("");
+                                ivPeople.setImageResource(R.drawable.profile);
+                            }
+                        }else {
+                            peopleName = "";
+                            peopleImage = "";
+                            peopleEmail = "";
+                            tvName.setText("");
+                            ivPeople.setImageResource(R.drawable.profile);
+                        }
+                    }
+                });
             }
         });
 

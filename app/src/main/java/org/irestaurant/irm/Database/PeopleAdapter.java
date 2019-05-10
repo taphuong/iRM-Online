@@ -84,6 +84,9 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
             viewHolder.ivAdmin.setVisibility(View.VISIBLE);
         } else if (position.equals("cashier")){
             viewHolder.ivCashier.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.ivCashier.setVisibility(View.GONE);
+            viewHolder.ivAdmin.setVisibility(View.GONE);
         }
         viewHolder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

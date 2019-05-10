@@ -11,12 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.model.Document;
 
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.FoodOrderedAdapter;
@@ -69,6 +73,22 @@ public class FragmentOrdered extends Fragment {
         return view;
     }
 
+    private void loadOrdered (){
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNunber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                orderedList.clear();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String id = documentSnapshot.getId();
+                    Ordered ordered1 = documentSnapshot.toObject(Ordered.class).withId(id);
+                    orderedList.add(ordered1);
+                    oredredAdapter.notifyDataSetChanged();
+                }
+                return;
+            }
+        });
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -80,7 +100,7 @@ public class FragmentOrdered extends Fragment {
                     Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }else {
                     for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                        String orderId = doc.getDocument().getId();
+                        final String orderId = doc.getDocument().getId();
                         switch (doc.getType()){
                             case ADDED:
                                 Ordered ordered = doc.getDocument().toObject(Ordered.class).withId(orderId);
@@ -89,10 +109,9 @@ public class FragmentOrdered extends Fragment {
 
                                 break;
                             case REMOVED:
-                                mFirestore
                                 break;
                             case MODIFIED:
-//                                loadTotal();
+                                loadOrdered();
                                 break;
                         }
                     }

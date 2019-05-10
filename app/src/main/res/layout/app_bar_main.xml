@@ -42,9 +42,29 @@
             android:layout_height="25dp"
             android:background="@mipmap/ic_removenobd"
             android:layout_centerVertical="true"
-            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_toStartOf="@id/btn_addtable"/>
     </RelativeLayout>
+
+    <com.github.library.bubbleview.BubbleTextView
+        android:clickable="true"
+        android:onClick="tv_invite_click"
+        android:visibility="gone"
+        android:layout_below="@id/menu"
+        android:layout_marginEnd="8dp"
+        android:id="@+id/tv_invite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/mau_den"
+        android:padding="8dp"
+        app:arrowWidth="12dp"
+        app:angle="8dp"
+        app:arrowHeight="8dp"
+        app:arrowPosition="10dp"
+        app:arrowLocation="right"
+        app:bubbleColor="@color/mau_trang"
+        android:layout_alignParentEnd="true" />
 
     <LinearLayout
         android:id="@+id/content"
@@ -60,8 +80,8 @@
         android:id="@+id/layout_noti"
         android:layout_marginTop="16dp"
         android:paddingBottom="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="16dp">
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

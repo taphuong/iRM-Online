@@ -71,15 +71,17 @@ public class CurrentPeopleFragment extends Fragment {
                         String numberId = doc.getDocument().getId();
                         final People people = doc.getDocument().toObject(People.class).withId(numberId);
                         String status = doc.getDocument().getString(Config.POSITION);
-                        if (status != null && !status.equals("join")) {
+                        if (status != null) {
                             switch (doc.getType()) {
                                 case ADDED:
-                                    if (status.equals("admin")){
-                                        currentList.add(people);
-                                        peopleAdapter.notifyDataSetChanged();
-                                    }else {
-                                        currentList.add(people);
-                                        peopleAdapter.notifyDataSetChanged();
+                                    if (!status.equals("join") && !status.equals("invite")) {
+                                        if (status.equals("admin")) {
+                                            currentList.add(people);
+                                            peopleAdapter.notifyDataSetChanged();
+                                        } else {
+                                            currentList.add(people);
+                                            peopleAdapter.notifyDataSetChanged();
+                                        }
                                     }
                                     break;
                                 case REMOVED:
@@ -103,29 +105,30 @@ public class CurrentPeopleFragment extends Fragment {
 //                                    peopleAdapter.notifyDataSetChanged();
                                     break;
                                 case MODIFIED:
-                                    currentList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                currentList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    if (doctask.exists()){
-                                                        String email = doctask.getString("email");
-                                                        People people1 = doctask.toObject(People.class);
-                                                        people1.setEmail(email);
-                                                        currentList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
+                                    loadPeople();
                                     break;
                             }
                         }
 
 
+                    }
+                }
+            }
+        });
+    }
+    private void loadPeople(){
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                currentList.clear();
+                peopleAdapter.notifyDataSetChanged();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String ID = documentSnapshot.getId();
+                    String position = documentSnapshot.getString(Config.POSITION);
+                    if (!position.equals("join") && !position.equals("invite")){
+                        People people = documentSnapshot.toObject(People.class).withId(ID);
+                        currentList.add(people);
+                        peopleAdapter.notifyDataSetChanged();
                     }
                 }
             }

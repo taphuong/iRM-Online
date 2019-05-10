@@ -33,6 +33,8 @@ public class Config {
     public static final String VIEWTYPE = "viewType";
     public static final String AMOUNT = "amount";
     public static final String TOTAL = "total";
+    public static final String INVITE = "Invite";
+    public static final String DATE = "date";
     public static List<String> foodGroupsList = new ArrayList<>();
 
     public static String CHECKACTIVITY = "";

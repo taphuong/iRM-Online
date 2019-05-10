@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -75,96 +76,40 @@ public class JoinPeopleFragment extends Fragment {
                         String numberId = doc.getDocument().getId();
                         final People people = doc.getDocument().toObject(People.class).withId(numberId);
                         String position = doc.getDocument().getString(Config.POSITION);
-                        if (position != null && position.equals("join")) {
+                        if (position != null) {
                             switch (doc.getType()) {
                                 case ADDED:
-                                    joinList.add(people);
-                                    peopleAdapter.notifyDataSetChanged();
-                                    break;
+                                    if (position.equals("join") || position.equals("invite")) {
+                                        joinList.add(people);
+                                        peopleAdapter.notifyDataSetChanged();
+                                        break;
+                                    }
                                 case REMOVED:
-                                    joinList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                joinList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String position = doctask.getString(Config.POSITION);
-                                                    if (doctask.exists() && position.equals("join")){
-                                                        People people1 = doctask.toObject(People.class);
-                                                        joinList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
+                                    loadPeople();
                                     break;
                                 case MODIFIED:
-                                    joinList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                joinList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String position = doctask.getString(Config.POSITION);
-                                                    if (doctask.exists() && position.equals("join")){
-                                                        People people1 = doctask.toObject(People.class);
-                                                        joinList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-                                    break;
-                            }
-                        }else {
-                            switch (doc.getType()){
-                                case MODIFIED:
-                                    joinList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                joinList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String position = doctask.getString(Config.POSITION);
-                                                    if (doctask.exists() && position.equals("join")){
-                                                        People people1 = doctask.toObject(People.class);
-                                                        joinList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    } else {
-                                                        joinList.remove(Integer.valueOf(p));
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-                                    break;
-                                case REMOVED:
-                                    joinList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                joinList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    String position = doctask.getString(Config.POSITION);
-                                                    if (doctask.exists() && position.equals("join")){
-                                                        People people1 = doctask.toObject(People.class);
-                                                        joinList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
+                                    loadPeople();
                                     break;
                             }
                         }
+                    }
+                }
+            }
+        });
+    }
+    private void loadPeople(){
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                joinList.clear();
+                peopleAdapter.notifyDataSetChanged();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String ID = documentSnapshot.getId();
+                    String position = documentSnapshot.getString(Config.POSITION);
+                    if (position.equals("join") || position.equals("invite")){
+                        People people = documentSnapshot.toObject(People.class).withId(ID);
+                        joinList.add(people);
+                        peopleAdapter.notifyDataSetChanged();
                     }
                 }
             }

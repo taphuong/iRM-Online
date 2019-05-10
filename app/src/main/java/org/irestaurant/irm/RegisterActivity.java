@@ -288,7 +288,7 @@ public class RegisterActivity extends Activity {
                                                                         Map<String, Object> resMap = new HashMap<>();
                                                                         resMap.put(Config.NAME, mName);
                                                                         resMap.put(Config.EMAIL, mEmail);
-                                                                        resMap.put(Config.STATUS, "admin");
+                                                                        resMap.put(Config.POSITION, "admin");
                                                                         resMap.put(Config.TOKENID, token_id);
                                                                         resMap.put(Config.IMAGE, download_url);
                                                                         mFirestore.collection(Config.RESTAURANTS).document(mEmail).collection("People").document(mEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {

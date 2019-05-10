@@ -9,7 +9,7 @@
     android:paddingStart="8dp"
     android:paddingEnd="8dp"
     android:paddingTop="8dp"
-    android:paddingBottom="16dp">
+    android:paddingBottom="8dp">
     <Button
         android:id="@+id/btn_close"
         android:layout_width="20dp"
@@ -51,24 +51,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/button">
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/email"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_margin="8dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/iv_people"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/profile"/>
+        <TextView
+            android:layout_below="@id/iv_people"
+            android:padding="4dp"
+            android:id="@+id/htv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Họ và tên: "
+            android:textSize="19sp"
+            android:textColor="@color/mau_den"/>
+        <TextView
+            android:layout_below="@id/iv_people"
+            android:padding="4dp"
+            android:layout_toEndOf="@id/htv"
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="19sp"
+            android:textColor="@color/mau_den"/>
+        <EditText
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/tv_name"
+            android:padding="8dp"
+            android:background="@drawable/rounded_text"
+            android:id="@+id/edt_email"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/edt_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Địa chỉ Email" />
-        </android.support.design.widget.TextInputLayout>
+            android:layout_height="wrap_content"
+            android:hint="Địa chỉ Email" />
         <Button
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:layout_marginTop="8dp"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/rounded_button_list"
+            android:background="@drawable/rounded_primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_confirm"
-            android:layout_below="@id/email"
+            android:layout_below="@id/edt_email"
             android:text="@string/btnconfirm"/>
     </RelativeLayout>
     <RelativeLayout

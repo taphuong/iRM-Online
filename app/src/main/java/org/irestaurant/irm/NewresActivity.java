@@ -138,7 +138,7 @@ public class NewresActivity extends Activity {
                             Map<String, Object> resMap = new HashMap<>();
                             resMap.put(Config.NAME, getName);
                             resMap.put(Config.EMAIL, getEmail);
-                            resMap.put(Config.STATUS, "admin");
+                            resMap.put(Config.POSITION, "admin");
                             resMap.put(Config.TOKENID, getToken);
                             resMap.put(Config.IMAGE, getImage);
                             mFirestore.collection(Config.RESTAURANTS).document(getEmail).collection("People").document(getEmail).set(resMap).addOnSuccessListener(new OnSuccessListener<Void>() {
