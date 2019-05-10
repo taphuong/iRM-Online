@@ -48,8 +48,7 @@ public class FoodGroupAdapter extends RecyclerView.Adapter<FoodGroupAdapter.MyVi
         myViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                iOnFoodGroupClickListener.onFoodGroupClickListener(foodGroupList.get(i),i);
-
+                    iOnFoodGroupClickListener.onFoodGroupClickListener(foodGroupList.get(i), available_position);
             }
         });
     }

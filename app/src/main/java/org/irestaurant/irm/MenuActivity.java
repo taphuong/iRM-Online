@@ -40,6 +40,7 @@ import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.FoodAdapter;
 import org.irestaurant.irm.Database.SessionManager;
 import org.irestaurant.irm.Interface.LinearLayoutManagerWithSmoothScrooler;
+import org.irestaurant.irm.Interface.WrapContentLinearLayoutManager;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -98,9 +99,10 @@ public class MenuActivity extends Activity {
 
         foodList = new ArrayList<>();
         foodAdapter = new FoodAdapter(this, foodList, MenuActivity.this);
-        lvFood.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManagerWithSmoothScrooler(this);
+//        layoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         lvFood.setLayoutManager(layoutManager);
+        lvFood.setHasFixedSize(true);
         lvFood.setAdapter(foodAdapter);
 
 
@@ -455,26 +457,21 @@ public class MenuActivity extends Activity {
 //
 //        }
         if (resultCode == Activity.RESULT_OK){
-            String groupClick = data.getStringExtra("result");
 //            foodAdapter.notifyDataSetChanged();
-            int i =0;
-            for (i =0; i<foodList.size(); i++){
-                if (foodList.get(i).getGroup().equals(groupClick) && i > 1) {
-                    try {
-                        if (i != 0) {
-                            Toast.makeText(this, String.valueOf(i), Toast.LENGTH_SHORT).show();
-                            lvFood.smoothScrollToPosition(i);
-                            break;
-                        } else {
-                            lvFood.smoothScrollToPosition(0);
-                            break;
-                        }
-                    }catch (Exception e){
 
+            String groupClick = data.getStringExtra("result");
+            if (groupClick.equals("lastposition")){
+                lvFood.smoothScrollToPosition(foodList.size());
+            }else {
+                for (int i =0; i<foodList.size(); i++){
+                    if (foodList.get(i).getGroup().equals(groupClick)) {
+                        lvFood.smoothScrollToPosition(i);
+                        break;
                     }
-//                    lvFood.scrollToPosition(i);
                 }
             }
+//            foodAdapter.notifyDataSetChanged();
+
 //            int position = Config.findPositionWithGroup(groupClick, foodList);
 //            try{
 //                lvFood.smoothScrollToPosition(position);
