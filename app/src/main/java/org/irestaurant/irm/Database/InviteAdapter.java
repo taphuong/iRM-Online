@@ -1,8 +1,10 @@
 package org.irestaurant.irm.Database;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,11 +17,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.kekstudio.dachshundtablayout.DachshundTabLayout;
 
+import org.irestaurant.irm.MainActivity;
 import org.irestaurant.irm.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +34,9 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
     private Context context;
     private List<Invite> inviteList;
     SessionManager sessionManager;
-    String getEmail, getToken, resEmail, resName, resPhone, resAddress, Date;
+    String getID, getName, getEmail, getPassword, getImage, getToken, resPhone, resAddress;
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+    List<Invite> listInvite;
 
     public InviteAdapter(Context context, List<Invite> inviteList) {
         this.context = context;
@@ -44,13 +51,18 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int Mpostition) {
         sessionManager = new SessionManager(context);
         Map<String, String> user = sessionManager.getUserDetail();
+        getID    = user.get(sessionManager.ID);
+        getName  = user.get(sessionManager.NAME);
         getEmail = user.get(sessionManager.EMAIL);
-        resEmail = inviteList.get(i).getResemail();
-        resName  = inviteList.get(i).getResname();
-        Date     = inviteList.get(i).getDate();
+        getPassword = user.get(sessionManager.PASSWORD);
+        getImage = user.get(sessionManager.IMAGE);
+        getToken = FirebaseInstanceId.getInstance().getToken();
+        final String resEmail = inviteList.get(Mpostition).inviteId;
+        final String resName  = inviteList.get(Mpostition).getResname();
+        final String Date     = inviteList.get(Mpostition).getDate();
         viewHolder.tvResEmail.setText(resEmail);
         viewHolder.tvResName.setText(resName);
         viewHolder.tvDate.setText(Date);
@@ -65,9 +77,13 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
                         mFirestore.collection(Config.RESTAURANTS).document(resEmail).collection(Config.PEOPLE).document(getEmail).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(context, "Đã từ chối lời mời của của "+resName, Toast.LENGTH_SHORT).show();
-                                dialogInterface.dismiss();
-
+                                mFirestore.collection(Config.USERS).document(getEmail).collection(Config.INVITE).document(resEmail).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(context, "Đã từ chối lời mời của của "+resName, Toast.LENGTH_SHORT).show();
+                                        dialogInterface.dismiss();
+                                    }
+                                });
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
@@ -83,6 +99,8 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
                     public void onClick(final DialogInterface dialogInterface, final int p) {
                         Map<String, Object> acceptMap = new HashMap<>();
                         acceptMap.put(Config.POSITION, "employe");
+                        acceptMap.put(Config.TOKENID, getToken);
+                        Toast.makeText(context, resEmail, Toast.LENGTH_SHORT).show();
                         mFirestore.collection(Config.RESTAURANTS).document(resEmail).collection(Config.PEOPLE).document(getEmail).update(acceptMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -92,7 +110,6 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         resPhone = documentSnapshot.getString(Config.RESPHONE);
                                         resAddress = documentSnapshot.getString(Config.RESADDRESS);
-                                        getToken = FirebaseInstanceId.getInstance().getToken();
                                         Map<String, Object> updateMap = new HashMap<>();
                                         updateMap.put(Config.POSITION, "employe");
                                         updateMap.put(Config.RESNAME, resName);
@@ -100,11 +117,17 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
                                         updateMap.put(Config.RESADDRESS, resAddress);
                                         updateMap.put(Config.RESEMAIL, resEmail);
                                         updateMap.put(Config.TOKENID, getToken);
+
                                         mFirestore.collection(Config.USERS).document(getEmail).update(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
+                                                getInvite(resEmail);
+
+                                                sessionManager.createSession(getID,getName,getEmail,resEmail,getPassword,resName,resPhone,resAddress,"employe",getImage);
                                                 Toast.makeText(context, "Đã đồng ý lời mời từ "+resName, Toast.LENGTH_SHORT).show();
                                                 dialogInterface.dismiss();
+                                                Intent intent = new Intent(context, MainActivity.class);
+                                                context.startActivity(intent);
                                             }
                                         });
                                     }
@@ -136,5 +159,30 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
             tvResEmail = mView.findViewById(R.id.tv_resemail);
             tvDate = mView.findViewById(R.id.tv_date);
         }
+    }
+    private void getInvite(final String resEmail){
+        mFirestore.collection(Config.USERS).document(getEmail).collection(Config.INVITE).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                listInvite = new ArrayList<>();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String ID = documentSnapshot.getId();
+                    Toast.makeText(context, ID, Toast.LENGTH_SHORT).show();
+                    Invite invite = documentSnapshot.toObject(Invite.class).withId(ID);
+                    listInvite.add(invite);
+                }
+                for (int a=0; a < listInvite.size(); a++){
+                    String ID = listInvite.get(a).inviteId;
+                    mFirestore.collection(Config.USERS).document(getEmail).collection(Config.INVITE).document(ID).delete();
+                }
+                for (int a=0; a < listInvite.size(); a++){
+                    String ID = listInvite.get(a).inviteId;
+                    String eMail = listInvite.get(a).getResemail();
+                    if (!resEmail.equals(eMail)) {
+                        mFirestore.collection(Config.RESTAURANTS).document(eMail).collection(Config.PEOPLE).document(getEmail).delete();
+                    }
+                }
+            }
+        });
     }
 }

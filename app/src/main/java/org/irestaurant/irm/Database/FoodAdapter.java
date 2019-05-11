@@ -40,6 +40,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.irestaurant.irm.CategoryActivity;
+import org.irestaurant.irm.FragmentChoose;
 import org.irestaurant.irm.MenuActivity;
 import org.irestaurant.irm.R;
 
@@ -64,6 +65,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     CustomFilter cs;
     private long price;
     String Table, TableId;
+    private int p = -1;
 
 
     public FoodAdapter(Context context, List<Food> foodList){
@@ -117,9 +119,16 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             groupViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    ((Activity)context).startActivityForResult(new Intent(context, CategoryActivity.class), Config.RESULT_CODE);
-                    MenuActivity menuActivity = new MenuActivity();
-                    menuActivity.getData(foodList.get(i).getGroup(), getResEmail);
+                    FragmentChoose fragmentChoose = new FragmentChoose();
+                    if (Config.CHECKACTIVITY.equals("FragmentChoose")){
+                        if (p == i){
+                            fragmentChoose.getGroup(getResEmail);
+                            p = -1;
+                        }else {
+                            fragmentChoose.getData(foodList.get(i).getGroup(), getResEmail);
+                            p = i;
+                        }
+                    }
                 }
             });
         }else if (viewHolder instanceof ItemViewHolder){

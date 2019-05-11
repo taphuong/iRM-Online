@@ -10,11 +10,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.irestaurant.irm.Database.Config;
@@ -29,13 +31,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 public class FragmentChoose extends Fragment {
     RecyclerView lvFood;
     String getResEmail, getIdNunber,getNumber;
     SessionManager sessionManager;
-    ArrayList<Food> foodList;
-    FoodAdapter foodAdapter;
-    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+    public static ArrayList<Food> foodList;
+    public static FoodAdapter foodAdapter;
+    public static FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     CollectionReference numberRef;
 
     @Override
@@ -64,26 +68,67 @@ public class FragmentChoose extends Fragment {
         return view;
     }
 
+    public void getGroup (String eMail){
+        mFirestore.collection(Config.RESTAURANTS).document(eMail).collection(Config.MENU).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                foodList.clear();
+                foodAdapter.notifyDataSetChanged();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String ID = documentSnapshot.getId();
+                    String firstID = ID.substring(0,1);
+                    if (firstID.equals("0")){
+                        Food food = documentSnapshot.toObject(Food.class).withId(ID);
+                        foodList.add(food);
+                        foodAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
+    }
+
+    public void getData(final String group1, String eMail) {
+        mFirestore.collection(Config.RESTAURANTS).document(eMail).collection(Config.MENU).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                foodList.clear();
+                foodAdapter.notifyDataSetChanged();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String ID = documentSnapshot.getId();
+                    String firstID = ID.substring(0,1);
+                    String group = documentSnapshot.getString("group");
+                    if (firstID.equals("0") || group1.equals(group)){
+                        Food food = documentSnapshot.toObject(Food.class).withId(ID);
+//                        foodList = Config.sortList(foodList);
+                        foodList.add(food);
+                        foodList = Config.sortList(foodList);
+                        foodAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         Config.CHECKACTIVITY = "FragmentChoose";
         foodList.clear();
-        mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.MENU).addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-                if (e != null){
-                    return;
-                }else {
-                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
-                        String foodId = doc.getDocument().getId();
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e == null){
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                        String categoryID = doc.getDocument().getId();
                         switch (doc.getType()){
                             case ADDED:
-                                Food food = doc.getDocument().toObject(Food.class).withId(foodId);
-                                foodList = Config.sortList(foodList);
-                                foodList.add(food);
-//                                foodList = Config.foodGroupArrayList(foodList);
-                                foodAdapter.notifyDataSetChanged();
+                                String first = categoryID.substring(0,1);
+                                if (first.equals("0")){
+                                    String foodId = doc.getDocument().getId();
+                                    Food food = doc.getDocument() .toObject(Food.class).withId(foodId);
+                                    foodList.add(food);
+                                    foodAdapter.notifyDataSetChanged();
+                                }
                                 break;
                         }
                     }

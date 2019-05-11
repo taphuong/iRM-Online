@@ -1,16 +1,20 @@
 package org.irestaurant.irm;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.irestaurant.irm.Database.Config;
@@ -47,6 +51,30 @@ public class InviteListActivity extends Activity {
         lvInvite.setAdapter(inviteAdapter);
     }
 
+    private void loadInvite(){
+        mFirestore.collection(Config.USERS).document(getEmail).collection(Config.INVITE).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                inviteList.clear();
+                inviteAdapter.notifyDataSetChanged();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String ID = documentSnapshot.getId();
+                    Invite invite = documentSnapshot.toObject(Invite.class).withId(ID);
+                    inviteList.add(invite);
+                    inviteAdapter.notifyDataSetChanged();
+                }
+                if (inviteList.size()==0){
+                    finish();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                finish();
+            }
+        });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -66,12 +94,11 @@ public class InviteListActivity extends Activity {
                                     inviteAdapter.notifyDataSetChanged();
                                     break;
                                 case REMOVED:
-
+                                    loadInvite();
                                     break;
                                 case MODIFIED:
 
                                     break;
-
                         }
                     }
                 }

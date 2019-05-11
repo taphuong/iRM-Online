@@ -95,6 +95,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
             viewHolder.ivAdmin.setVisibility(View.GONE);
             viewHolder.tvPosition.setText("Đã mời");
         }else {
+            viewHolder.tvPosition.setText("");
             viewHolder.ivCashier.setVisibility(View.GONE);
             viewHolder.ivAdmin.setVisibility(View.GONE);
         }
@@ -161,7 +162,8 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
         viewHolder.mView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (getPosition.equals("admin")){
+                String pos = peopleList.get(i).getPosition();
+                if (getPosition.equals("admin") && !pos.equals(Config.EMPLOYE) && !pos.equals(Config.JOIN)){
                     showMenuAdmin(v,name,email,image);
                 }
                 return false;

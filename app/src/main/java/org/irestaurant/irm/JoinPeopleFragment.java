@@ -70,7 +70,6 @@ public class JoinPeopleFragment extends Fragment {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot documentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 if (e != null){
-//                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }else {
                     for (final DocumentChange doc : documentSnapshots.getDocumentChanges()){
                         String numberId = doc.getDocument().getId();

@@ -173,37 +173,39 @@ public class InviteActivity extends Activity {
             @Override
             public void afterTextChanged(Editable s) {
                 final String email = edtEmail.getText().toString();
-                mFirestore.collection(Config.USERS).document(email).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()){
-                            peoplePosition = task.getResult().getString(Config.POSITION);
-                            if (peoplePosition!=null && (peoplePosition.equals("none") || peoplePosition.equals("invite"))){
-                                peopleName = task.getResult().getString(Config.NAME);
-                                peopleImage = task.getResult().getString(Config.IMAGE);
-                                peopleEmail = task.getResult().getId();
-                                tvName.setText(peopleName);
-                                RequestOptions requestOptions = new RequestOptions();
-                                requestOptions.placeholder(R.drawable.profile);
-                                Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(peopleImage).into(ivPeople);
-                            }else if (peoplePosition!=null){
-                                edtEmail.setError("Người này đang làm việc tại một cửa hàng");
-                            }else {
+                if (!email.isEmpty()) {
+                    mFirestore.collection(Config.USERS).document(email).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                peoplePosition = task.getResult().getString(Config.POSITION);
+                                if (peoplePosition != null && (peoplePosition.equals("none") || peoplePosition.equals("invite"))) {
+                                    peopleName = task.getResult().getString(Config.NAME);
+                                    peopleImage = task.getResult().getString(Config.IMAGE);
+                                    peopleEmail = task.getResult().getId();
+                                    tvName.setText(peopleName);
+                                    RequestOptions requestOptions = new RequestOptions();
+                                    requestOptions.placeholder(R.drawable.profile);
+                                    Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(peopleImage).into(ivPeople);
+                                } else if (peoplePosition != null) {
+                                    edtEmail.setError("Người này đang làm việc tại một cửa hàng");
+                                } else {
+                                    peopleName = "";
+                                    peopleImage = "";
+                                    peopleEmail = "";
+                                    tvName.setText("");
+                                    ivPeople.setImageResource(R.drawable.profile);
+                                }
+                            } else {
                                 peopleName = "";
                                 peopleImage = "";
                                 peopleEmail = "";
                                 tvName.setText("");
                                 ivPeople.setImageResource(R.drawable.profile);
                             }
-                        }else {
-                            peopleName = "";
-                            peopleImage = "";
-                            peopleEmail = "";
-                            tvName.setText("");
-                            ivPeople.setImageResource(R.drawable.profile);
                         }
-                    }
-                });
+                    });
+                }
             }
         });
 

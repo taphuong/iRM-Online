@@ -69,5 +69,4 @@ public class PeopleActivity extends AppCompatActivity  {
         tabLayout.setTabsFromPagerAdapter(adapter);//deprecated
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(pager));
     }
-
 }

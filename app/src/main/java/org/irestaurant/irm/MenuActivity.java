@@ -395,79 +395,35 @@ public class MenuActivity extends Activity {
 
 //Sticky
 
-
-    public void getData(final String group1, String eMail) {
-        mFirestore.collection(Config.RESTAURANTS).document(eMail).collection(Config.MENU).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                foodList.clear();
-                foodAdapter.notifyDataSetChanged();
-                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
-                    String ID = documentSnapshot.getId();
-                    String firstID = ID.substring(0,1);
-                    String group = documentSnapshot.getString("group");
-                    if (firstID.equals("0") || group1.equals(group)){
-                        Food food = documentSnapshot.toObject(Food.class).withId(ID);
-                        foodList = Config.sortList(foodList);
-                        foodList.add(food);
-                        foodAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        });
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
         Config.CHECKACTIVITY = "MenuActivity";
         foodList.clear();
-//        mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.MENU).addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-//            @Override
-//            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-//                if (e != null){
-//                    Toast.makeText(MenuActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//                }else {
-//                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
-//                        String foodId = doc.getDocument().getId();
-//                        switch (doc.getType()){
-//                            case ADDED:
-//                                Food food = doc.getDocument().toObject(Food.class).withId(foodId);
-//                                foodList = Config.sortList(foodList);
-//                                foodList.add(food);
-////                                foodList = Config.foodGroupArrayList(foodList);
-//                                foodAdapter.notifyDataSetChanged();
-//                                break;
-//                            case REMOVED:
-//
-//                                break;
-//                        }
-//                    }
-//                }
-//
-//
-//            }
-//        });
-
-        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.MENU).addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if (e == null){
-                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                        String categoryID = doc.getDocument().getId();
+            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                if (e != null){
+                    Toast.makeText(MenuActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }else {
+                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()){
+                        String foodId = doc.getDocument().getId();
                         switch (doc.getType()){
                             case ADDED:
-                                String first = categoryID.substring(0,1);
-                                if (first.equals("0")){
-                                    String foodId = doc.getDocument().getId();
-                                    Food food = doc.getDocument() .toObject(Food.class).withId(foodId);
-                                    foodList.add(food);
-                                    foodAdapter.notifyDataSetChanged();
-                                }
+                                Food food = doc.getDocument().toObject(Food.class).withId(foodId);
+                                foodList.add(food);
+                                foodList = Config.sortList(foodList);
+//                                foodList = Config.foodGroupArrayList(foodList);
+                                foodAdapter.notifyDataSetChanged();
+                                break;
+                            case REMOVED:
+
                                 break;
                         }
                     }
                 }
+
+
             }
         });
     }
