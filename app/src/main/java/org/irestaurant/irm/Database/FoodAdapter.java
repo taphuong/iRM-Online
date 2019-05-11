@@ -232,12 +232,12 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                                                         for (DocumentSnapshot doc : task.getResult()){
                                                             if (doc.getId().equals((foodList.get(i).foodId))){
                                                                 String oldAmount = doc.getString(Config.AMOUNT);
-                                                                Toast.makeText(context, oldAmount, Toast.LENGTH_SHORT).show();
                                                                 String foodId = doc.getId();
+                                                                String foodname = doc.getString(Config.FOODNAME);
                                                                 String price = doc.getString("price");
                                                                 String newAmount = String.valueOf(Integer.valueOf(amount)+Integer.valueOf(oldAmount));
                                                                 String newTotal = String.valueOf(Integer.valueOf(price)*Integer.valueOf(newAmount));
-                                                                updateOrdered(foodId, newAmount, newTotal, dialog);
+                                                                updateOrdered(foodname, foodId, newAmount, newTotal, amount, price, dialog);
                                                                 return;
                                                             }
                                                         }
@@ -492,20 +492,22 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
         });
     }
-    private void updateOrdered(String foodId, String newAmount, String newTotal, final Dialog dialog){
+    private void updateOrdered(final String foodname, final String foodId, String newAmount, String newTotal, final String amount, final String price, final Dialog dialog){
         Map<String, Object> updateAmout = new HashMap<>();
         updateAmout.put(Config.AMOUNT, newAmount);
         updateAmout.put(Config.TOTAL, newTotal);
         numberRef.document(TableId).collection("unpaid").document(foodId).update(updateAmout).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                String tt = String.valueOf(Integer.valueOf(amount)*Integer.valueOf(price));
+                updateTableOrdered(tt);
+                Toast.makeText(context, "Đã thêm "+amount+" phần "+ foodname, Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }
         });
 
     }
     private void updateTable(final String tt){
-
         numberRef.document(TableId).update(Config.STATUS,"busy");
         numberRef.document(TableId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -518,6 +520,17 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     }else {
                         numberRef.document(TableId).update("total",String.valueOf(Integer.valueOf(total)+Integer.valueOf(tt)));
                     }
+                }
+            }
+        });
+    }
+    private void updateTableOrdered(final String tt){
+        numberRef.document(TableId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    String total = documentSnapshot.getString("total");
+                        numberRef.document(TableId).update("total",String.valueOf(Integer.valueOf(total)+Integer.valueOf(tt)));
                 }
             }
         });

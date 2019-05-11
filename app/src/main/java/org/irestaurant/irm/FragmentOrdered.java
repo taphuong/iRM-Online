@@ -89,7 +89,7 @@ public class FragmentOrdered extends Fragment {
 
                                 break;
                             case REMOVED:
-//                                loadTotal();
+                                mFirestore
                                 break;
                             case MODIFIED:
 //                                loadTotal();
