@@ -62,27 +62,16 @@
             android:gravity="center"
             android:layout_marginTop="-4dp"/>
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:layout_below="@+id/dachon"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginRight="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
             android:id="@+id/lv_ordered">
-        </ListView>
-        <ListView
-            android:layout_below="@id/lv_ordered"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
-            android:id="@+id/lv_not">
-        </ListView>
-
+        </android.support.v7.widget.RecyclerView>
 
     </RelativeLayout>
     <RelativeLayout

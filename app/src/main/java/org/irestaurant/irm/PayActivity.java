@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -56,7 +57,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     SessionManager sessionManager;
     TextView tvTotal, tvTotalAll, tvNumber;
     EditText edtDiscount;
-    ListView lvOrdered;
+    RecyclerView lvOrdered;
     Button btnPay, btnCancel, btnPrinter;
     String getIdNumber, getNumber, total, totalall, discount, getResName, getResPhone, getResAddress;
     public String name = "Chưa kết nối", address = "Null";
@@ -331,9 +332,15 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     }
 
     private void updateOrdered (){
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
     }
 
+    //    Print
     public void connectPrinter(){
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
