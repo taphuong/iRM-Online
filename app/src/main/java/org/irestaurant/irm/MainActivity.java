@@ -278,8 +278,9 @@ public class MainActivity extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which) {
 //                            String idnumber = String.valueOf(numberList.get(position).getId());
                             String number = numberList.get(position).getNumber();
+                            String idnumber = String.valueOf(numberList.get(position).numberId);
                             Intent i = new Intent(MainActivity.this, PayActivity.class);
-//                            i.putExtra("idnumber", idnumber);
+                            i.putExtra("idnumber", idnumber);
                             i.putExtra("number", number);
                             startActivity(i);
                         }

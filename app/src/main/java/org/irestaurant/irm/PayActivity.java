@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -23,32 +24,41 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import org.irestaurant.irm.Database.BluetoothHandler;
 import org.irestaurant.irm.Database.BluetoothService;
 import org.irestaurant.irm.Database.Config;
-import org.irestaurant.irm.Database.DatabaseRevenue;
 import org.irestaurant.irm.Database.Number;
 import org.irestaurant.irm.Database.Ordered;
-import org.irestaurant.irm.Database.PayAdapter;
+import org.irestaurant.irm.Database.OredredAdapter;
 import org.irestaurant.irm.Database.PrinterCommands;
-import org.irestaurant.irm.Database.Revenue;
 import org.irestaurant.irm.Database.SessionManager;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -59,14 +69,14 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     EditText edtDiscount;
     RecyclerView lvOrdered;
     Button btnPay, btnCancel, btnPrinter;
-    String getIdNumber, getNumber, total, totalall, discount, getResName, getResPhone, getResAddress;
+    String getIdNumber, getNumber, total, totalall, discount, getResName, getResPhone, getResAddress, getResEmail;
     public String name = "Chưa kết nối", address = "Null";
     public Switch swPrint;
     long tongtien, after;
 
-    List<Ordered> payList;
-    PayAdapter payAdapter;
-    DatabaseRevenue databaseRevenue;
+    List<Ordered> orderedList;
+    OredredAdapter oredredAdapter;
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
     protected static final String TAG = "TAG";
     private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -109,6 +119,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         getResAddress = user.get(sessionManager.RESADDRESS);
         getResName = user.get(sessionManager.RESNAME);
         getResPhone = user.get(sessionManager.RESPHONE);
+        getResEmail = user.get(sessionManager.RESEMAIL);
 
         Anhxa();
         Intent intent = getIntent();
@@ -116,9 +127,17 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         getNumber = intent.getExtras().getString("number");
         tvNumber.setText("Bàn số: "+getNumber);
         swPrint.setText("In hóa đơn ("+name+")");
+        Config.TABLE = getNumber;
+        Config.TABLEID = getIdNumber;
+
+        orderedList = new ArrayList<>();
+        oredredAdapter = new OredredAdapter(this, orderedList);
+        lvOrdered.setHasFixedSize(true);
+        lvOrdered.setLayoutManager(new LinearLayoutManager(this));
+        lvOrdered.setAdapter(oredredAdapter);
 
 
-        setLvPay();
+//        setLvPay();
         setupBluetooth();
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -263,63 +282,96 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         if (edtDiscount.getText().toString().isEmpty()){
             discount = "0";
         }else {discount = edtDiscount.getText().toString();}
-        databaseRevenue = new DatabaseRevenue(this);
-        Revenue revenue = new Revenue();
-        revenue.setDate(date);
-        revenue.setRdate(rdate);
-        revenue.setTime(time);
-        revenue.setNumber(getNumber);
-        revenue.setTotal(String.valueOf(total));
-        revenue.setDiscount(discount);
-        revenue.setTotalat(String.valueOf(totalall));
-        if (databaseRevenue.creat(revenue)){
-            Toast.makeText(PayActivity.this, "Đã thanh toán bàn số "+ getNumber, Toast.LENGTH_LONG).show();
-            updateOrdered();
-        }else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.error);
-            builder.setMessage(R.string.cannot_create);
-            builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-        }
+
+        Paid();
+
         if (swPrint.isChecked() && name.equals("Chưa kết nối") ){
             connectPrinter();
         }
     }
+
+    private void Paid (){
+        final String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
+        final String dt = new SimpleDateFormat("yy/MM/dd-kk:mm", Locale.getDefault()).format(new Date());
+        mFirestore.collection(Config.RESTAURANTS).document(getResAddress).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    final String id = documentSnapshot.getId();
+                    String total = documentSnapshot.getString(Config.TOTAL);
+                    String foodname = documentSnapshot.getString(Config.FOODNAME);
+                    String foodprice = documentSnapshot.getString("price");
+                    String amount = documentSnapshot.getString(Config.AMOUNT);
+                    final Map<String, Object> paidMap = new HashMap<>();
+                    paidMap.put(Config.TOTAL, total);
+                    paidMap.put(Config.FOODNAME, foodname);
+                    paidMap.put(Config.FOODPRICE, foodprice);
+                    paidMap.put(Config.AMOUNT, amount);
+
+                    Map<String, Object> dateMap = new HashMap<>();
+                    dateMap.put("date", date);
+                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PAID).document(dt).set(dateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            String tongtien = tvTotalAll.getText().toString().replaceAll(",","");
+                            Map<String, Object> tongtienMap = new HashMap<>();
+                            tongtienMap.put(Config.TOTAL, tongtien);
+                            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(dt).collection(Config.PAID).document(getIdNumber).set(tongtienMap);
+                            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(dt).collection(Config.PAID).document(getIdNumber).collection(Config.PAID).document(id).set(paidMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Map<String, Object>tableMap = new HashMap<>();
+                                    tableMap.put(Config.TOTAL, "");
+                                    tableMap.put(Config.STATUS, "free");
+                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(tableMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(PayActivity.this, "Đã thanh toán bàn số "+ getNumber, Toast.LENGTH_LONG).show();
+                                            finish();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+
+                }
+                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+            }
+        });
+    }
+
     private void Print (){
 
     }
 
     public void setLvPay() {
-        if (payAdapter == null) {
-            tongtien=0;
-            payAdapter = new PayAdapter(PayActivity.this, R.layout.item_pay, payList);
-            lvOrdered.setAdapter(payAdapter);
-            for (int a =0; a<payList.size();a++){
-                tongtien += Integer.valueOf(payList.get(a).getTotal());
-            }
-            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-            formatter.applyPattern("#,###,###,###");
-            tvTotal.setText(formatter.format(tongtien));
-            tvTotalAll.setText(formatter.format(tongtien));
-        } else {
-            tongtien=0;
-            payList.clear();
-//            payList.addAll(databaseOrdered.getallOrdered(getNumber));
-            payAdapter.notifyDataSetChanged();
-            lvOrdered.setSelection(payAdapter.getCount() - 1);
-            for (int a =0; a<payList.size();a++){
-                tongtien += Integer.valueOf(payList.get(a).getTotal());
-            }
-            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-            formatter.applyPattern("#,###,###,###");
-            tvTotal.setText(formatter.format(tongtien));
-            tvTotalAll.setText(formatter.format(tongtien));
-        }
+//        if (payAdapter == null) {
+//            tongtien=0;
+//            payAdapter = new PayAdapter(PayActivity.this, R.layout.item_pay, payList);
+//            lvOrdered.setAdapter(payAdapter);
+//            for (int a =0; a<payList.size();a++){
+//                tongtien += Integer.valueOf(payList.get(a).getTotal());
+//            }
+//            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+//            formatter.applyPattern("#,###,###,###");
+//            tvTotal.setText(formatter.format(tongtien));
+//            tvTotalAll.setText(formatter.format(tongtien));
+//        } else {
+//            tongtien=0;
+//            payList.clear();
+////            payList.addAll(databaseOrdered.getallOrdered(getNumber));
+//            payAdapter.notifyDataSetChanged();
+//            lvOrdered.setSelection(payAdapter.getCount() - 1);
+//            for (int a =0; a<payList.size();a++){
+//                tongtien += Integer.valueOf(payList.get(a).getTotal());
+//            }
+//            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+//            formatter.applyPattern("#,###,###,###");
+//            tvTotal.setText(formatter.format(tongtien));
+//            tvTotalAll.setText(formatter.format(tongtien));
+//        }
     }
 
     private void updateTable (String tb){
@@ -334,11 +386,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     private void updateOrdered (){
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
 
-    }
 
     //    Print
     public void connectPrinter(){
@@ -551,18 +599,28 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         mService.write(PrinterCommands.PRINTE_TEST);
     }
     private void PrintData (){
-        for (int i = 0 ; i < payList.size() ; i++){
-            String name = payList.get(i).getFoodname();
-            String amount = payList.get(i).getAmount();
-            String total = payList.get(i).getTotal();
-            mService.write(PrinterCommands.ESC_ALIGN_LEFT);
-            mService.sendMessage(amount+" "+ Config.VNCharacterUtils.removeAccent(name), "");
-            mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
-            mService.sendMessage(total, "");
-            mService.write(PrinterCommands.PRINTE_TEST);
-        }
+
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                orderedList.clear();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String id = documentSnapshot.getId();
+                    String foodname = documentSnapshot.getString(Config.FOODNAME);
+                    String amount = documentSnapshot.getString(Config.AMOUNT);
+                    String total = documentSnapshot.getString(Config.TOTAL);
+                    mService.write(PrinterCommands.ESC_ALIGN_LEFT);
+                    mService.sendMessage(amount+" "+ Config.VNCharacterUtils.removeAccent(foodname), "");
+                    mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
+                    mService.sendMessage(total, "");
+                    mService.write(PrinterCommands.PRINTE_TEST);
+                }
+                return;
+            }
+        });
+
         mService.write(PrinterCommands.ESC_ALIGN_CENTER);
-        mService.sendMessage("================================", "");
+        mService.sendMessage("--------------------------------", "");
         mService.write(PrinterCommands.PRINTE_TEST);
     }
     private void PrintTotal (){
@@ -584,5 +642,68 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
                 startActivityForResult(intent, RC_ENABLE_BLUETOOTH);
             }
         }
+    }
+
+    private void loadOrdered (){
+        tongtien = 0;
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                orderedList.clear();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String id = documentSnapshot.getId();
+                    Ordered ordered1 = documentSnapshot.toObject(Ordered.class).withId(id);
+                    orderedList.add(ordered1);
+                    oredredAdapter.notifyDataSetChanged();
+                    String total = documentSnapshot.getString(Config.TOTAL);
+                    tongtien += Integer.valueOf(total);
+                    DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                    formatter.applyPattern("#,###,###,###");
+                    tvTotal.setText(formatter.format(tongtien));
+                    tvTotalAll.setText(formatter.format(tongtien));
+                }
+                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        orderedList.clear();
+        mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.NUMBER+"/"+getIdNumber+"/unpaid").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+//                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }else {
+                    tongtien = 0;
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                        final String orderId = doc.getDocument().getId();
+                        switch (doc.getType()){
+                            case ADDED:
+                                Ordered ordered = doc.getDocument().toObject(Ordered.class).withId(orderId);
+                                String total = doc.getDocument().getString(Config.TOTAL);
+                                orderedList.add(ordered);
+                                oredredAdapter.notifyDataSetChanged();
+                                tongtien += Integer.valueOf(total);
+                                DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                                formatter.applyPattern("#,###,###,###");
+                                tvTotal.setText(formatter.format(tongtien));
+                                tvTotalAll.setText(formatter.format(tongtien));
+                                break;
+                            case REMOVED:
+                                loadOrdered();
+                                break;
+                            case MODIFIED:
+                                loadOrdered();
+                                break;
+                        }
+                    }
+                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+                }
+            }
+        });
+
     }
 }

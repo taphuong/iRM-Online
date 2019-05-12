@@ -21,7 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -32,13 +34,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class OredredAdapter extends RecyclerView.Adapter<OredredAdapter.ViewHolder> {
     private Context context;
     private List<Ordered> orderedList;
     long tongtien;
     private long price;
-    String getResEmail;
+    String getResEmail, Table, TableId;
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     CollectionReference numberRef;
     SessionManager sessionManager;
@@ -63,6 +66,8 @@ public class OredredAdapter extends RecyclerView.Adapter<OredredAdapter.ViewHold
         sessionManager = new SessionManager(context);
         HashMap<String, String> user = sessionManager.getUserDetail();
         getResEmail = user.get(sessionManager.RESEMAIL);
+        Table = Config.TABLE;
+        TableId = Config.TABLEID;
 
         String orderId = orderedList.get(i).orderedId;
         String foodname = orderedList.get(i).getFoodname();
@@ -171,12 +176,12 @@ public class OredredAdapter extends RecyclerView.Adapter<OredredAdapter.ViewHold
                                             edtAmount.setError("Nhập số phần");
                                             edtAmount.requestFocus();
                                         }else {
-                                            String id = String.valueOf(orderedList.get(i).orderedId);
+                                            String foodid = String.valueOf(orderedList.get(i).orderedId);
                                             String foodname = orderedList.get(i).getFoodname();
                                             String newamount = edtAmount.getText().toString();
                                             String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
                                             String total = String.valueOf(price*Integer.valueOf(newamount));
-//                                            updateOrdered(id,foodname,newamount, date, String.valueOf(price), total, dialog);
+                                            updateOrdered(foodid,foodname,newamount, total, dialog);
 
                                         }
                                     }
@@ -209,6 +214,19 @@ public class OredredAdapter extends RecyclerView.Adapter<OredredAdapter.ViewHold
                 });
                 popupMenu.show();
                 return false;
+            }
+        });
+    }
+
+    private void updateOrdered(String foodid, final String foodname, final String newamount, String newtotal, final Dialog dialog) {
+        Map<String, Object> updateAmout = new HashMap<>();
+        updateAmout.put(Config.AMOUNT, newamount);
+        updateAmout.put(Config.TOTAL, newtotal);
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(TableId).collection("unpaid").document(foodid).update(updateAmout).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(context, "Đã thay đổi "+newamount+" phần "+ foodname, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
         });
     }

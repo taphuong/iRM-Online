@@ -46,6 +46,7 @@ public class FragmentOrdered extends Fragment {
     OredredAdapter oredredAdapter;
     private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     CollectionReference numberRef;
+    long tongtien;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,6 +75,7 @@ public class FragmentOrdered extends Fragment {
     }
 
     private void loadOrdered (){
+        tongtien =0;
         mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNunber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -84,7 +86,6 @@ public class FragmentOrdered extends Fragment {
                     orderedList.add(ordered1);
                     oredredAdapter.notifyDataSetChanged();
                 }
-                return;
             }
         });
     }

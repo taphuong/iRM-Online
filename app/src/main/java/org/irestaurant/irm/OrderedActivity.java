@@ -31,6 +31,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kekstudio.dachshundtablayout.DachshundTabLayout;
 
@@ -315,9 +316,28 @@ public class OrderedActivity extends AppCompatActivity {
         });
 
     }
+
+    private void loadOrdered (){
+        tongtien =0;
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String total = documentSnapshot.getString(Config.TOTAL);
+                    tongtien += Integer.valueOf(total);
+                    DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                    formatter.applyPattern("#,###,###,###");
+                    tvTotal.setText(formatter.format(tongtien));
+                }
+                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+            }
+        });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
+        tongtien = 0;
 //        foodList.clear();
 //        orderedList.clear();
 //        mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.MENU).addSnapshotListener(this, new EventListener<QuerySnapshot>() {
@@ -377,6 +397,38 @@ public class OrderedActivity extends AppCompatActivity {
 //                }
 //            }
 //        });
+
+        mFirestore.collection(Config.RESTAURANTS+"/"+getResEmail+"/"+Config.NUMBER+"/"+getIdNumber+"/unpaid").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+//                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }else {
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                        final String orderId = doc.getDocument().getId();
+                        String total = doc.getDocument().getString(Config.TOTAL);
+                        switch (doc.getType()){
+                            case ADDED:
+                                tongtien += Integer.valueOf(total);
+                                DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                                formatter.applyPattern("#,###,###,###");
+                                tvTotal.setText(formatter.format(tongtien));
+
+
+                                break;
+                            case REMOVED:
+                                break;
+                            case MODIFIED:
+                                loadOrdered();
+                                break;
+                        }
+                    }
+                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+                }
+            }
+        });
+
         numberRef.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
