@@ -6,7 +6,6 @@
     android:paddingTop="8dp"
     android:paddingLeft="8dp"
     android:paddingRight="8dp">
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -29,25 +28,36 @@
         android:layout_alignEnd="@id/iv_people"
         android:layout_alignBottom="@id/iv_people"
         android:src="@drawable/cashier"/>
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:orientation="vertical"
-        android:layout_toEndOf="@id/iv_people"
-        android:gravity="bottom">
+        android:layout_toEndOf="@id/iv_people">
         <TextView
+            android:layout_toStartOf="@id/tv_position"
+            android:layout_above="@id/tv_email"
             android:id="@+id/tv_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tạ Duy Phương"
             android:textColor="@color/mau_den"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:layout_marginEnd="8dp"/>
         <TextView
+            android:id="@+id/tv_position"
+            android:layout_above="@id/tv_email"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_alignParentBottom="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tv_email"
             android:text="taduyphuong.android@gmail.com"
-            android:textSize="16sp"/>
-    </LinearLayout>
+            android:textSize="12sp"/>
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -82,9 +82,19 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
         Glide.with(context).setDefaultRequestOptions(requestOptions).load(image).into(viewHolder.ivPeople);
         if (position.equals("admin")){
             viewHolder.ivAdmin.setVisibility(View.VISIBLE);
+            viewHolder.tvPosition.setText("Admin");
         } else if (position.equals("cashier")){
             viewHolder.ivCashier.setVisibility(View.VISIBLE);
-        } else {
+            viewHolder.tvPosition.setText("Thu ngân");
+        }else if (position.equals("join")){
+            viewHolder.ivCashier.setVisibility(View.GONE);
+            viewHolder.ivAdmin.setVisibility(View.GONE);
+            viewHolder.tvPosition.setText("Yêu cầu");
+        }else if (position.equals("invite")){
+            viewHolder.ivCashier.setVisibility(View.GONE);
+            viewHolder.ivAdmin.setVisibility(View.GONE);
+            viewHolder.tvPosition.setText("Đã mời");
+        }else {
             viewHolder.ivCashier.setVisibility(View.GONE);
             viewHolder.ivAdmin.setVisibility(View.GONE);
         }
@@ -102,20 +112,13 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                             mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-
-                                            Toast.makeText(context, "Đã từ chối đơn của "+name, Toast.LENGTH_SHORT).show();
-                                            dialogInterface.dismiss();
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(context, R.string.dacoloi, Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-
+                                    Toast.makeText(context, "Đã từ chối đơn của "+name, Toast.LENGTH_SHORT).show();
+                                    dialogInterface.dismiss();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(context, R.string.dacoloi, Toast.LENGTH_SHORT).show();
                                 }
                             });
 
@@ -150,16 +153,74 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                     });
                     AlertDialog alertDialog = builder.create();
                     alertDialog.show();
-                }else {
-                    if (getPosition.equals("admin")){
-                        showMenu(v,name,email,image);
-                    }
+                }else if (position.equals("invite")){
+                    showMenuInvite(v, name, email);
                 }
+            }
+        });
+        viewHolder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (getPosition.equals("admin")){
+                    showMenuAdmin(v,name,email,image);
+                }
+                return false;
             }
         });
     }
 
-    private void showMenu(View v, final String name, final String email, final String image) {
+    private void showMenuInvite(View v, final String name, final String email) {
+        final android.support.v7.widget.PopupMenu popupMenu = new android.support.v7.widget.PopupMenu(context,v);
+        popupMenu.getMenuInflater().inflate(R.menu.invite_menu,popupMenu.getMenu());
+        popupMenu.setGravity(Gravity.RIGHT);
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.popup_cancel:
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setMessage("Hủy lời mời đến "+name);
+                        builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        builder.setNegativeButton("Đồng ý", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialogInterface, final int p) {
+
+                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        mFirestore.collection(Config.USERS).document(email).collection(Config.INVITE).document(getResEmail).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(context, "Đã hủy lời mời đến "+name, Toast.LENGTH_SHORT).show();
+                                                dialogInterface.dismiss();
+                                            }
+                                        });
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(context, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                            }
+                        });
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.show();
+                        break;
+                }
+                return false;
+            }
+        });
+        popupMenu.show();
+    }
+
+    private void showMenuAdmin(View v, final String name, final String email, final String image) {
         final android.support.v7.widget.PopupMenu popupMenu = new android.support.v7.widget.PopupMenu(context,v);
         popupMenu.getMenuInflater().inflate(R.menu.person_popup,popupMenu.getMenu());
         popupMenu.setGravity(Gravity.RIGHT);
@@ -313,7 +374,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private View mView;
-        private TextView tvName, tvEmail;
+        private TextView tvName, tvEmail, tvPosition;
         private CircleImageView ivPeople;
         private ImageView ivAdmin, ivCashier;
 
@@ -322,6 +383,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
             mView = itemView;
             tvName = mView.findViewById(R.id.tv_name);
             tvEmail = mView.findViewById(R.id.tv_email);
+            tvPosition = mView.findViewById(R.id.tv_position);
             ivPeople = mView.findViewById(R.id.iv_people);
             ivAdmin = mView.findViewById(R.id.iv_admin);
             ivCashier = mView.findViewById(R.id.iv_cashier);

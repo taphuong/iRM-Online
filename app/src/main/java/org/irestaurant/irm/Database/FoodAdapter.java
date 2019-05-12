@@ -117,7 +117,9 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             groupViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((Activity)context).startActivityForResult(new Intent(context, CategoryActivity.class), Config.RESULT_CODE);
+//                    ((Activity)context).startActivityForResult(new Intent(context, CategoryActivity.class), Config.RESULT_CODE);
+                    MenuActivity menuActivity = new MenuActivity();
+                    menuActivity.getData(foodList.get(i).getGroup(), getResEmail);
                 }
             });
         }else if (viewHolder instanceof ItemViewHolder){
@@ -535,7 +537,6 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
         });
     }
-
     private class GroupViewHolder extends RecyclerView.ViewHolder {
         TextView tvGroupMenu;
         LinearLayout layoutGroup;

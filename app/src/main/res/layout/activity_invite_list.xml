@@ -5,12 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
-    android:background="@color/mau_trang"
+    android:background="@drawable/gradient_background"
     tools:context=".InviteListActivity">
     <android.support.v7.widget.RecyclerView
+        android:padding="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/lv_invite">
+        android:id="@+id/lv_invite"
+        android:background="@drawable/rounded_text">
     </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>
