@@ -69,7 +69,6 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
                     }
                 });
             }
-            Toast.makeText(context, "Đăng ký vân tay", Toast.LENGTH_SHORT).show();
         }
 
 //        DatabaseFinger databaseFinger = new DatabaseFinger(context);

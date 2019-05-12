@@ -3,6 +3,7 @@ package org.irestaurant.irm.Database;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,42 +17,50 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class RecentAdapter extends ArrayAdapter {
+public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     private Context context;
-    private int layout;
-    private List<Ordered> orderedList;
+    private List<Recent> recentList;
 
-    public RecentAdapter(@NonNull Context context, int layout, @NonNull List<Ordered> orderedList) {
-        super(context, layout, orderedList);
+    public RecentAdapter(Context context, List<Recent> recentList) {
         this.context = context;
-        this.layout = layout;
-        this.orderedList = orderedList;
+        this.recentList = recentList;
     }
+
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        ViewHolder viewHolder;
-        if (convertView==null){
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_recent,parent,false);
-            viewHolder = new ViewHolder();
-            viewHolder.tvFoodname = (TextView)convertView.findViewById(R.id.tv_foodname);
-            viewHolder.tvAmount = (TextView)convertView.findViewById(R.id.tv_amount);
-            viewHolder.tvTotal = (TextView)convertView.findViewById(R.id.tv_total);
-            convertView.setTag(viewHolder);
-        }else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-        Ordered ordered = orderedList.get(position);
-        viewHolder.tvFoodname.setText(ordered.getFoodname());
-        viewHolder.tvAmount.setText(ordered.getAmount());
-        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-        formatter.applyPattern("#,###,###,###");
-        viewHolder.tvTotal.setText(formatter.format(Integer.valueOf(ordered.getTotal())));
-
-        return convertView;
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_recent, viewGroup, false);
+        return new ViewHolder(view);
     }
 
-    private class ViewHolder{
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
+        String foodname = recentList.get(i).getFoodname();
+        String amount = recentList.get(i).getAmount();
+        String total = recentList.get(i).getTotal();
+        DecimalFormat formatPrice = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        formatPrice.applyPattern("###,###,###");
+        viewHolder.tvTotal.setText(formatPrice.format(Integer.valueOf(total)));
+        viewHolder.tvAmount.setText(amount);
+        viewHolder.tvFoodname.setText(foodname);
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return recentList.size();
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private View mView;
         private TextView tvFoodname, tvAmount, tvTotal;
+        public ViewHolder( View itemView) {
+            super(itemView);
+            mView = itemView;
+            tvFoodname = mView.findViewById(R.id.tv_foodname);
+            tvAmount = mView.findViewById(R.id.tv_amount);
+            tvTotal = mView.findViewById(R.id.tv_total);
+        }
     }
 }

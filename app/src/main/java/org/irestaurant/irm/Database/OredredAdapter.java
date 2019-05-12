@@ -189,7 +189,7 @@ public class OredredAdapter extends RecyclerView.Adapter<OredredAdapter.ViewHold
                                 break;
                             case R.id.popup_delete:
                                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                builder.setMessage("Bạn muốn xóa "+orderedList.get(i).getAmount()+" phần "+orderedList.get(i).getFoodname()+" ?");
+                                builder.setMessage("Bạn muốn bỏ "+orderedList.get(i).getAmount()+" phần "+orderedList.get(i).getFoodname()+" ?");
                                 builder.setCancelable(false);
                                 builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
                                     @Override
@@ -199,8 +199,13 @@ public class OredredAdapter extends RecyclerView.Adapter<OredredAdapter.ViewHold
                                 });
                                 builder.setNegativeButton("Xóa", new DialogInterface.OnClickListener() {
                                     @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-
+                                    public void onClick(DialogInterface dialogInterface, int a) {
+                                        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(TableId).collection("unpaid").document(orderedList.get(i).orderedId).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(context, "Đã bỏ "+orderedList.get(i).getAmount()+" phần "+orderedList.get(i).getFoodname(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
                                     }
                                 });
 
@@ -234,8 +239,6 @@ public class OredredAdapter extends RecyclerView.Adapter<OredredAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder {
         private View mView;
         private TextView tvFoodname, tvAmount;
-
-
         public ViewHolder( View itemView) {
             super(itemView);
             mView = itemView;

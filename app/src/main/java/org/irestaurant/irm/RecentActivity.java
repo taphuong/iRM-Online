@@ -4,31 +4,45 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.OredredAdapter;
+import org.irestaurant.irm.Database.Recent;
 import org.irestaurant.irm.Database.RecentAdapter;
 import org.irestaurant.irm.Database.SessionManager;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.Nullable;
+
 public class RecentActivity extends Activity {
-    String getResName, getResPhone, getResAddress, number, date, time;
+    String getResName, getResPhone, getResAddress, getResEmail, number, date, time, getIdRecent, rDate;
     TextView tvResName, tvResPhone, tvResAddress, tvNumber, tvDate, tvTotal, tvTotalAll, tvDiscount, tvTC, tvCK;
-    ListView lvRecent;
+    RecyclerView lvRecent;
     Button btnBack;
     SessionManager sessionManager;
     RecentAdapter recentAdapter;
-    List<Ordered> orderedList;
-
+    List<Recent> recentList;
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     private void Anhxa(){
         tvResName = findViewById(R.id.tv_resname);
         tvResPhone = findViewById(R.id.tv_resphone);
@@ -50,15 +64,21 @@ public class RecentActivity extends Activity {
         setContentView(R.layout.activity_recent);
         Anhxa();
         sessionManager = new SessionManager(this);
-        sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
         getResName = user.get(sessionManager.RESNAME);
         getResPhone = user.get(sessionManager.RESPHONE);
         getResAddress = user.get(sessionManager.RESADDRESS);
+        getResEmail = user.get(sessionManager.RESEMAIL);
 
         tvResName.setText(getResName);
         tvResPhone.setText(getResPhone);
         tvResAddress.setText(getResAddress);
+
+        recentList = new ArrayList<>();
+        recentAdapter = new RecentAdapter(this, recentList);
+        lvRecent.setHasFixedSize(true);
+        lvRecent.setLayoutManager(new LinearLayoutManager(this));
+        lvRecent.setAdapter(recentAdapter);
 
         Intent intent = getIntent();
         date = intent.getExtras().getString("date");
@@ -66,13 +86,18 @@ public class RecentActivity extends Activity {
         number = intent.getExtras().getString("number");
         String total = intent.getExtras().getString("total");
         String discount = intent.getExtras().getString("discount");
-        String totalall = intent.getExtras().getString("totalall");
+        getIdRecent = intent.getExtras().getString("id");
+        String before = intent.getExtras().getString("before");
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         formatter.applyPattern("#,###,###,###");
-
         tvNumber.setText("Bàn số: "+number);
         tvDate.setText(date+"  "+time);
-        tvTotal.setText(formatter.format(Integer.valueOf(total)));
+        tvTotal.setText(formatter.format(Integer.valueOf(before)));
+
+        String dd = date.substring(0,2);
+        String MM = date.substring(3,5);
+        String yyyy = date.substring(6,10);
+        rDate = yyyy+MM+dd;
 
         if (discount.equals("0")){
             tvTC.setVisibility(View.GONE);
@@ -82,11 +107,7 @@ public class RecentActivity extends Activity {
         }else {
             tvDiscount.setText(discount+"%");
         }
-
-        tvTotalAll.setText(formatter.format(Integer.valueOf(totalall)));
-
-        setLvRecent();
-
+        tvTotalAll.setText(formatter.format(Integer.valueOf(total)));
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,15 +116,23 @@ public class RecentActivity extends Activity {
         });
     }
 
-    private void setLvRecent() {
-        if (recentAdapter == null) {
-            recentAdapter = new RecentAdapter(RecentActivity.this, R.layout.item_recent, orderedList);
-            lvRecent.setAdapter(recentAdapter);
-        } else {
-            orderedList.clear();
-//            orderedList.addAll(databaseOrdered.getallRecent(number,date, time));
-            recentAdapter.notifyDataSetChanged();
-            lvRecent.setSelection(recentAdapter.getCount() - 1);
-        }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        recentList.clear();
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(rDate).collection(Config.PAID).document(getIdRecent).collection(Config.FOOD).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                        switch (doc.getType()){
+                            case ADDED:
+                                Recent recent = doc.getDocument().toObject(Recent.class);
+                                recentList.add(recent);
+                                recentAdapter.notifyDataSetChanged();
+                                break;
+                        }
+                    }
+            }
+        });
     }
 }

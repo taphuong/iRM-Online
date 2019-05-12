@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity
         MenuItem navPeople = menuNav.findItem(R.id.nav_people);
         MenuItem navRevenue = menuNav.findItem(R.id.nav_revenue);
         MenuItem navRecent = menuNav.findItem(R.id.nav_recent);
+        MenuItem navQuit = menuNav.findItem(R.id.nav_quit);
 
         sessionManager = new SessionManager(this);
         sessionManager.checkLoggin();
@@ -189,10 +190,17 @@ public class MainActivity extends AppCompatActivity
                 navNewRes.setVisible(false);
                 navRevenue.setVisible(false);
             }
+            if (getEmail.equals(getResEmail)) {
+                navQuit.setVisible(false);
+            }
 
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.placeholder(R.drawable.profile);
             Glide.with(getApplicationContext()).setDefaultRequestOptions(requestOptions).load(getImage).into(imgprofile);
+            imgprofile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {Intent intent = new Intent(MainActivity.this, AccountActivity.class); }
+            });
         }
 
 
@@ -740,6 +748,74 @@ public class MainActivity extends AppCompatActivity
             }
         } else if (id == R.id.nav_recent) {
             startActivity(new Intent(this,HistoryActivity.class));
+        } else if (id == R.id.nav_quit) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Bạn muốn thôi việc tại "+getResName+" ?");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.setNegativeButton("Thôi việc", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    final Dialog dialog = new Dialog(MainActivity.this);
+                    dialog.setContentView(R.layout.dialog_password);
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    final EditText edtPass    = dialog.findViewById(R.id.edt_password);
+                    edtPass.requestFocus();
+                    Button btnConfirm   = dialog.findViewById(R.id.btn_confirm);
+                    Button btnClose     = dialog.findViewById(R.id.btn_close);
+                    btnConfirm.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (!edtPass.getText().toString().equals(getPassword)){
+                                Toast.makeText(MainActivity.this, R.string.wrong_password, Toast.LENGTH_SHORT).show();
+                            }else {
+                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(getEmail).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        String none = "none";
+                                        Map<String, Object> deleteMap = new HashMap<>();
+                                        deleteMap.put(Config.POSITION, none);
+                                        deleteMap.put(Config.RESEMAIL, none);
+                                        deleteMap.put(Config.RESNAME, none);
+                                        deleteMap.put(Config.RESPHONE, none);
+                                        deleteMap.put(Config.RESADDRESS, none);
+                                        mFirestore.collection(Config.USERS).document(getEmail).update(deleteMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(MainActivity.this, "Đã thôi việc tại "+getResName, Toast.LENGTH_SHORT).show();
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(MainActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    btnClose.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dialogInterface.dismiss();
+                    dialog.show();
+
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this,SettingActivity.class));
         } else if (id == R.id.nav_logout) {

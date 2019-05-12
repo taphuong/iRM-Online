@@ -8,39 +8,43 @@
         <item
             android:id="@+id/nav_account"
             android:icon="@drawable/account"
-            android:title="Cấu hình tài khoản" />
+            android:title="@string/acount" />
         <item
             android:id="@+id/nav_addres"
             android:icon="@drawable/add_res"
-            android:title="Đăng ký cửa hàng" />
+            android:title="@string/newres" />
         <item
             android:id="@+id/nav_joinress"
             android:icon="@drawable/join_res"
-            android:title="Xin vào cửa hàng" />
+            android:title="@string/joinres" />
         <item
             android:id="@+id/nav_menu"
             android:icon="@mipmap/ic_menu"
-            android:title="Thực đơn" />
+            android:title="@string/menu" />
         <item
             android:id="@+id/nav_people"
             android:icon="@drawable/people"
-            android:title="Nhân sự" />
+            android:title="@string/people" />
         <item
             android:id="@+id/nav_revenue"
             android:icon="@drawable/money"
-            android:title="Doanh thu" />
+            android:title="@string/revenue" />
         <item
             android:id="@+id/nav_recent"
             android:icon="@drawable/recent"
-            android:title="Lịch sử" />
+            android:title="@string/history" />
+        <item
+            android:id="@+id/nav_quit"
+            android:icon="@drawable/quit"
+            android:title="@string/quit" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/setting"
-            android:title="Cài đặt" />
+            android:title="@string/setting" />
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/power"
-            android:title="Đăng xuất" />
+            android:title="@string/logout" />
     </group>
 
 

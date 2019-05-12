@@ -39,6 +39,7 @@ public class Config {
     public static final String JOIN = "join";
     public static final String PAID = "Paid";
     public static final String HISTORY = "History";
+    public static final String FOOD = "Food";
     public static List<String> foodGroupsList = new ArrayList<>();
 
     public static String CHECKACTIVITY = "";

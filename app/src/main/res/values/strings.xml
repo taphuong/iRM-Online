@@ -66,4 +66,16 @@
     <string name="foodname">Tên món ăn (uống)</string>
     <string name="foodprice">Đơn giá</string>
     <string name="category">Danh mục</string>
+    <string name="discountgroup">Giảm giá các món trong danh mục</string>
+    <string name="discount">Giảm giá:</string>
+    <!-- Drawer -->
+    <string name="acount">Tài khoản</string>
+    <string name="menu">Thực đơn</string>
+    <string name="people">Nhân sự</string>
+    <string name="revenue">Doanh thu</string>
+    <string name="history">Lịch sử</string>
+    <string name="quit">Thôi việc</string>
+    <string name="setting">Cài đặt</string>
+    <string name="logout">Đăng xuất</string>
+
 </resources>

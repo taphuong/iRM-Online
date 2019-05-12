@@ -31,7 +31,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -43,6 +47,8 @@ import org.irestaurant.irm.Database.SessionManager;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -264,6 +270,7 @@ public class AccountActivity extends Activity {
                                             nameMap.put(Config.RESNAME, mResName);
                                             nameMap.put(Config.RESPHONE, mResPhone);
                                             nameMap.put(Config.RESADDRESS, mResAddress);
+                                            changePeople(mResName, mResPhone, mResAddress);
                                         } else {
                                             nameMap.put(Config.NAME, mName);
                                         }
@@ -313,6 +320,7 @@ public class AccountActivity extends Activity {
                         nameMap.put(Config.RESNAME, mResName);
                         nameMap.put(Config.RESPHONE, mResPhone);
                         nameMap.put(Config.RESADDRESS, mResAddress);
+                        changePeople(mResName, mResPhone, mResAddress);
                     } else {
                         nameMap.put(Config.NAME, mName);
                     }
@@ -459,6 +467,7 @@ public class AccountActivity extends Activity {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 progressDialog.dismiss();
+                                                changePeople(mResName, mResPhone, mResAddress);
                                                 sessionManager.createSession(getID,mName,getEmail,getResEmail,newPassword,mResName,mResPhone,mResAddress,getPosition, download_url);
                                                 Toast.makeText(AccountActivity.this, "Đã cập nhật thành công", Toast.LENGTH_SHORT).show();
                                                 startActivity(new Intent(AccountActivity.this, MainActivity.class));
@@ -474,6 +483,22 @@ public class AccountActivity extends Activity {
 
                 }else {
                     Toast.makeText(AccountActivity.this, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void changePeople (final String resName, final String resPhone, final String resAddress){
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                    String ID = doc.getDocument().getId();
+                    Map<String, Object> peopleMap = new HashMap<>();
+                    peopleMap.put(Config.RESNAME, resName);
+                    peopleMap.put(Config.RESPHONE, resPhone);
+                    peopleMap.put(Config.RESADDRESS, resAddress);
+                    mFirestore.collection(Config.USERS).document(ID).update(peopleMap);
                 }
             }
         });

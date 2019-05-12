@@ -19,13 +19,13 @@ import java.util.Locale;
 public class HistoryAdapter extends ArrayAdapter {
     private Context context;
     private int layout;
-    private List<Revenue> revenueList;
+    private List<History> historyList;
 
-    public HistoryAdapter(@NonNull Context context, int layout, @NonNull List<Revenue> revenueList) {
-        super(context, layout, revenueList);
+    public HistoryAdapter(@NonNull Context context, int layout, @NonNull List<History> historyList) {
+        super(context, layout, historyList);
         this.context = context;
         this.layout = layout;
-        this.revenueList = revenueList;
+        this.historyList = historyList;
     }
 
     @NonNull
@@ -45,13 +45,13 @@ public class HistoryAdapter extends ArrayAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        Revenue revenue = revenueList.get(position);
-        viewHolder.tvDate.setText(revenue.getDate());
-        viewHolder.tvTime.setText(revenue.getTime());
-        viewHolder.tvNumber.setText(revenue.getNumber());
+        History history = historyList.get(position);
+        viewHolder.tvDate.setText(history.getDate());
+        viewHolder.tvTime.setText(history.getTime());
+        viewHolder.tvNumber.setText(history.getNumber());
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         formatter.applyPattern("#,###,###,###");
-        viewHolder.tvTotal.setText(formatter.format(Integer.valueOf(revenue.getTotalat())));
+        viewHolder.tvTotal.setText(formatter.format(Integer.valueOf(history.getTotal())));
 
         return convertView;
     }

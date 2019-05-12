@@ -163,7 +163,8 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
             @Override
             public boolean onLongClick(View v) {
                 String pos = peopleList.get(i).getPosition();
-                if (getPosition.equals("admin") && !pos.equals(Config.EMPLOYE) && !pos.equals(Config.JOIN)){
+                String email = peopleList.get(i).getEmail();
+                if (getPosition.equals("admin") && !pos.equals("invite") && !pos.equals("join") && !getResEmail.equals(email)){
                     showMenuAdmin(v,name,email,image);
                 }
                 return false;
@@ -317,7 +318,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
                                     @Override
                                     public void onClick(View view) {
                                         if (!edtPass.getText().toString().equals(getPassword)){
-                                            edtPass.setError("Sai mật khẩu");
+                                            Toast.makeText(context, R.string.wrong_password, Toast.LENGTH_SHORT).show();
                                         }else {
                                             mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).document(email).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override

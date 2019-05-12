@@ -3,7 +3,6 @@ package org.irestaurant.irm;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,27 +12,37 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import org.irestaurant.irm.Database.DatabaseRevenue;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.irestaurant.irm.Database.Config;
+import org.irestaurant.irm.Database.History;
 import org.irestaurant.irm.Database.HistoryAdapter;
 import org.irestaurant.irm.Database.Revenue;
-import org.irestaurant.irm.Database.RevenueAdapter;
+import org.irestaurant.irm.Database.SessionManager;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 public class HistoryActivity extends Activity {
     Button btnHome;
     EditText edtStart,edtEnd;
     GridView gvHistory;
-    String dateStart, dateEnd, rdateS, rdateE;
+    String dateStart, dateEnd, rdateS, rdateE, getResEmail;
+    SessionManager sessionManager;
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
-    DatabaseRevenue databaseRevenue;
-    List<Revenue> hitoryList;
+    List<History> hitoryList;
     HistoryAdapter historyAdapter;
 
     private void Anhxa(){
@@ -56,10 +65,13 @@ public class HistoryActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         Anhxa();
+        sessionManager = new SessionManager(this);
+        Map<String, String> user = sessionManager.getUserDetail();
+        getResEmail = user.get(sessionManager.RESEMAIL);
 
-        databaseRevenue = new DatabaseRevenue(this);
-        hitoryList = databaseRevenue.getallRevenue(rdateS,rdateE);
-        setGvHistory(rdateS,rdateE);
+        hitoryList = new ArrayList<>();
+        historyAdapter = new HistoryAdapter(this, R.layout.item_history, hitoryList);
+        gvHistory.setAdapter(historyAdapter);
 
         btnHome.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,32 +98,24 @@ public class HistoryActivity extends Activity {
                 String date = hitoryList.get(position).getDate();
                 String time = hitoryList.get(position).getTime();
                 String number = hitoryList.get(position).getNumber();
-                String total = hitoryList.get(position).getTotal();
+                String ID = hitoryList.get(position).historyId;
                 String discount = hitoryList.get(position).getDiscount();
-                String totalall = hitoryList.get(position).getTotalat();
+                String totalall = hitoryList.get(position).getTotal();
+                String before = hitoryList.get(position).getBefore();
                 Intent i = new Intent(HistoryActivity.this, RecentActivity.class);
+                i.putExtra("id", ID);
                 i.putExtra("date", date);
                 i.putExtra("time", time);
                 i.putExtra("number", number);
-                i.putExtra("total", total);
                 i.putExtra("discount", discount);
-                i.putExtra("totalall", totalall);
+                i.putExtra("total", totalall);
+                i.putExtra("before", before);
                 startActivity(i);
             }
         });
     }
 
-    private void setGvHistory(String rdateS, String rdateE) {
-        if (historyAdapter == null) {
-            historyAdapter = new HistoryAdapter(HistoryActivity.this, R.layout.item_revenue, hitoryList);
-            gvHistory.setAdapter(historyAdapter);
-        } else {
-            hitoryList.clear();
-            hitoryList.addAll(databaseRevenue.getallRevenue(rdateS, rdateE));
-            historyAdapter.notifyDataSetChanged();
-            gvHistory.setSelection(historyAdapter.getCount() - 1);
-        }
-    }
+
 
     private void dateStart() {
         final Calendar c = Calendar.getInstance();
@@ -165,5 +169,50 @@ public class HistoryActivity extends Activity {
             }
         }, yyyy, MM-1, dd);
         datePickerDialog.show();
+    }
+
+    private void setGvHistory(String rdateS, String rdateE) {
+        hitoryList.clear();
+        for (int a = Integer.valueOf(rdateS); a<= Integer.valueOf(rdateE); a++){
+            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(String.valueOf(a)).collection(Config.PAID).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                    for (DocumentChange doc: queryDocumentSnapshots.getDocumentChanges()){
+                        switch (doc.getType()){
+                            case ADDED:
+                                String ID = doc.getDocument().getId();
+                                History history = doc.getDocument().toObject(History.class).withId(ID);
+                                hitoryList.add(history);
+                                historyAdapter.notifyDataSetChanged();
+                                break;
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        hitoryList.clear();
+        for (int a = Integer.valueOf(rdateS); a < Integer.valueOf(rdateE)+1; a++){
+            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(String.valueOf(a)).collection(Config.PAID).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                    for (DocumentChange doc: queryDocumentSnapshots.getDocumentChanges()){
+                        switch (doc.getType()){
+                            case ADDED:
+                                String ID = doc.getDocument().getId();
+                                History history = doc.getDocument().toObject(History.class).withId(ID);
+                                hitoryList.add(history);
+                                historyAdapter.notifyDataSetChanged();
+                                break;
+                        }
+                    }
+                }
+            });
+        }
+
     }
 }
