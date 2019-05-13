@@ -1,7 +1,5 @@
 package org.irestaurant.irm;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,26 +12,20 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.model.Document;
 
 import org.irestaurant.irm.Database.Config;
-import org.irestaurant.irm.Database.FoodOrderedAdapter;
 import org.irestaurant.irm.Database.Ordered;
 import org.irestaurant.irm.Database.OredredAdapter;
 import org.irestaurant.irm.Database.SessionManager;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import javax.annotation.Nullable;
 
@@ -110,6 +102,7 @@ public class FragmentOrdered extends Fragment {
 
                                 break;
                             case REMOVED:
+                                loadOrdered();
                                 break;
                             case MODIFIED:
                                 loadOrdered();

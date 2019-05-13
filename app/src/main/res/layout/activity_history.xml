@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
     tools:context=".HistoryActivity">
     <RelativeLayout
         android:id="@+id/home"
@@ -52,6 +53,7 @@
                     android:background="@null"/>
             </LinearLayout>
             <LinearLayout
+                android:layout_marginEnd="16dp"
                 android:gravity="right"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -80,13 +82,15 @@
     </RelativeLayout>
 
     <GridView
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rounded_lv"
         android:clickable="false"
         android:layout_below="@+id/home"
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:padding="8dp"
         android:horizontalSpacing="4dp"
         android:id="@+id/gv_history"
         android:columnWidth="100dp"

@@ -85,24 +85,7 @@ public class CurrentPeopleFragment extends Fragment {
                                     }
                                     break;
                                 case REMOVED:
-                                    currentList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                currentList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    if (doctask.exists()){
-                                                        People people1 = doctask.toObject(People.class);
-                                                        currentList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-//                                    currentList.remove(numberId);
-//                                    peopleAdapter.notifyDataSetChanged();
+                                    loadPeople();
                                     break;
                                 case MODIFIED:
                                     loadPeople();

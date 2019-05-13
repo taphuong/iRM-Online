@@ -388,9 +388,20 @@ public class MenuActivity extends Activity {
         });
     }
 
-    public void reloadMenu (){
-        finish();
-        startActivity(getIntent());
+    public void loadMenu (){
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                foodList.clear();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String id = documentSnapshot.getId();
+                    Food food = documentSnapshot.toObject(Food.class).withId(id);
+                    foodList.add(food);
+                    foodList = Config.sortList(foodList);
+                    foodAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
 //Sticky
@@ -417,7 +428,10 @@ public class MenuActivity extends Activity {
                                 foodAdapter.notifyDataSetChanged();
                                 break;
                             case REMOVED:
-
+                                loadMenu();
+                                break;
+                            case MODIFIED:
+                                loadMenu();
                                 break;
                         }
                     }

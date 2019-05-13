@@ -1,5 +1,6 @@
 package org.irestaurant.irm;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +18,7 @@ import org.irestaurant.irm.Database.SessionManager;
 
 import java.util.HashMap;
 
-public class SettingActivity extends AppCompatActivity {
+public class SettingActivity extends Activity {
     ImageButton btnFinger;
     DatabaseFinger databaseFinger;
     SessionManager sessionManager;

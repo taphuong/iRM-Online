@@ -80,7 +80,7 @@ public class PeopleSingleActivity extends Activity {
                         String numberId = doc.getDocument().getId();
                         final People people = doc.getDocument().toObject(People.class).withId(numberId);
                         String status = doc.getDocument().getString(Config.POSITION);
-                        if (status != null && !status.equals("join")) {
+                        if (status != null && !status.equals("join") && !status.equals("invite")) {
                             switch (doc.getType()) {
                                 case ADDED:
                                     if (status.equals("admin")){
@@ -91,47 +91,36 @@ public class PeopleSingleActivity extends Activity {
                                     peopleAdapter.notifyDataSetChanged();
                                     break;
                                 case REMOVED:
-                                    peopleList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                peopleList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    if (doctask.exists()){
-                                                        People people1 = doctask.toObject(People.class);
-                                                        peopleList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-//                                    currentList.remove(numberId);
-//                                    peopleAdapter.notifyDataSetChanged();
+                                    loadPeople();
                                     break;
                                 case MODIFIED:
-                                    peopleList.clear();
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                peopleList.clear();
-                                                for (QueryDocumentSnapshot doctask : task.getResult()){
-                                                    if (doctask.exists()){
-                                                        People people1 = doctask.toObject(People.class);
-                                                        peopleList.add(people1);
-                                                        peopleAdapter.notifyDataSetChanged();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
+                                    loadPeople();
                                     break;
                             }
                         }
 
 
+                    }
+                }
+            }
+        });
+    }
+    private void loadPeople(){
+        peopleList.clear();
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PEOPLE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    peopleList.clear();
+                    for (QueryDocumentSnapshot doctask : task.getResult()){
+                        if (doctask.exists()){
+                            String position = doctask.getString(Config.POSITION);
+                            if (!position.equals("join") && !position.equals("invite")) {
+                                People people1 = doctask.toObject(People.class);
+                                peopleList.add(people1);
+                                peopleAdapter.notifyDataSetChanged();
+                            }
+                        }
                     }
                 }
             }

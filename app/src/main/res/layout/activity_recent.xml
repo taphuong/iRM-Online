@@ -10,7 +10,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/btn_back"
-        android:background="@mipmap/ic_back"/>
+        android:background="@mipmap/ic_back_primary"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,13 +62,14 @@
         android:textSize="18sp"
         android:layout_below="@id/v"
         android:layout_alignParentRight="true"/>
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/lv_recent"
         android:layout_below="@id/tv_number"
-        android:layout_marginTop="8dp">
-    </ListView>
+        android:layout_marginTop="8dp"
+        android:layout_above="@id/v2">
+    </android.support.v7.widget.RecyclerView>
     <View
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
@@ -76,12 +77,12 @@
         android:layout_height="1dp"
         android:background="@color/mau_xam"
         android:id="@+id/v2"
-        android:layout_below="@id/lv_recent"/>
+        android:layout_above="@id/tc"/>
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tc"
-        android:layout_below="@id/v2">
+        android:layout_above="@id/tv_totalall">
         <TextView
             android:id="@+id/tv_total"
             android:layout_width="100dp"
@@ -127,7 +128,7 @@
         android:text="450,000"
         android:textColor="@color/mau_den"
         android:textSize="18sp"
-        android:layout_below="@id/tc"
+        android:layout_above="@id/v3"
         android:gravity="right"
         android:layout_alignParentRight="true"/>
     <TextView
@@ -136,7 +137,7 @@
         android:text="Thành tiền:"
         android:textColor="@color/mau_den"
         android:textSize="18sp"
-        android:layout_below="@id/tc"
+        android:layout_above="@id/v3"
         android:layout_toStartOf="@id/tv_totalall"/>
     <View
         android:layout_marginTop="4dp"
@@ -145,14 +146,16 @@
         android:layout_height="1dp"
         android:background="@color/mau_xam"
         android:id="@+id/v3"
-        android:layout_below="@id/tv_totalall"/>
+        android:layout_above="@id/ty"/>
     <TextView
+        android:id="@+id/ty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cảm ơn và hẹn gặp lại quý khách"
         android:textColor="@color/mau_den"
         android:textSize="18sp"
-        android:layout_below="@id/v3"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"/>
 
 </RelativeLayout>

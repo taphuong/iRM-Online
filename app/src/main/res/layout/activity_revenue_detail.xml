@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    tools:context=".PeopleSingleActivity">
+    tools:context=".RevenueDetailActivity">
     <RelativeLayout
         android:id="@+id/menu"
         android:layout_width="match_parent"
@@ -19,29 +19,27 @@
             android:layout_centerVertical="true"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:id="@+id/btn_home"
-            android:background="@mipmap/ic_home"/>
+            android:id="@+id/btn_back"
+            android:background="@mipmap/ic_back"/>
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_resname"
-            android:textSize="20sp"
+            android:id="@+id/tv_date"
+            android:textSize="20dp"
             android:textColor="@color/mau_trang"
-            android:layout_toEndOf="@id/btn_home"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="16dp"/>
-
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:padding="8dp"
-        android:id="@+id/lv_people"
+        android:id="@+id/lv_revenuedetail"
         android:layout_below="@id/menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/rounded_lv"
-        android:divider="@null">
+        android:background="@drawable/rounded_lv">
     </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

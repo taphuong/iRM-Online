@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
     android:layout_marginBottom="1dp"
@@ -10,13 +10,23 @@
     android:id="@+id/layout_group"
     android:background="@drawable/rounded_food_busy">
     <TextView
-        android:layout_gravity="center_horizontal"
+        android:gravity="center"
         android:id="@+id/tv_groupmenu"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/tv_discount"
         android:text="Các món lẩu"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/mau_den"/>
+    <TextView
+        android:layout_margin="4dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/tv_discount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/mau_den"/>
 
-</LinearLayout>
+</RelativeLayout>

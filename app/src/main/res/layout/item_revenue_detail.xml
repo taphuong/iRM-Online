@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+
+    <TextView
+        android:padding="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_time"
+        android:text="20:50"
+        android:textSize="20sp"/>
+    <TextView
+        android:layout_toEndOf="@id/tv_time"
+        android:id="@+id/banso"
+        android:padding="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bàn số: "
+        android:textSize="20sp"
+        android:textColor="@color/mau_den"/>
+    <TextView
+        android:layout_toEndOf="@id/banso"
+        android:id="@+id/tv_number"
+        android:padding="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2"
+        android:textSize="20sp"
+        android:textColor="@color/mau_den"/>
+    <TextView
+        android:layout_alignParentEnd="true"
+        android:id="@+id/tv_total"
+        android:padding="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="200,000"
+        android:textSize="20sp"
+        android:textColor="@color/mau_den"/>
+</RelativeLayout>

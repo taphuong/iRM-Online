@@ -100,7 +100,6 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.ViewHolder
                         Map<String, Object> acceptMap = new HashMap<>();
                         acceptMap.put(Config.POSITION, "employe");
                         acceptMap.put(Config.TOKENID, getToken);
-                        Toast.makeText(context, resEmail, Toast.LENGTH_SHORT).show();
                         mFirestore.collection(Config.RESTAURANTS).document(resEmail).collection(Config.PEOPLE).document(getEmail).update(acceptMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {

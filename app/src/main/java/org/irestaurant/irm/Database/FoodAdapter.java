@@ -1,24 +1,23 @@
 package org.irestaurant.irm.Database;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewManager;
-import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,20 +25,22 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.irestaurant.irm.CategoryActivity;
 import org.irestaurant.irm.FragmentChoose;
 import org.irestaurant.irm.MenuActivity;
 import org.irestaurant.irm.R;
@@ -54,17 +55,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
     private Context context;
     private List<Food> foodList, filterList;
+    EditText edtPrice;
 
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     CollectionReference numberRef;
     SessionManager sessionManager;
-    String getResEmail;
+    String getResEmail, getPosition;
     CustomFilter cs;
     private long price;
-    String Table, TableId;
+    String Table, TableId, sDiscount;
     private int p = -1;
 
 
@@ -103,18 +107,17 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         Table = Config.TABLE;
         TableId = Config.TABLEID;
 
-//        if (Integer.valueOf(Table)<10){
-//            TableId = "00"+Table;
-//        }else if (Integer.valueOf(Table)<100){
-//            TableId = "0"+Table;
-//        }else {
-//            TableId = Table;
-//        }
         getResEmail = user.get(sessionManager.RESEMAIL);
+        getPosition = user.get(sessionManager.POSITION);
         numberRef = mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER);
         if (viewHolder instanceof GroupViewHolder){
             GroupViewHolder groupViewHolder = (GroupViewHolder)viewHolder;
             groupViewHolder.tvGroupMenu.setText(foodList.get(i).getGroup());
+            if (!foodList.get(i).getFoodprice().equals("0")){
+                groupViewHolder.tvDiscount.setText("Giảm: "+foodList.get(i).getFoodprice()+" %");
+            }else {
+                groupViewHolder.tvDiscount.setText("");
+            }
 
             groupViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -129,6 +132,69 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                             p = i;
                         }
                     }
+                }
+            });
+            groupViewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (Config.CHECKACTIVITY.equals("MenuActivity") && getPosition.equals("admin")){
+                        final String group = foodList.get(i).getGroup();
+                        final String groupID = foodList.get(i).foodId;
+                        final Dialog dialog = new Dialog(context);
+                        dialog.setContentView(R.layout.dialog_discount);
+                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        dialog.setCanceledOnTouchOutside(false);
+                        Button btnClose = dialog.findViewById(R.id.btn_close);
+                        Button btnConfirm = dialog.findViewById(R.id.btn_save);
+                        final EditText edtDiscount = dialog.findViewById(R.id.edt_discount);
+                        TextView tvGroup = dialog.findViewById(R.id.tv_groupmenu);
+                        tvGroup.setText(group);
+                        btnClose.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) { dialog.dismiss(); }
+                        });
+                        edtDiscount.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                String discount = edtDiscount.getText().toString();
+                                if (!discount.isEmpty()){
+                                    if (Integer.valueOf(discount)>100){edtDiscount.setText("100"); edtDiscount.setSelection(edtDiscount.getText().length());}
+                                }
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable s) {
+
+                            }
+                        });
+                        btnConfirm.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (edtDiscount.getText().toString().isEmpty()){
+                                    sDiscount = "0";
+                                }else {
+                                    sDiscount = edtDiscount.getText().toString();
+                                }
+                                Map<String, Object>discountMap = new HashMap<>();
+                                discountMap.put(Config.FOODPRICE, sDiscount);
+                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(groupID).update(discountMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        dialog.dismiss();
+                                        Toast.makeText(context, "Giảm giá "+sDiscount+" % các món trong danh mục "+group, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        });
+
+                        dialog.show();
+                    }
+                    return false;
                 }
             });
         }else if (viewHolder instanceof ItemViewHolder){
@@ -246,9 +312,10 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                                                                 String foodId = doc.getId();
                                                                 String foodname = doc.getString(Config.FOODNAME);
                                                                 String price = doc.getString("price");
+                                                                String total = doc.getString("total");
                                                                 String newAmount = String.valueOf(Integer.valueOf(amount)+Integer.valueOf(oldAmount));
                                                                 String newTotal = String.valueOf(Integer.valueOf(price)*Integer.valueOf(newAmount));
-                                                                updateOrdered(foodname, foodId, newAmount, newTotal, amount, price, dialog);
+                                                                updateOrdered(i, foodname, foodId, newAmount, amount, price, total, dialog);
                                                                 return;
                                                             }
                                                         }
@@ -263,157 +330,187 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 }
             });
 
-        }
+            viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    final String foodname = foodList.get(i).getFoodname();
+                    final String foodprice = filterList.get(i).getFoodprice();
+                    final String ID = foodList.get(i).foodId;
+                    String group = filterList.get(i).getGroup();
+                    if (getPosition.equals("admin") && Config.CHECKACTIVITY.equals("MenuActivity")){
+                        final android.support.v7.widget.PopupMenu popupMenu = new android.support.v7.widget.PopupMenu(context,v);
+                        popupMenu.getMenuInflater().inflate(R.menu.ordered_popup,popupMenu.getMenu());
+                        popupMenu.setGravity(Gravity.RIGHT);
+                        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem menuItem) {
+                                switch (menuItem.getItemId()){
+                                    case R.id.popup_edit:
+                                        final Dialog dialog = new Dialog(context);
+                                        dialog.setContentView(R.layout.dialog_addfood);
+                                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                        dialog.setCanceledOnTouchOutside(false);
+                                        Button btnClose     = (Button) dialog.findViewById(R.id.btn_close);
+                                        final TextView tvThem = dialog.findViewById(R.id.themmon);
+                                        tvThem.setText(foodname);
+                                        final Button btnConfirm = (Button) dialog.findViewById(R.id.btn_confirm);
+                                        btnConfirm.setText("Lưu");
+                                        final EditText edtFoodname = (EditText) dialog.findViewById(R.id.edt_foodname);
+                                        edtFoodname.setText(foodname);
+                                        final RelativeLayout layoutAdd = dialog.findViewById(R.id.layout_add);
+                                        edtPrice = (EditText) dialog.findViewById(R.id.edt_foodprice);
+                                        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                                        formatter.applyPattern("#,###,###,###");
+                                        edtPrice.setText(formatter.format(Integer.valueOf(foodprice)));
 
+                                        final Spinner spnCategory = dialog.findViewById(R.id.spn_category);
+                                        final List<String> listCategory = new ArrayList<>();
+                                        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(context,R.layout.spinner_item,listCategory);
+                                        spnCategory.setAdapter(adapter);
+
+                                        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                                if (e == null){
+                                                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                                                        String categoryID = doc.getDocument().getId();
+                                                        switch (doc.getType()){
+                                                            case ADDED:
+                                                                String first = categoryID.substring(0,1);
+                                                                if (first.equals("0")){
+                                                                    String categoryName = doc.getDocument().getString(Config.GROUP);
+                                                                    listCategory.add(categoryName);
+                                                                    adapter.notifyDataSetChanged();
+                                                                }
+                                                                break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
+
+                                        btnClose.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+
+                                        edtPrice.addTextChangedListener(onTextChangedListener());
+                                        btnConfirm.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                String name = edtFoodname.getText().toString();
+                                                String price = edtPrice.getText().toString().replaceAll(",","");
+                                                if (name.isEmpty()){
+                                                    edtFoodname.setError("Nhập tên món ăn (uống)");
+                                                    edtFoodname.requestFocus();
+                                                }else if (price.isEmpty()){
+                                                    edtPrice.setError("Nhập đơn giá");
+                                                    edtPrice.requestFocus();
+                                                }else {
+                                                    tvThem.setText("Đang thay đổi ...");
+                                                    layoutAdd.setVisibility(View.GONE);
+                                                    String group = spnCategory.getSelectedItem().toString();
+                                                    changeFood(name, price,dialog, group);
+                                                }
+                                            }
+                                        });
+
+                                        dialog.show();
+                                        break;
+                                    case R.id.popup_delete:
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                        builder.setMessage(Html.fromHtml("Bạn muốn xóa món "+"<font color='red'>"+foodList.get(i).getFoodname()+"</font>"+" không?"));
+                                        builder.setCancelable(false);
+                                        builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                dialogInterface.dismiss();
+                                            }
+                                        });
+                                        builder.setNegativeButton("Xóa", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(final DialogInterface dialogInterface, int a) {
+                                                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(ID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        dialogInterface.dismiss();
+                                                        Toast.makeText(context, "Đã xóa món "+ foodname, Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                        AlertDialog alertDialog = builder.create();
+                                        alertDialog.show();
+                                        break;
+                                }
+                                return false;
+                            }
+                        });
+                        popupMenu.show();
+                    }
+                    return false;
+                }
+            });
+        }
     }
 
-//    @Override
-//    public void onBindViewHolder(final ViewHolder viewHolder, final int i) {
-//        sessionManager = new SessionManager(context);
-//        HashMap<String, String> user = sessionManager.getUserDetail();
-//        getResEmail = user.get(sessionManager.RESEMAIL);
-//        final String foodId = foodList.get(i).foodId;
-//        final String[] pos = {foodId};
-//        final String foodName = foodList.get(i).getFoodname();
-//        final String foodPrice = foodList.get(i).getFoodprice();
-//
-//        viewHolder.tvFoodName.setText(foodName);
-//        DecimalFormat formatPrice = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-//        formatPrice.applyPattern("###,###,###");
-//        viewHolder.tvFoodPrice.setText(formatPrice.format(Integer.valueOf(foodPrice)));
-//
-//        viewHolder.tvFoodName.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                if (!pos[0].equals("0")) {
-//                    TranslateAnimation animate = new TranslateAnimation(0, -viewHolder.layoutButton.getWidth(), 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = "0";
-//
-//                }else {
-//                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = foodId;
-//                }
-//                return true;
-//            }
-//        });
-//        viewHolder.mView.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                if (!pos[0].equals("0")) {
-//                    TranslateAnimation animate = new TranslateAnimation(0, -viewHolder.layoutButton.getWidth(), 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = "0";
-//
-//                }else {
-//                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = foodId;
-//                }
-//                return true;
-//            }
-//        });
-//        viewHolder.btnEdit.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                if (!pos[0].equals("0")) {
-//                    TranslateAnimation animate = new TranslateAnimation(0, -viewHolder.layoutButton.getWidth(), 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = "0";
-//
-//                }else {
-//                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = foodId;
-//                }
-//                return true;
-//            }
-//        });
-//        viewHolder.btnDelete.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                if (!pos[0].equals("0")) {
-//                    TranslateAnimation animate = new TranslateAnimation(0, -viewHolder.layoutButton.getWidth(), 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = "0";
-//
-//                }else {
-//                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = foodId;
-//                }
-//                return true;
-//            }
-//        });
-//        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (pos[0].equals("0")) {
-//                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = foodId;
-//                }
-//            }
-//        });
-//        viewHolder.btnEdit.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (pos[0].equals("0")) {
-//
-//                }
-//            }
-//        });
-//        viewHolder.btnDelete.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (pos[0].equals("0")) {
-//                    TranslateAnimation animate = new TranslateAnimation(-viewHolder.layoutButton.getWidth(), 0, 0, 0);
-//                    animate.setDuration(200);
-//                    animate.setFillAfter(true);
-//                    viewHolder.layoutItem.startAnimation(animate);
-//                    pos[0] = foodId;
-//
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//                    builder.setMessage("Bạn có muốn xóa món " + foodList.get(i).getFoodname() + " không ?");
-//                    builder.setCancelable(false);
-//                    builder.setPositiveButton("Không", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialogInterface, int i) {
-//                            dialogInterface.dismiss();
-//
-//                        }
-//                    });
-//                    builder.setNegativeButton("Xóa", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialogInterface, int i) {
-//                            deleteFood(foodName, foodId);
-//                        }
-//                    });
-//                    AlertDialog alertDialog = builder.create();
-//                    alertDialog.show();
-//                }
-//            }
-//        });
-//    }
+    private void changeFood (String foodname, String foodprice, final Dialog dialog, String group){
+        String foodID = Config.VNCharacterUtils.removeAccent(foodname).trim();
+
+        Map<String, Object> nameMap = new HashMap<>();
+        nameMap.put(Config.FOODNAME, foodname);
+        nameMap.put(Config.FOODPRICE, foodprice);
+        nameMap.put(Config.GROUP, group);
+        nameMap.put(Config.VIEWTYPE, Config.VIEWTYPEITEM);
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(foodID).update(nameMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                dialog.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, R.string.dacoloi+"\n"+e, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+    }
+    //    FormatPrice
+    private TextWatcher onTextChangedListener() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                edtPrice.removeTextChangedListener(this);
+                try {
+                    String originalString = s.toString();
+                    Long longval;
+                    if (originalString.contains(",")) {
+                        originalString = originalString.replaceAll(",", "");
+                    }
+                    longval = Long.parseLong(originalString);
+                    DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                    formatter.applyPattern("#,###,###,###");
+                    String formattedString = formatter.format(longval);
+
+                    edtPrice.setText(formattedString);
+                    edtPrice.setSelection(edtPrice.getText().length());
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                }
+                edtPrice.addTextChangedListener(this);
+            }
+        };
+    }
 
     @Override
     public int getItemCount() {
@@ -476,82 +573,95 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         });
     }
 
-    private void addOrdered (int i, final String amount, final Dialog dialog){
-        String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
-        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
-        final String foodid = foodList.get(i).foodId;
-        final String foodname = foodList.get(i).getFoodname();
-        final String total = String.valueOf(Integer.valueOf(amount)*price);
-        Map<String, Object> addOrder = new HashMap<>();
-        addOrder.put("foodname", foodList.get(i).getFoodname());
-        addOrder.put("price", String.valueOf(price));
-        addOrder.put("total", total);
-        addOrder.put("amount", amount);
-        addOrder.put("date",date);
-        addOrder.put("time",time);
-        numberRef.document(TableId).collection("unpaid").document(foodid).set(addOrder).addOnSuccessListener(new OnSuccessListener<Void>() {
+    private void addOrdered (final int i, final String amount, final Dialog dialog){
+        String group = "0"+Config.VNCharacterUtils.removeAccent(foodList.get(i).getGroup());
+//        sDiscount = "0";
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(group).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(context, "Đã thêm "+amount+" phần "+foodname, Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-                updateTable(total);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                dialog.dismiss();
-            }
-        });
-    }
-    private void updateOrdered(final String foodname, final String foodId, String newAmount, String newTotal, final String amount, final String price, final Dialog dialog){
-        Map<String, Object> updateAmout = new HashMap<>();
-        updateAmout.put(Config.AMOUNT, newAmount);
-        updateAmout.put(Config.TOTAL, newTotal);
-        numberRef.document(TableId).collection("unpaid").document(foodId).update(updateAmout).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                String tt = String.valueOf(Integer.valueOf(amount)*Integer.valueOf(price));
-                updateTableOrdered(tt);
-                Toast.makeText(context, "Đã thêm "+amount+" phần "+ foodname, Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                sDiscount = documentSnapshot.getString(Config.FOODPRICE);
+                if (sDiscount == null){
+                    sDiscount = "0";
+                }else {
+                    sDiscount = documentSnapshot.getString(Config.FOODPRICE);
+                }
+                String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
+                String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
+                final String foodid = foodList.get(i).foodId;
+                final String foodname = foodList.get(i).getFoodname();
+                final String total = String.valueOf((Integer.valueOf(amount)*price)-(Integer.valueOf(amount)*price*Integer.valueOf(sDiscount)/100));
+                Map<String, Object> addOrder = new HashMap<>();
+                addOrder.put("foodname", foodList.get(i).getFoodname());
+                addOrder.put("price", String.valueOf(price));
+                addOrder.put("total", total);
+                addOrder.put("amount", amount);
+                addOrder.put("date",date);
+                addOrder.put("time",time);
+                numberRef.document(TableId).collection("unpaid").document(foodid).set(addOrder).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        numberRef.document(TableId).update(Config.STATUS,"busy");
+                        Toast.makeText(context, "Đã thêm "+amount+" phần "+foodname, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dialog.dismiss();
+                    }
+                });
             }
         });
 
+
     }
-    private void updateTable(final String tt){
-        numberRef.document(TableId).update(Config.STATUS,"busy");
-        numberRef.document(TableId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+    private void updateOrdered(final int i, final String foodname, final String foodId, final String newAmount, final String amount, final String price,final String total, final Dialog dialog){
+        String group = "0"+Config.VNCharacterUtils.removeAccent(foodList.get(i).getGroup());
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.MENU).document(group).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()){
-                    String total = documentSnapshot.getString("total");
-                    if (total.isEmpty()){
-                        total = tt;
-                        numberRef.document(TableId).update("total",total);
-                    }else {
-                        numberRef.document(TableId).update("total",String.valueOf(Integer.valueOf(total)+Integer.valueOf(tt)));
+                sDiscount = documentSnapshot.getString(Config.FOODPRICE);
+                if (sDiscount == null){
+                    sDiscount = "0";
+                }else {
+                    sDiscount = documentSnapshot.getString(Config.FOODPRICE);
+                }
+                String newTotal = String.valueOf(Integer.valueOf(total)+(Integer.valueOf(amount)*Integer.valueOf(price))-(Integer.valueOf(sDiscount)*Integer.valueOf(price)/100));
+                Map<String, Object> updateAmout = new HashMap<>();
+                updateAmout.put(Config.AMOUNT, newAmount);
+                updateAmout.put(Config.TOTAL, newTotal);
+                numberRef.document(TableId).collection("unpaid").document(foodId).update(updateAmout).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        String tt = String.valueOf(Integer.valueOf(amount)*Integer.valueOf(price));
+//                        updateTableOrdered(tt);
+                        Toast.makeText(context, "Đã thêm "+amount+" phần "+ foodname, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
                     }
-                }
+                });
             }
         });
+
+
     }
-    private void updateTableOrdered(final String tt){
-        numberRef.document(TableId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()){
-                    String total = documentSnapshot.getString("total");
-                        numberRef.document(TableId).update("total",String.valueOf(Integer.valueOf(total)+Integer.valueOf(tt)));
-                }
-            }
-        });
-    }
+//    private void updateTableOrdered(final String tt){
+//        numberRef.document(TableId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//            @Override
+//            public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                if (documentSnapshot.exists()){
+//                    String total = documentSnapshot.getString("total");
+//                        numberRef.document(TableId).update("total",String.valueOf(Integer.valueOf(total)+Integer.valueOf(tt)));
+//                }
+//            }
+//        });
+//    }
     private class GroupViewHolder extends RecyclerView.ViewHolder {
-        TextView tvGroupMenu;
-        LinearLayout layoutGroup;
+        TextView tvGroupMenu, tvDiscount;
+        RelativeLayout layoutGroup;
         public GroupViewHolder(@NonNull View itemView) {
             super(itemView);
             tvGroupMenu = itemView.findViewById(R.id.tv_groupmenu);
+            tvDiscount  = itemView.findViewById(R.id.tv_discount);
             layoutGroup = itemView.findViewById(R.id.layout_group);
         }
     }

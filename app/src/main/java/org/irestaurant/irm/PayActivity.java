@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -28,8 +29,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -69,10 +73,11 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     EditText edtDiscount;
     RecyclerView lvOrdered;
     Button btnPay, btnCancel, btnPrinter;
-    String getIdNumber, getNumber, total, totalall, discount, getResName, getResPhone, getResAddress, getResEmail;
+    String getIdNumber, getNumber, total, totalall, discount, getResName, getResPhone, getResAddress, getResEmail, getPosition, countid, totalafter;
     public String name = "Chưa kết nối", address = "Null";
     public Switch swPrint;
     long tongtien, after;
+    int count;
 
     List<Ordered> orderedList;
     OredredAdapter oredredAdapter;
@@ -120,8 +125,14 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         getResName = user.get(sessionManager.RESNAME);
         getResPhone = user.get(sessionManager.RESPHONE);
         getResEmail = user.get(sessionManager.RESEMAIL);
+        getPosition = user.get(sessionManager.POSITION);
 
         Anhxa();
+        if (getPosition.equals(Config.EMPLOYE)){
+            btnPay.setEnabled(false);
+        }else {
+            btnPay.setEnabled(true);
+        }
         Intent intent = getIntent();
         getIdNumber = intent.getExtras().getString("idnumber");
         getNumber = intent.getExtras().getString("number");
@@ -291,12 +302,54 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     }
 
     private void Paid (){
-        final String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
-        String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
-        final String dt = new SimpleDateFormat("yy/MM/dd-kk:mm", Locale.getDefault()).format(new Date());
-        mFirestore.collection(Config.RESTAURANTS).document(getResAddress).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        final String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
+        final String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
+        final String rdate = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+//        totalafter = "0";
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(rdate).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        totalafter = documentSnapshot.getString(Config.TOTAL);
+                        if (documentSnapshot.exists()){
+                            totalafter = documentSnapshot.getString(Config.TOTAL);
+                        }else {
+                            totalafter = "0";
+                        }
+                        String totaladd = tvTotalAll.getText().toString().replaceAll(",","");
+                        String totalall = String.valueOf(Integer.valueOf(totaladd)+Integer.valueOf(totalafter));
+                        Map<String, Object> dateMap = new HashMap<>();
+                        dateMap.put("date", date);
+                        dateMap.put("total", totalall);
+                        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(rdate).set(dateMap);
+
+                        String before = tvTotal.getText().toString().replaceAll(",", "");
+                        String discount;
+                        if (edtDiscount.getText().toString().isEmpty()){
+                            discount = "0";
+                        }else {
+                            discount = edtDiscount.getText().toString().replaceAll(",", "");
+                        }
+                        Map<String, Object> timeMap = new HashMap<>();
+                        timeMap.put("time", time);
+                        timeMap.put("number", getNumber);
+                        timeMap.put("total", totaladd);
+                        timeMap.put("date", date);
+                        timeMap.put("discount", discount);
+                        timeMap.put("before", before);
+                        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(rdate).collection(Config.PAID).document(countid).set(timeMap);
+                    }
+                });
+
+
+                Map<String, Object>tableMap = new HashMap<>();
+                tableMap.put(Config.TOTAL, "");
+                tableMap.put(Config.STATUS, "free");
+                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(tableMap);
+                removeUnpaid();
+
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
                     final String id = documentSnapshot.getId();
                     String total = documentSnapshot.getString(Config.TOTAL);
@@ -308,85 +361,24 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
                     paidMap.put(Config.FOODNAME, foodname);
                     paidMap.put(Config.FOODPRICE, foodprice);
                     paidMap.put(Config.AMOUNT, amount);
-
-                    Map<String, Object> dateMap = new HashMap<>();
-                    dateMap.put("date", date);
-                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.PAID).document(dt).set(dateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            String tongtien = tvTotalAll.getText().toString().replaceAll(",","");
-                            Map<String, Object> tongtienMap = new HashMap<>();
-                            tongtienMap.put(Config.TOTAL, tongtien);
-                            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(dt).collection(Config.PAID).document(getIdNumber).set(tongtienMap);
-                            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(dt).collection(Config.PAID).document(getIdNumber).collection(Config.PAID).document(id).set(paidMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Map<String, Object>tableMap = new HashMap<>();
-                                    tableMap.put(Config.TOTAL, "");
-                                    tableMap.put(Config.STATUS, "free");
-                                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(tableMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Toast.makeText(PayActivity.this, "Đã thanh toán bàn số "+ getNumber, Toast.LENGTH_LONG).show();
-                                            finish();
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-
+                    mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(rdate).collection(Config.PAID).document(countid).collection(Config.FOOD).document(id).set(paidMap);
                 }
-                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+                Toast.makeText(PayActivity.this, "Đã tính tiền bàn số "+ getNumber, Toast.LENGTH_LONG).show();
+                finish();
             }
         });
+    }
+
+    private void removeUnpaid(){
+        for (int a=0; a < orderedList.size(); a++){
+            String ID = orderedList.get(a).orderedId;
+            mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").document(ID).delete();
+        }
     }
 
     private void Print (){
 
     }
-
-    public void setLvPay() {
-//        if (payAdapter == null) {
-//            tongtien=0;
-//            payAdapter = new PayAdapter(PayActivity.this, R.layout.item_pay, payList);
-//            lvOrdered.setAdapter(payAdapter);
-//            for (int a =0; a<payList.size();a++){
-//                tongtien += Integer.valueOf(payList.get(a).getTotal());
-//            }
-//            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-//            formatter.applyPattern("#,###,###,###");
-//            tvTotal.setText(formatter.format(tongtien));
-//            tvTotalAll.setText(formatter.format(tongtien));
-//        } else {
-//            tongtien=0;
-//            payList.clear();
-////            payList.addAll(databaseOrdered.getallOrdered(getNumber));
-//            payAdapter.notifyDataSetChanged();
-//            lvOrdered.setSelection(payAdapter.getCount() - 1);
-//            for (int a =0; a<payList.size();a++){
-//                tongtien += Integer.valueOf(payList.get(a).getTotal());
-//            }
-//            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-//            formatter.applyPattern("#,###,###,###");
-//            tvTotal.setText(formatter.format(tongtien));
-//            tvTotalAll.setText(formatter.format(tongtien));
-//        }
-    }
-
-    private void updateTable (String tb){
-//        databaseTable = new DatabaseTable(this);
-        Number number = new Number();
-        number.setStatus("free");
-//        databaseTable.updateTable(number, tb);
-        startActivity(new Intent(PayActivity.this, MainActivity.class));
-        finish();
-    }
-
-    private void updateOrdered (){
-    }
-
-
 
     //    Print
     public void connectPrinter(){
@@ -662,7 +654,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
                     tvTotal.setText(formatter.format(tongtien));
                     tvTotalAll.setText(formatter.format(tongtien));
                 }
-                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+//                mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
             }
         });
     }
@@ -701,6 +693,29 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
                         }
                     }
                     mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).update(Config.TOTAL, String.valueOf(tongtien));
+                }
+            }
+        });
+        final String rdate = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(rdate).collection(Config.PAID).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e == null){
+                    count = 0;
+                    countid = "001";
+                    for (DocumentChange doc : querySnapshots.getDocumentChanges()) {
+                        switch (doc.getType()) {
+                            case ADDED:
+                                count++;
+                        }
+                        if (count < 10) {
+                            countid = "00" + (count + 1);
+                        } else if (count < 100) {
+                            countid = "0" + (count + 1);
+                        } else {
+                            countid = "" + (count + 1);
+                        }
+                    }
                 }
             }
         });

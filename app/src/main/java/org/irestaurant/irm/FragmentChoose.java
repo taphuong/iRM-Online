@@ -7,8 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -22,14 +20,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.Food;
 import org.irestaurant.irm.Database.FoodAdapter;
-import org.irestaurant.irm.Database.FoodOrderedAdapter;
-import org.irestaurant.irm.Database.Ordered;
-import org.irestaurant.irm.Database.OredredAdapter;
 import org.irestaurant.irm.Database.SessionManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -125,7 +119,7 @@ public class FragmentChoose extends Fragment {
                                 String first = categoryID.substring(0,1);
                                 if (first.equals("0")){
                                     String foodId = doc.getDocument().getId();
-                                    Food food = doc.getDocument() .toObject(Food.class).withId(foodId);
+                                    Food food = doc.getDocument().toObject(Food.class).withId(foodId);
                                     foodList.add(food);
                                     foodAdapter.notifyDataSetChanged();
                                 }
