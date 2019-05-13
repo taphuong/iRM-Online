@@ -167,6 +167,6 @@
         android:outlineSpotShadowColor="@color/mau_den"
         android:backgroundTint="@color/colorPrimary"
         android:src="@mipmap/ic_printer"
-        android:id="@+id/btn_printer"/>
+        android:id="@+id/fab_printer"/>
 
 </RelativeLayout>

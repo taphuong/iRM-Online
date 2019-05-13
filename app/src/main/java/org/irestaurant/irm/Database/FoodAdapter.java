@@ -131,6 +131,8 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                             fragmentChoose.getData(foodList.get(i).getGroup(), getResEmail);
                             p = i;
                         }
+                    }else if (Config.CHECKACTIVITY.equals("MenuActivity") && getPosition.equals("admin")){
+                        Toast.makeText(context, "Giữ để giảm giá các món ăn trong danh mục", Toast.LENGTH_SHORT).show();
                     }
                 }
             });

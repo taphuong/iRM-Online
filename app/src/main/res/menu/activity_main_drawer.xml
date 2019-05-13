@@ -42,6 +42,10 @@
             android:icon="@drawable/setting"
             android:title="@string/setting" />
         <item
+            android:id="@+id/nav_tutorial"
+            android:icon="@drawable/tutorial"
+            android:title="@string/tutorial" />
+        <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/power"
             android:title="@string/logout" />

@@ -38,6 +38,22 @@
         android:layout_marginRight="15dp"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="@string/email"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textColor="@color/mau_den"
+            android:id="@+id/tv_email"/>
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@mipmap/ic_close_black"
+            android:id="@+id/btn_clear"
+            android:layout_alignParentEnd="true"
+            android:layout_above="@id/edt_password"/>
+
         <EditText
             android:singleLine="true"
             android:background="@drawable/rounded"

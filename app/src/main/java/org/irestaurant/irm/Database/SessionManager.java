@@ -52,7 +52,6 @@ public class SessionManager {
         editor.apply();
     }
 
-
     public boolean isLoggin(){
         return sharedPreferences.getBoolean(LOGIN, false);
     }

@@ -56,8 +56,8 @@ import javax.annotation.Nullable;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class RecentActivity extends Activity {
-    String getResName, getResPhone, getResAddress, getResEmail, number, date, time, getIdRecent, rDate;
+public class RecentActivity extends Activity implements EasyPermissions.PermissionCallbacks, BluetoothHandler.HandlerInterface{
+    String getResName, getResPhone, getResAddress, getResEmail, number, date, time, getIdRecent, rDate, getIdNumber;
     TextView tvResName, tvResPhone, tvResAddress, tvNumber, tvDate, tvTotal, tvTotalAll, tvDiscount, tvTC, tvCK, tvTy;
     RecyclerView lvRecent;
     Button btnBack;
@@ -99,7 +99,7 @@ public class RecentActivity extends Activity {
         tvTotalAll = findViewById(R.id.tv_totalall);
         lvRecent = findViewById(R.id.lv_recent);
         btnBack = findViewById(R.id.btn_back);
-        btnPrinter = findViewById(R.id.btn_printer);
+        btnPrinter = (FloatingActionButton) findViewById(R.id.fab_printer);
         tvTy = findViewById(R.id.ty);
     }
 
@@ -281,7 +281,7 @@ public class RecentActivity extends Activity {
                     RC_BLUETOOTH, params);
             return;
         }
-        mService = new BluetoothService(this, new BluetoothHandler(RecentActivity.this));
+        mService = new BluetoothService(this, new BluetoothHandler(this));
     }
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
@@ -298,15 +298,14 @@ public class RecentActivity extends Activity {
         isPrinterReady = true;
 //        mBluetoothConnectProgressDialog.dismiss();
 
-        swPrint.setText("In hóa đơn ("+name+")");
+        tvTy.setText("In hóa đơn ("+name+")");
         printText();
 
     }
 
     @Override
     public void onDeviceConnecting() {
-//        Toast.makeText(this, "Mất kết nối", Toast.LENGTH_SHORT).show();
-//        swPrint.setText("Đang kết nối...");
+        tvTy.setText("Đang kết nối...");
 
     }
 
@@ -317,9 +316,11 @@ public class RecentActivity extends Activity {
         Toast.makeText(this, "Mất kết nối", Toast.LENGTH_SHORT).show();
     }
 
+
+
     @Override
     public void onDeviceUnableToConnect() {
-        swPrint.setText("Kết nối lỗi, Vui lòng thử lại");
+        tvTy.setText("Kết nối lỗi, Vui lòng thử lại");
     }
 
     public void printText() {
@@ -339,7 +340,6 @@ public class RecentActivity extends Activity {
             PrintData();
 //            PrintTotal();
 
-            addPay();
         } else {
             if (mService.isBTopen())
                 startActivityForResult(new Intent(this, DeviceListActivity.class), RC_CONNECT_DEVICE);
@@ -360,7 +360,7 @@ public class RecentActivity extends Activity {
         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
         String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
         mService.write(PrinterCommands.ESC_ALIGN_LEFT);
-        mService.sendMessage("Ban so: "+getNumber, "UTF-8");
+        mService.sendMessage("Ban so: "+number, "UTF-8");
         mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
         mService.sendMessage(time+"  "+date, "UTF-8");
         mService.write(PrinterCommands.ESC_ALIGN_CENTER);
@@ -368,11 +368,17 @@ public class RecentActivity extends Activity {
         mService.write(PrinterCommands.PRINTE_TEST);
     }
     private void PrintData (){
+        if (Integer.valueOf(number)<10){
+            getIdNumber = "00"+number;
+        }else if (Integer.valueOf(number)<100){
+            getIdNumber = "0"+number;
+        }else {
+            getIdNumber = number;
+        }
 
-        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.NUMBER).document(getIdNumber).collection("unpaid").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        mFirestore.collection(Config.RESTAURANTS).document(getResEmail).collection(Config.HISTORY).document(rDate).collection(Config.PAID).document(getIdRecent).collection(Config.FOOD).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                orderedList.clear();
                 DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
                 formatter.applyPattern("#,###,###,###");
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){

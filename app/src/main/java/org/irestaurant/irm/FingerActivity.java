@@ -9,8 +9,10 @@ import android.security.keystore.KeyProperties;
 import android.support.annotation.RequiresApi;
 import android.os.Bundle;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.irestaurant.irm.Database.Config;
 import org.irestaurant.irm.Database.FingerprintHandler;
 import org.irestaurant.irm.Database.SessionManager;
 
@@ -30,11 +32,11 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 public class FingerActivity extends Activity {
-    //    Finger
     private KeyStore keyStore;
     private static final String KEY_NAME = "EDMTDev";
     private Cipher cipher;
     SessionManager sessionManager;
+    TextView tvFinger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,12 @@ public class FingerActivity extends Activity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_finger);
         setResult(Activity.RESULT_CANCELED);
+        tvFinger = findViewById(R.id.tv_finger);
+        if (Config.CHECKACTIVITY.equals("SettingActivity")){
+            tvFinger.setText(R.string.fingerSettting);
+        }else if (Config.CHECKACTIVITY.equals("LoginActivity")){
+            tvFinger.setText(R.string.fingerLogin);
+        }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             KeyguardManager keyguardManager = (KeyguardManager)getSystemService(KEYGUARD_SERVICE);
             FingerprintManager fingerprintManager = null;
@@ -59,19 +67,6 @@ public class FingerActivity extends Activity {
                         FingerprintHandler helper = new FingerprintHandler(this);
                         helper.startAuthentication(fingerprintManager, cryptoObject);
                     }
-//                if (fingerprintManager.hasEnrolledFingerprints()) {
-//                    Toast.makeText(this, "Đăng ký ít nhất 1 vân tay", Toast.LENGTH_SHORT).show();
-//                }else {
-//                    if (!keyguardManager.isKeyguardSecure()) {
-//                        Toast.makeText(this, "Chưa cài đặt vân tay", Toast.LENGTH_SHORT).show();
-//                    }else
-//                        genKey();
-//                    if (cipherInit()){
-//                        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
-//                        FingerprintHandler helper = new FingerprintHandler(this);
-//                        helper.startAuthentication(fingerprintManager, cryptoObject);
-//                    }
-//                }
             }
         }
     }

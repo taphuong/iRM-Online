@@ -1,7 +1,9 @@
 package org.irestaurant.irm.Database;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,11 +11,22 @@ import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.irestaurant.irm.FingerActivity;
+import org.irestaurant.irm.LoginActivity;
 import org.irestaurant.irm.MainActivity;
 import org.irestaurant.irm.R;
 import org.irestaurant.irm.SettingActivity;
@@ -24,7 +37,11 @@ import java.util.HashMap;
 public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
     SessionManager sessionManager;
     private Context context;
-    public static int fgstt = 0;
+    SessionFinger sessionFinger;
+    String getEmail, getPassword, getFingerEmail, getFingerPassword;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private ProgressDialog progressDialog;
+    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
     public FingerprintHandler(Context context) {
         this.context = context;
@@ -43,65 +60,24 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
         sessionManager = new SessionManager(context);
 //        sessionManager.checkLoggin();
         HashMap<String, String> user = sessionManager.getUserDetail();
-        String getEmail = user.get(sessionManager.EMAIL);
-        DatabaseFinger db = new DatabaseFinger(context);
+        getEmail = user.get(sessionManager.EMAIL);
+        getPassword = user.get(sessionManager.PASSWORD);
 
-        if (fgstt==1){
-            Toast.makeText(context, "Đang đăng nhập", Toast.LENGTH_SHORT).show();
-            Finger finger = db.Phone();
-                String Phone = finger.getPhone();
-                login(Phone);
-        }else {
-            Finger finger = new Finger();
-            finger.setPhone(getEmail);
-            if (db.creat(finger)){
-                Toast.makeText(context, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-                fgstt = 1;
+        sessionFinger = new SessionFinger(context);
+//        sessionFinger.checkFinger();
+        HashMap<String, String> finger = sessionFinger.getFinger();
+        getFingerEmail = finger.get(sessionFinger.EMAIL);
+        getFingerPassword = finger.get(sessionFinger.PASSWORD);
 
-            }else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.error);
-                builder.setMessage(R.string.cannot_create);
-                builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-            }
+
+        if (sessionFinger.isFinger() && Config.CHECKACTIVITY.equals("LoginActivity")){
+            loginFirebase(getFingerEmail, getFingerPassword);
+        }else if (Config.CHECKACTIVITY.equals("SettingActivity")){
+            ((Activity)context).finish();
+            sessionFinger.creatFinger(getEmail, getPassword);
+            Toast.makeText(context, "Đăng ký vân tay thành công", Toast.LENGTH_SHORT).show();
         }
 
-//        DatabaseFinger databaseFinger = new DatabaseFinger(context);
-//        Boolean chkphone = databaseFinger.chkphone();
-//        if (chkphone == true) {
-//            Toast.makeText(context, "Đang đăng nhập", Toast.LENGTH_SHORT).show();
-//            Finger finger = databaseFinger.getPhone();
-//            if (finger == null){
-//
-//            }else {
-//                String Phone = finger.getPhone();
-//                login(Phone);
-//            }
-//        }else {
-//            DatabaseFinger db = new DatabaseFinger(context);
-//            Finger finger = new Finger();
-//            finger.setPhone(getPhone);
-//            if (db.creat(finger)){
-//                Toast.makeText(context, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-//
-//            }else {
-//                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//                builder.setTitle(R.string.error);
-//                builder.setMessage(R.string.cannot_create);
-//                builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                });
-//            }
-//            Toast.makeText(context, "Đăng ký vân tay", Toast.LENGTH_SHORT).show();
-//        }
     }
 
     @Override
@@ -109,9 +85,55 @@ public class FingerprintHandler extends FingerprintManager.AuthenticationCallbac
         super.onAuthenticationFailed();
         Toast.makeText(context, "Xác nhận vân tay lỗi, Vui lòng thử lại", Toast.LENGTH_SHORT).show();
     }
-    private void login(String Phone){
-//        sessionManager.createSession(user.getId(),user.getName(),user.getPhone(), user.getPassword(),user.getResname(),user.getResphone(),user.getResaddress());
-        Intent myIntent = new Intent(context, MainActivity.class);
-        context.startActivity(myIntent);
+    private void loginFirebase(final String Email, final String Password){
+        progressDialog = ProgressDialog.show(context,
+                "Đang đăng nhập", "Vui lòng đợi ...", true, false);
+//        final String Email = edtPhone.getText().toString().trim();
+//        final String Password = edtPassword.getText().toString().trim();
+        mAuth.signInWithEmailAndPassword(getFingerEmail, getFingerPassword)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            progressDialog.dismiss();
+                            ((Activity)context).finish();
+                            final String uID = mAuth.getCurrentUser().getUid();
+                            mFirestore.collection("Users").document(getFingerEmail).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    String mName = documentSnapshot.getString("name");
+                                    String mImage = documentSnapshot.getString(Config.IMAGE);
+                                    String mPosition = documentSnapshot.getString(Config.POSITION);
+                                    String ResEmail = documentSnapshot.getString(Config.RESEMAIL);
+//                                    if (mPosition.equals("admin")){
+                                    String mResname = documentSnapshot.getString(Config.RESNAME);
+                                    String mResaddress = documentSnapshot.getString(Config.RESADDRESS);
+                                    String mResphone = documentSnapshot.getString(Config.RESPHONE);
+                                    sessionManager.createSession(uID,mName,getFingerEmail,ResEmail, getFingerPassword, mResname,mResphone,mResaddress,mPosition,mImage);
+                                    Toast.makeText(context, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
+                                    context.startActivity(new Intent(context, MainActivity.class));
+
+                                }
+                            });
+                        }else {
+                            Toast.makeText(context, R.string.dacoloi, Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                        }
+
+                    }
+                });
+    }
+    private void login (){
+        mAuth.signInWithEmailAndPassword(getFingerEmail, getFingerPassword).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+            @Override
+            public void onSuccess(AuthResult authResult) {
+                Toast.makeText(context, "Đã đăng nhập", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

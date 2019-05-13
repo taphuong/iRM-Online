@@ -11,9 +11,11 @@
         android:src="@mipmap/ic_fingerprint"
         android:layout_centerHorizontal="true"/>
     <TextView
+        android:gravity="center"
+        android:id="@+id/tv_finger"
         android:layout_marginTop="8dp"
         android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sử dụng vân tay để đăng nhập"
         android:textSize="18sp"

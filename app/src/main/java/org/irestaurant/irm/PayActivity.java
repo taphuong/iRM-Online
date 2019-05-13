@@ -12,9 +12,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -127,6 +131,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         getPosition = user.get(sessionManager.POSITION);
 
         Anhxa();
+        cbPrinter();
         if (getPosition.equals(Config.EMPLOYE)){
             btnPay.setEnabled(false);
         }else {
@@ -172,6 +177,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
                     if (discount>100){
                         edtDiscount.setText("100");
                         tvTotalAll.setText("0");
+                        edtDiscount.setSelection(edtDiscount.getText().length());
                         after = 0;
                     }else {
                         after = tongtien-(tongtien*discount/100);
@@ -233,6 +239,17 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
             }
         });
     }
+
+    private void cbPrinter(){
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean cb = shared.getBoolean("cb_printer", true);
+        if (cb){
+            swPrint.setChecked(true);
+        }else {
+            swPrint.setChecked(false);
+        }
+    }
+
     private void checkConnection(){
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         if (pairedDevices.size()>0){
@@ -551,11 +568,8 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     private void PrintTime (){
         String date = new SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(new Date());
         String time = new SimpleDateFormat("kk:mm", Locale.getDefault()).format(new Date());
-        mService.write(PrinterCommands.ESC_ALIGN_LEFT);
-        mService.sendMessage("Ban so: "+getNumber, "UTF-8");
-        mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
-        mService.sendMessage(time+"  "+date, "UTF-8");
         mService.write(PrinterCommands.ESC_ALIGN_CENTER);
+        mService.sendMessage("Ban so: "+getNumber+" - "+time+"  "+date, "UTF-8");
         mService.sendMessage("--------------------------------", "UTF-8");
         mService.write(PrinterCommands.PRINTE_TEST);
     }

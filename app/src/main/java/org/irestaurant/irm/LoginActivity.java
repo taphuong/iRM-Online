@@ -24,18 +24,22 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.irestaurant.irm.Database.Config;
+import org.irestaurant.irm.Database.SessionFinger;
 import org.irestaurant.irm.Database.SessionManager;
 
-public class LoginActivity extends Activity {
+import java.util.Map;
 
+public class LoginActivity extends Activity {
+    String fingerEmail, fingerPassword;
     EditText edtPhone, edtPassword;
-    TextView tvForgot, tvRegister;
-    Button btnLogin;
+    TextView tvForgot, tvRegister, tvEmail;
+    Button btnLogin, btnClear;
     SessionManager sessionManager;
+    SessionFinger sessionFinger;
     ImageView ivFringer;
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     ProgressDialog progressDialog;
-    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
 
     private void Anhxa(){
@@ -45,15 +49,40 @@ public class LoginActivity extends Activity {
         ivFringer   = findViewById(R.id.iv_fringer);
         tvForgot    = findViewById(R.id.tv_forgot);
         tvRegister  = findViewById(R.id.tv_register);
+        tvEmail     = findViewById(R.id.tv_email);
+        btnClear    = findViewById(R.id.btn_clear);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         sessionManager = new SessionManager(this);
+        sessionFinger = new SessionFinger(this);
+        Map<String, String> finger = sessionFinger.getFinger();
+        fingerEmail = finger.get(sessionFinger.EMAIL);
+        fingerPassword = finger.get(sessionFinger.PASSWORD);
         FirebaseApp.initializeApp(this);
-
+        Config.CHECKACTIVITY = "LoginActivity";
         Anhxa();
+        if (sessionFinger.isFinger()){
+            tvEmail.setText(fingerEmail);
+            tvEmail.setVisibility(View.VISIBLE);
+            btnClear.setVisibility(View.VISIBLE);
+            edtPhone.setVisibility(View.INVISIBLE);
+        }else {
+            tvEmail.setVisibility(View.INVISIBLE);
+            btnClear.setVisibility(View.INVISIBLE);
+            edtPhone.setVisibility(View.VISIBLE);
+        }
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvEmail.setVisibility(View.INVISIBLE);
+                btnClear.setVisibility(View.INVISIBLE);
+                edtPhone.setVisibility(View.VISIBLE);
+                sessionFinger.clearFinger();
+            }
+        });
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,7 +106,7 @@ public class LoginActivity extends Activity {
                     btnLogin.setEnabled(false);
                     ivFringer.setEnabled(false);
 
-                    loginFirebase();
+                    loginFirebase(phone, password);
                 }
             }
         });
@@ -89,9 +118,12 @@ public class LoginActivity extends Activity {
         ivFringer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(LoginActivity.this, "Tính năng đang được phát triển", Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(LoginActivity.this, FingerActivity.class);
-//                startActivityForResult(intent,1);
+                if (sessionFinger.isFinger()){
+                    Intent intent = new Intent(LoginActivity.this, FingerActivity.class);
+                    startActivityForResult(intent,1);
+                }else {
+                    Toast.makeText(LoginActivity.this, "Vui lòng vào cài đặt để đăng ký vân tay", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -101,11 +133,11 @@ public class LoginActivity extends Activity {
         startActivity(new Intent(this,RegisterActivity.class));
     }
 
-    private void loginFirebase(){
-        progressDialog = ProgressDialog.show(LoginActivity.this,
+    private void loginFirebase(final String Email, String Password){
+        progressDialog = ProgressDialog.show(this,
                 "Đang đăng nhập", "Vui lòng đợi ...", true, false);
-        final String Email = edtPhone.getText().toString().trim();
-        final String Password = edtPassword.getText().toString().trim();
+//        final String Email = edtPhone.getText().toString().trim();
+//        final String Password = edtPassword.getText().toString().trim();
         mAuth.signInWithEmailAndPassword(Email, Password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -128,16 +160,6 @@ public class LoginActivity extends Activity {
                                         Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         finish();
-//                                    }else {
-//                                        String mResemail = "Chưa có cửa hàng";
-//                                        String mResname = "Chưa có cửa hàng";
-//                                        String mResphone = "Chưa có cửa hàng";
-//                                        String mResaddress = "Chưa có cửa hàng";
-//                                        sessionManager.createSession(uID,mName,mAuth.getCurrentUser().getEmail(),mResemail, edtPassword.getText().toString(), mResname,mResphone,mResaddress,mPosition,mImage);
-//                                        Toast.makeText(LoginActivity.this, "Xin chào "+mName, Toast.LENGTH_SHORT).show();
-//                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                                        finish();
-//                                    }
 
                                 }
                             });
@@ -156,7 +178,6 @@ public class LoginActivity extends Activity {
                             edtPassword.setText("");
                         }
 
-                        // ...
                     }
                 });
     }
