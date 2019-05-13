@@ -568,7 +568,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
             PrintRes();
             PrintTime();
             PrintData();
-            PrintTotal();
+//            PrintTotal();
 
             addPay();
         } else {
@@ -584,7 +584,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         mService.sendMessage(Config.VNCharacterUtils.removeAccent(getResName), "UTF-8");
         mService.sendMessage(Config.VNCharacterUtils.removeAccent(getResPhone), "UTF-8");
         mService.sendMessage(Config.VNCharacterUtils.removeAccent(getResAddress), "UTF-8");
-        mService.sendMessage("================================", "UTF-8");
+        mService.sendMessage("--------------------------------", "UTF-8");
         mService.write(PrinterCommands.PRINTE_TEST);
     }
     private void PrintTime (){
@@ -595,7 +595,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
         mService.sendMessage(time+"  "+date, "UTF-8");
         mService.write(PrinterCommands.ESC_ALIGN_CENTER);
-        mService.sendMessage("================================", "UTF-8");
+        mService.sendMessage("--------------------------------", "UTF-8");
         mService.write(PrinterCommands.PRINTE_TEST);
     }
     private void PrintData (){
@@ -610,12 +610,12 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
                     String amount = documentSnapshot.getString(Config.AMOUNT);
                     String total = documentSnapshot.getString(Config.TOTAL);
                     mService.write(PrinterCommands.ESC_ALIGN_LEFT);
-                    mService.sendMessage(amount+" "+ Config.VNCharacterUtils.removeAccent(foodname), "");
+                    mService.sendMessage(amount+" "+ Config.convertUnicode(foodname), "");
                     mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
                     mService.sendMessage(total, "");
                     mService.write(PrinterCommands.PRINTE_TEST);
                 }
-                return;
+                PrintTotal();
             }
         });
 
