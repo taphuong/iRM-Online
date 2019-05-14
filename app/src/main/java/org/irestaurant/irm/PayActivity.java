@@ -83,6 +83,7 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     OredredAdapter oredredAdapter;
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
+    /******************************************************************************************************/
     protected static final String TAG = "TAG";
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
@@ -95,12 +96,10 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     public static BluetoothService mService = null;
     private boolean isPrinterReady = false;
 
-    /******************************************************************************************************/
-
     public static final int RC_BLUETOOTH = 0;
     public static final int RC_CONNECT_DEVICE = 1;
     public static final int RC_ENABLE_BLUETOOTH = 2;
-
+    /******************************************************************************************************/
     private void Anhxa (){
         tvTotal     = findViewById(R.id.tv_tong);
         tvTotalAll  = findViewById(R.id.tv_totalall);
@@ -404,36 +403,6 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
     public void onActivityResult(int mRequestCode, int mResultCode,
                                  Intent mDataIntent) {
         super.onActivityResult(mRequestCode, mResultCode, mDataIntent);
-
-//        switch (mRequestCode) {
-//            case REQUEST_CONNECT_DEVICE:
-//                if (mResultCode == Activity.RESULT_OK) {
-//                    Bundle mExtra = mDataIntent.getExtras();
-//                    String mDeviceAddress = mExtra.getString("DeviceAddress");
-//                    Log.v(TAG, "Coming incoming address " + mDeviceAddress);
-//                    mBluetoothDevice = mBluetoothAdapter
-//                            .getRemoteDevice(mDeviceAddress);
-////                    mBluetoothConnectProgressDialog = ProgressDialog.show(this,
-////                            "Đang kết nối...", mBluetoothDevice.getName() + "\n"
-////                                    + mBluetoothDevice.getAddress(), true, false);
-//                    Thread mBlutoothConnectThread = new Thread();
-//                    mBlutoothConnectThread.start();
-//                    // pairToDevice(mBluetoothDevice); This method is replaced by
-//                    // progress dialog with thread
-//                }
-//                break;
-//
-//            case REQUEST_ENABLE_BT:
-//                if (mResultCode == Activity.RESULT_OK) {
-//                    ListPairedDevices();
-//                    Intent connectIntent = new Intent(PayActivity.this,
-//                            DeviceListActivity.class);
-//                    startActivityForResult(connectIntent, REQUEST_CONNECT_DEVICE);
-//                } else {
-//                    Toast.makeText(PayActivity.this, "Message", Toast.LENGTH_SHORT).show();
-//                }
-//                break;
-//        }
         switch (mRequestCode) {
             case RC_ENABLE_BLUETOOTH:
                 if (mResultCode == RESULT_OK) {
@@ -596,35 +565,41 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 orderedList.clear();
+                DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+                formatter.applyPattern("#,###,###,###");
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
                     String id = documentSnapshot.getId();
                     String foodname = documentSnapshot.getString(Config.FOODNAME);
                     String amount = documentSnapshot.getString(Config.AMOUNT);
                     String total = documentSnapshot.getString(Config.TOTAL);
                     mService.write(PrinterCommands.ESC_ALIGN_LEFT);
-                    mService.sendMessage(amount+" "+ Config.convertUnicode(foodname), "");
+                    mService.sendMessage(amount+" "+ Config.VNCharacterUtils.removeAccent(foodname), "UTF-8");
                     mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
-                    mService.sendMessage(total, "");
+                    mService.sendMessage(formatter.format(Integer.valueOf(total)), "");
                     mService.write(PrinterCommands.PRINTE_TEST);
                 }
                 PrintTotal();
             }
         });
 
+
+    }
+    private void PrintTotal (){
+        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        formatter.applyPattern("#,###,###,###");
+        String total = tvTotalAll.getText().toString();
+        String discount = edtDiscount.getText().toString();
         mService.write(PrinterCommands.ESC_ALIGN_CENTER);
         mService.sendMessage("--------------------------------", "");
         mService.write(PrinterCommands.PRINTE_TEST);
-    }
-    private void PrintTotal (){
-        String total = tvTotalAll.getText().toString();
-        String discount = edtDiscount.getText().toString();
         mService.write(PrinterCommands.ESC_ALIGN_RIGHT);
         if (!discount.equals("0")){
-            mService.sendMessage("Chiet khau: "+discount+" %", "");
+            mService.sendMessage("Chiet khau: "+discount+" %", "UTF-8");
         }
-        mService.sendMessage("Tong tien: "+total, "");
+
+        mService.sendMessage("Tong tien: "+total, "UTF-8");
         mService.write(PrinterCommands.ESC_ALIGN_CENTER);
-        mService.sendMessage("Hen gap lai quy khach", "");
+        mService.sendMessage("Hen gap lai quy khach", "UTF-8");
         mService.write(PrinterCommands.ESC_ENTER);
     }
     private void requestBluetooth() {

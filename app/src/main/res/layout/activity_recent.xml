@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".RecentActivity"
     android:padding="8dp">
     <Button
@@ -157,5 +158,15 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="16dp"/>
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize="mini"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:outlineSpotShadowColor="@color/mau_den"
+        android:backgroundTint="@color/colorPrimary"
+        android:src="@mipmap/ic_printer"
+        android:id="@+id/btn_printer"/>
 
 </RelativeLayout>
