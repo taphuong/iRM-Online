@@ -170,7 +170,7 @@ public class JoinActivity extends Activity {
         final String resEmail = edtEmail.getText().toString().trim();
         if (resEmail.isEmpty()){
             edtEmail.requestFocus();
-            edtEmail.setError(String.valueOf(R.string.isempty));
+            edtEmail.setError("Thiếu thông tin");
         }else if (!Patterns.EMAIL_ADDRESS.matcher(resEmail).matches()) {
             edtEmail.requestFocus();
             edtEmail.setError("Email sai định dạng");

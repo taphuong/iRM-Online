@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity
                 navNewRes.setVisible(false);
                 navRevenue.setVisible(false);
             }
-            if (getEmail.equals(getResEmail)) {
+            if (getEmail.equals(getResEmail) || getPosition.equals("none")) {
                 navQuit.setVisible(false);
             }
 
