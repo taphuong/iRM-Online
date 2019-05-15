@@ -162,7 +162,7 @@ public class RecentActivity extends Activity implements EasyPermissions.Permissi
         btnPrinter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                printText();
             }
         });
     }
