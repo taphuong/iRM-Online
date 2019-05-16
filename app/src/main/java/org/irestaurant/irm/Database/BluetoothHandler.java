@@ -5,10 +5,6 @@ import android.os.Message;
 import android.util.Log;
 
 
-/**
- * Created by ilham on 9/15/17.
- */
-
 public class BluetoothHandler extends Handler {
 
     private static final String TAG = BluetoothHandler.class.getSimpleName();

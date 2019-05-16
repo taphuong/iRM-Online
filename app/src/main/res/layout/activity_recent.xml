@@ -152,7 +152,7 @@
         android:id="@+id/ty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cảm ơn và hẹn gặp lại quý khách"
+        android:text="@string/thankyou"
         android:textColor="@color/mau_den"
         android:textSize="18sp"
         android:layout_centerHorizontal="true"

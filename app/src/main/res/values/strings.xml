@@ -29,7 +29,7 @@
     <string name="none_found">Không tìm thấy thiết bị</string>
     <string name="title_paired_devices">Thiết bị phù hợp</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
+    <!-- Bluetooth -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="button_connect">Connect</string>
     <string name="button_disconnect">Disconnect</string>
@@ -81,5 +81,6 @@
     <!-- Finger -->
     <string name="fingerSettting">Chạm vào cảm biến để thêm vân tay</string>
     <string name="fingerLogin">Chạm vào cảm biến để đăng nhập</string>
+    <string name ="thankyou">Cảm ơn và hẹn gặp lại quý khách</string>
 
 </resources>

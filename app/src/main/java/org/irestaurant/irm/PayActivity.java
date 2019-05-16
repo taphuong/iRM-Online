@@ -250,42 +250,6 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
         }
     }
 
-    private void checkConnection(){
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size()>0){
-            if (mService!=null) {
-                IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-                this.registerReceiver(mReceiver, filter);
-
-            } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(PayActivity.this);
-                builder.setMessage("Kết nối với máy in lỗi!\nBạn có muốn kết nối lại không?");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Không in", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        swPrint.setChecked(false);
-                        dialogInterface.dismiss();
-                        btnPrinter.setEnabled(false);
-                    }
-                });
-                builder.setNegativeButton("Kết nối", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                        connectPrinter();
-                        dialogInterface.dismiss();
-                    }
-                });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            }
-
-        }
-        else {
-            connectPrinter();
-        }
-    }
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -433,10 +397,6 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
                     name = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_NAME);
                     BluetoothDevice mDevice = mService.getDevByMac(address);
                     mService.connect(mDevice);
-
-//                    mBluetoothConnectProgressDialog = ProgressDialog.show(this,
-//                            "Đang kết nối...", name + "\n"
-//                                    + address, true, false);
                 }
                 break;
         }
@@ -533,21 +493,15 @@ public class PayActivity extends Activity implements EasyPermissions.PermissionC
 
     public void printText() {
         if (!mService.isAvailable()) {
-            Log.i(TAG, "printText: perangkat tidak support bluetooth");
+            Log.i(TAG, "printText: Thiết bị không hỗ trợ");
             Toast.makeText(this, "Thiết bị không hỗ trợ", Toast.LENGTH_SHORT).show();
             return;
         }
         if (isPrinterReady) {
-//            if (etText.getText().toString().isEmpty()) {
-//                Toast.makeText(this, "Cant print null text", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
 
             PrintRes();
             PrintTime();
             PrintData();
-//            PrintTotal();
-
             addPay();
         } else {
             if (mService.isBTopen())

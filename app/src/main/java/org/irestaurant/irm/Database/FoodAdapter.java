@@ -114,7 +114,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             GroupViewHolder groupViewHolder = (GroupViewHolder)viewHolder;
             groupViewHolder.tvGroupMenu.setText(foodList.get(i).getGroup());
             if (!foodList.get(i).getFoodprice().equals("0")){
-                groupViewHolder.tvDiscount.setText("Giảm: "+foodList.get(i).getFoodprice()+" %");
+                groupViewHolder.tvDiscount.setText("- "+foodList.get(i).getFoodprice()+" %");
             }else {
                 groupViewHolder.tvDiscount.setText("");
             }

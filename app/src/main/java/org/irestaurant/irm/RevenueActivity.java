@@ -3,6 +3,7 @@ package org.irestaurant.irm;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -79,10 +80,15 @@ public class RevenueActivity extends Activity {
         getResEmail = user.get(sessionManager.RESEMAIL);
         Anhxa();
 
+//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(lvRevenue.getContext(),
+//                layoutManager.getOrientation());
+
         revenueList = new ArrayList<>();
         revenueAdapter = new RevenueAdapter(this, revenueList);
         lvRevenue.setHasFixedSize(true);
         lvRevenue.setLayoutManager(new LinearLayoutManager(this));
+        lvRevenue.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL));
         lvRevenue.setAdapter(revenueAdapter);
 
         btnHome.setOnClickListener(new View.OnClickListener() {

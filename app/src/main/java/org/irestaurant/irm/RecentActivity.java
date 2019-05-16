@@ -162,7 +162,11 @@ public class RecentActivity extends Activity implements EasyPermissions.Permissi
         btnPrinter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                printText();
+                if (!tvTy.getText().equals(name) || tvTy.getText().equals("Chưa kết nối") ){
+                    connectPrinter();
+                } else {
+                    printText();
+                }
             }
         });
     }
@@ -220,14 +224,15 @@ public class RecentActivity extends Activity implements EasyPermissions.Permissi
                 break;
             case RC_CONNECT_DEVICE:
                 if (mResultCode == RESULT_OK) {
-                    address = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                    name = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_NAME);
-                    BluetoothDevice mDevice = mService.getDevByMac(address);
-                    mService.connect(mDevice);
+                    try{
+                        address = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                        name = mDataIntent.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_NAME);
+                        BluetoothDevice mDevice = mService.getDevByMac(address);
+                        mService.connect(mDevice);
+                    }catch (Exception e){
+                        Toast.makeText(this, "Không thể kết nối", Toast.LENGTH_SHORT).show();
+                    }
 
-//                    mBluetoothConnectProgressDialog = ProgressDialog.show(this,
-//                            "Đang kết nối...", name + "\n"
-//                                    + address, true, false);
                 }
                 break;
         }
@@ -296,15 +301,14 @@ public class RecentActivity extends Activity implements EasyPermissions.Permissi
     @Override
     public void onDeviceConnected() {
         isPrinterReady = true;
-//        mBluetoothConnectProgressDialog.dismiss();
-
-        tvTy.setText("In hóa đơn ("+name+")");
+        tvTy.setText(name);
         printText();
 
     }
 
     @Override
     public void onDeviceConnecting() {
+
         tvTy.setText("Đang kết nối...");
 
     }
@@ -313,15 +317,42 @@ public class RecentActivity extends Activity implements EasyPermissions.Permissi
     @Override
     public void onDeviceConnectionLost() {
         isPrinterReady = false;
-        Toast.makeText(this, "Mất kết nối", Toast.LENGTH_SHORT).show();
+        tvTy.setText("Mất kết nối");
     }
-
-
-
     @Override
     public void onDeviceUnableToConnect() {
         tvTy.setText("Kết nối lỗi, Vui lòng thử lại");
     }
+
+//    @Override
+//    public void onDeviceConnected() {
+//        isPrinterReady = true;
+////        mBluetoothConnectProgressDialog.dismiss();
+//
+//        tvTy.setText(name);
+//        printText();
+//
+//    }
+//
+//    @Override
+//    public void onDeviceConnecting() {
+//        tvTy.setText("Đang kết nối...");
+//
+//    }
+//
+//
+//    @Override
+//    public void onDeviceConnectionLost() {
+//        isPrinterReady = false;
+//        Toast.makeText(this, "Mất kết nối", Toast.LENGTH_SHORT).show();
+//    }
+//
+//
+//
+//    @Override
+//    public void onDeviceUnableToConnect() {
+//        tvTy.setText("Kết nối lỗi, Vui lòng thử lại");
+//    }
 
     public void printText() {
         if (!mService.isAvailable()) {
@@ -330,10 +361,6 @@ public class RecentActivity extends Activity implements EasyPermissions.Permissi
             return;
         }
         if (isPrinterReady) {
-//            if (etText.getText().toString().isEmpty()) {
-//                Toast.makeText(this, "Cant print null text", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
 
             PrintRes();
             PrintTime();

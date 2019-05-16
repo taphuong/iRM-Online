@@ -20,8 +20,7 @@
             android:layout_height="wrap_content"
             android:text="Gà hấp"
             android:textColor="@color/mau_den"
-            android:textSize="18sp"
-            android:layout_toStartOf="@id/tv_sl"/>
+            android:textSize="18sp" />
         <TextView
             android:id="@+id/tv_amount"
             android:layout_width="30dp"

@@ -118,22 +118,6 @@ public class DeviceListActivity extends AppCompatActivity {
 
     private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> mAdapterView, View mView, int mPosition, long mLong) {
-//            try {
-//                mBluetoothAdapter.cancelDiscovery();
-//                String mDeviceInfo = ((TextView) mView).getText().toString();
-//                String mDeviceAddress = mDeviceInfo.substring(mDeviceInfo.length() - 17);
-//                Log.v(TAG, "Device_Address " + mDeviceAddress);
-//
-//                Bundle mBundle = new Bundle();
-//                mBundle.putString("DeviceAddress", mDeviceAddress);
-//                Intent mBackIntent = new Intent();
-//                mBackIntent.putExtras(mBundle);
-//                setResult(Activity.RESULT_OK, mBackIntent);
-//                finish();
-//            } catch (Exception ex) {
-//
-//            }
-//            mService.cancelDiscovery();
 
             String info = ((TextView) mView).getText().toString();
             String address = info.substring(info.length() - 17);
@@ -142,45 +126,10 @@ public class DeviceListActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.putExtra(EXTRA_DEVICE_NAME, name);
             intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
-
             setResult(RESULT_OK, intent);
             finish();
         }
     };
-//    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            String action = intent.getAction();
-//            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//
-//            // When discovery finds a device
-//            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-//                // Get the BluetoothDevice object from the Intent
-////                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                // If it's already paired, skip it, because it's been listed already
-//                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-//                    mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-//                }
-//                // When discovery is finished, change the Activity title
-//            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-//                setProgressBarIndeterminateVisibility(false);
-//                setTitle(R.string.select_device);
-//                if (mNewDevicesArrayAdapter.getCount() == 0) {
-//                    String noDevices = getResources().getText(R.string.none_found).toString();
-//                    mNewDevicesArrayAdapter.add(noDevices);
-//                    scanButton.setVisibility(View.VISIBLE);
-//                    pgbScanning.setVisibility(View.GONE);
-//                }
-//            }
-//            else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-//                String connected = device.getName() + "\n" + device.getAddress();
-//                Toast.makeText(context, connected, Toast.LENGTH_SHORT).show();
-//                PayActivity payActivity = new PayActivity();
-//                payActivity.setPrinterName(device.getName());
-//                //Device is now connected
-//            }
-//        }
-//    };
     // The BroadcastReceiver that listens for discovered devices and changes the title when discovery is finished
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
