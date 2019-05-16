@@ -43,7 +43,7 @@ public class PagerOrderAdapter extends FragmentStatePagerAdapter {
         String title = "";
         switch (position){
             case 0:
-                title = "Món mới";
+                title = "Chọn món";
                 break;
             case 1:
                 title = "Đã chọn";
